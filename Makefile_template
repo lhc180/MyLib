@@ -1,0 +1,61 @@
+CC=g++
+CFLAGS=-g -Wall
+LITPP=`itpp-config --cflags` `itpp-config --libs`
+AUOBJS=adpcm.o pqmf.o quantizer.o wav.o mpeg_binary.o mpeg_decoder.o mpeg_file.o mpeg_frame.o bit_stream.o
+COMMOBJS=ldpc.o
+UTL=utility.o
+INCLUDEPATH=./include/
+SRCPATH=./SRC/
+
+
+all: myaulib.dll mycommlib.dll myutlt.dll
+
+myaulib.dll: $(AUOBJS)
+	$(CC) -shared -o myaulib.dll $(AUOBJS) $(LITPP)
+
+mycommlib.dll: $(COMMOBJS)
+	$(CC) -shared -o mycommlib.dll $(COMMOBJS) $(LITPP)
+
+myutlt.dll: $(UTL)
+	$(CC) -shared -o myutlt.dll $(UTL)
+
+adpcm.o: $(INCLUDEPATH)adpcm.h $(INCLUDEPATH)adpcm_delayfree.h \
+	 $(INCLUDEPATH)adpcm_delayfree_noiseShaper.h \
+	$(INCLUDEPATH)adpcm_lms.h $(SRCPATH)adpcm.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)adpcm.cpp
+
+pqmf.o: $(INCLUDEPATH)pqmf.h $(SRCPATH)pqmf.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)pqmf.cpp
+
+quantizer.o: $(INCLUDEPATH)quantizer.h $(SRCPATH)quantizer.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)quantizer.cpp
+
+ldpc.o: $(INCLUDEPATH)ldpc.h $(SRCPATH)ldpc.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)ldpc.cpp $(LITPP)
+
+utility.o: $(INCLUDEPATH)utility.h $(SRCPATH)utility.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)utility.cpp
+
+wav.o: $(INCLUDEPATH)wav.h $(SRCPATH)wav.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)wav.cpp
+
+mpeg_binary.o: $(INCLUDEPATH)mpeg.h $(INCLUDEPATH)mpeg_binary.h $(SRCPATH)mpeg_binary.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)mpeg_binary.cpp
+
+mpeg_decoder.o: $(INCLUDEPATH)bit_stream.h $(INCLUDEPATH)mpeg.h $(SRCPATH)mpeg_decoder.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)mpeg_decoder.cpp
+
+mpeg_file.o: $(INCLUDEPATH)bit_stream.h $(INCLUDEPATH)mpeg.h $(SRCPATH)mpeg_file.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)mpeg_file.cpp
+
+mpeg_frame.o: $(INCLUDEPATH)bit_stream.h $(INCLUDEPATH)mpeg.h $(SRCPATH)mpeg_frame.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)mpeg_frame.cpp
+
+bit_stream.o: $(INCLUDEPATH)bit_stream.h $(SRCPATH)bit_stream.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)bit_stream.cpp
+
+# dsp.o: dsp.h dsp.c
+# 	$(CC) $(CFLAGS) -c dsp.c
+
+clean:
+	rm $(AUOBJS) $(COMMOBJS) $(UTL)myaulib.dll mycommlib.dll myutlt.dll
