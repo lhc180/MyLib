@@ -1,0 +1,14 @@
+研究で使う用のライブラリフォルダ
+
+Makefileは自作なので汚い。
+いつかautomakeを使いたいと思っています。
+
+maketags.shはEmacsのTAGSファイル生成用のスクリプト
+
+
+依存している外部ライブラリ
+- itpp
+- libjpeg
+- libtiff
+- AFsp
+- gsl
