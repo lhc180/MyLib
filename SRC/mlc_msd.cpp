@@ -1,5 +1,5 @@
 #include <cassert>
-#include "../include/mlc_msd.h"
+#include "../include/mlc_msd2.h"
 
  
 /******************* class MlcMsd *************************/
@@ -21,12 +21,12 @@ namespace mylib{
 
     std::vector<itpp::bvec> vecCode(nLevel);
 
-    // •„†‰»‚µ‚Ä‚¢‚­
+    // ç¬¦å·åŒ–ã—ã¦ã„ã
     for(int level = 0; level < nLevel; level++){
-      // Šm”F—p
+      // ç¢ºèªç”¨
       assert(vBits[level].size() <= static_cast<int>(vecLDPC[level].InfoLength()));
   
-      // î•ñƒrƒbƒg‚ª‘«‚è‚È‚¢•”•ª‚Í0‚Å•âŠ®‚·‚é
+      // æƒ…å ±ãƒ“ãƒƒãƒˆãŒè¶³ã‚Šãªã„éƒ¨åˆ†ã¯0ã§è£œå®Œã™ã‚‹
       while(vecBits[level].size() < static_cast<int>(vecLDPC[level].InfoLength())){
         vecBits[level] = itpp::concat(vecBits[level], itpp::bin(0));
       }
@@ -38,35 +38,39 @@ namespace mylib{
     for(int n = 0; n < static_cast<int>(nCodeLength); n++){
       itpp::bvec currentCodes(nLevel); 
       for(int level = 0; level < nLevel; level++){
-        currentCodes[nLevel-level-1] = vecCode[level][n]; // itpp::Modulator‚Ì“s‡ã
-                                // ’á‚¢—v‘f”Ô†‚Ù‚ÇãˆÊƒrƒbƒg‚ğ“ü‚ê‚Ä‚¢‚­
-                                // ‚±‚±‚ğ‹t‡‚É‚·‚é‚ÆLevel0‚ª‚à‚Á‚Æ•œ†Œ‹‰Ê‚æ‚­‚È‚é
+        currentCodes[nLevel-level-1] = vecCode[level][n]; // itpp::Modulatorã®éƒ½åˆä¸Š
+                                // ä½ã„è¦ç´ ç•ªå·ã»ã©ä¸Šä½ãƒ“ãƒƒãƒˆã‚’å…¥ã‚Œã¦ã„ã
+                                // ã“ã“ã‚’é€†é †ã«ã™ã‚‹ã¨Level0ãŒã‚‚ã£ã¨å¾©å·çµæœã‚ˆããªã‚‹
       }
       vSymbol = itpp::concat(vSymbol, Modulator.modulate_bits(currentCodes));
     }
 
   }
       
-  // ŠeƒŒƒxƒ‹‚ÌƒCƒeƒŒ[ƒVƒ‡ƒ“‰ñ”‚ğ•Ô‚·
+  // å„ãƒ¬ãƒ™ãƒ«ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³å›æ•°ã‚’è¿”ã™
   itpp::ivec MlcMsd::Decode(const itpp::cvec &vSymbol,
                             std::vector< itpp::bvec > &vDecodedBits,
                             const double      N0,
                             const unsigned    loopMax,
-                            const bool        errConc)
+                            int        errConc)
   {
     assert(bSetDone);
 
     assert(vSymbol.size() == static_cast<int>(nCodeLength));
     itpp::ivec vLoop(nLevel);
     vLoop.zeros();
+
+    if (errConc < 0){
+      errConc = nLevel;
+    } // if 
     
     vDecodedBits.resize(nLevel);
     for (int i = 0; i < nLevel; ++i){
       vDecodedBits[i].set_size(vecLDPC[i].InfoLength());
     } // for i
     
-    // std::vector< itpp::bvec > vDecodedCodes(nLevel); // •œ†‚³‚ê‚½•„†Œê
-    // î•ñƒrƒbƒg‚Å‚Í‚È‚¢
+    // std::vector< itpp::bvec > vDecodedCodes(nLevel); // å¾©å·ã•ã‚ŒãŸç¬¦å·èª
+    // æƒ…å ±ãƒ“ãƒƒãƒˆã§ã¯ãªã„
 
     std::vector< itpp::Modulator_2D > vecMod(nCodeLength);
   
@@ -77,29 +81,41 @@ namespace mylib{
     itpp::bvec DecodedCodes;
     // At first, decoding level 0.
     vLoop[0]        = vecLDPC[0].Decode(vecMod, vSymbol, DecodedCodes, N0, loopMax);
-
-    // ƒGƒ‰[‰B•Áˆ—
-    if (errConc && (vLoop[0] == static_cast< int >(loopMax))){
-      for (int i = 0; i < nLevel; ++i){
-        vLoop[i] = loopMax;
-        vDecodedBits[i].zeros();
-      } // for i
-      return vLoop;
-    } // if   errConc
+    bool error = false;         // ã©ã“ã‹ã®ãƒ¬ãƒ™ãƒ«ã§ã‚¨ãƒ©ãƒ¼ãŒèµ·ããŸã‚‰trueã«ã™ã‚‹
+    // ã‚¨ãƒ©ãƒ¼éš è”½å‡¦ç†
+    if (vLoop[0] == static_cast< int >(loopMax)){
+      error = true;
+      if (errConc == 0){
+        for (int i = 0; i < nLevel; ++i){
+          vLoop[i] = loopMax;
+          vDecodedBits[i].zeros();
+        } // for i
+        return vLoop;
+      } // if errConc
+    } // if   vLoop[0]
     
     vDecodedBits[0] = DecodedCodes.left(vecLDPC[0].InfoLength());
     
     // Start decoding from level 0.
     for(int level = 1; level < nLevel; level++){
       // double tempN0 = N0 / static_cast<double>(vecLDPC.size()) * level; // ##
-    
-      // ‘S‚Ä‚Ì•„†‚É‘Î‚µ‚ÄModulator‚ğƒZƒbƒg‚µ‚Ä‚¢‚­
+
+      // errorConc == 1ã®ã¨ãã¯ã“ã“ã§çµ‚ã‚ã‚‹ã‹ã‚‚
+      if (level >= errConc && error){
+        for (int k = level; k < nLevel; ++k){
+          vLoop[k] = loopMax;
+          vDecodedBits[k].zeros();
+        } // for k
+        return vLoop;
+      } // if error
+      
+      // å…¨ã¦ã®ç¬¦å·ã«å¯¾ã—ã¦Modulatorã‚’ã‚»ãƒƒãƒˆã—ã¦ã„ã
       for(int i = 0; i < static_cast<int>(nCodeLength); i++){
-        itpp::cvec oldSymbols    = vecMod[i].get_symbols(); // ‚Ğ‚Æ‚Â‘O‚ÌƒVƒ“ƒ{ƒ‹
-        itpp::ivec oldBitmap     = vecMod[i].get_bits2symbols(); // ‚Ğ‚Æ‚Â‘O‚Ìƒrƒbƒgƒ}ƒbƒv
+        itpp::cvec oldSymbols    = vecMod[i].get_symbols(); // ã²ã¨ã¤å‰ã®ã‚·ãƒ³ãƒœãƒ«
+        itpp::ivec oldBitmap     = vecMod[i].get_bits2symbols(); // ã²ã¨ã¤å‰ã®ãƒ“ãƒƒãƒˆãƒãƒƒãƒ—
         itpp::cvec newSymbols(0);
         itpp::ivec newBitmap(0);
-        int        code          = DecodedCodes[i]; // ‘OƒŒƒxƒ‹‚Ì•œ†Œ‹‰Ê
+        int        code          = DecodedCodes[i]; // å‰ãƒ¬ãƒ™ãƒ«ã®å¾©å·çµæœ
         for(int s = 0; s < oldBitmap.size(); s++){
           if((oldBitmap[s] & 1) == code){
             newBitmap            = itpp::concat(newBitmap, oldBitmap[s] >> 1);
@@ -107,17 +123,21 @@ namespace mylib{
           }
         }
         vecMod[i].set(newSymbols, newBitmap);
-      }
+      } // for i
       
       vLoop[level] = vecLDPC[level].Decode(vecMod, vSymbol, DecodedCodes, N0, loopMax);
 
-      if (errConc && (vLoop[level] == static_cast< int >(loopMax))){
+      if (vLoop[level] == static_cast< int >(loopMax)){
+        error = true;
+      } // if 
+
+      if ((level >= errConc) && error){
         for (int k = level; k < nLevel; ++k){
           vLoop[k] = loopMax;
           vDecodedBits[k].zeros();
         } // for k
         return vLoop;
-      } // if 
+      } // if error
       
       vDecodedBits[level] = DecodedCodes.left(vecLDPC[level].InfoLength());
     } // for level
@@ -167,7 +187,7 @@ namespace mylib{
     Mod.set(symbols, newBitmap);
   }
 
-  // ’á‚¢ƒŒƒCƒ„[‚ÌÅŒã‚Ì•”•ª‚ğ‚‚¢ƒŒƒCƒ„[‚©‚ç‚Á‚Ä‚«‚Ä–„‚ß‚é
+  // ä½ã„ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æœ€å¾Œã®éƒ¨åˆ†ã‚’é«˜ã„ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰æŒã£ã¦ãã¦åŸ‹ã‚ã‚‹
   inline std::vector< itpp::bvec > AdjustInfoLength_forMLC(const std::vector< itpp::bvec > &infoBits,
                                                            const std::vector< int > &infoLengths_LDPC)
   {
