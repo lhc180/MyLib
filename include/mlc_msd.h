@@ -7,13 +7,13 @@
 #include <itpp/itbase.h>
 #include <itpp/itcomm.h>
 /*************************************************/
-// ‚±‚ê‚ÍMultilevel Coding, Multistage Decoding‚ÌƒNƒ‰ƒX‚Å‚ ‚é
-// •„†‰»•û–@‚Í¡‚Ì‚Æ‚±‚ëLDPC‚Ì‚İ‚ğ‘z’è‚µ‚Ä‚¢‚é
-// ‚»‚ê‚¼‚ê•ÊX‚ÌƒNƒ‰ƒX‚ÅAÀ‘•‚·‚é
+// ã“ã‚Œã¯Multilevel Coding, Multistage Decodingã®ã‚¯ãƒ©ã‚¹ã§ã‚ã‚‹
+// ç¬¦å·åŒ–æ–¹æ³•ã¯ä»Šã®ã¨ã“ã‚LDPCã®ã¿ã‚’æƒ³å®šã—ã¦ã„ã‚‹
+// ãã‚Œãã‚Œåˆ¥ã€…ã®ã‚¯ãƒ©ã‚¹ã§ã€å®Ÿè£…ã™ã‚‹
 //
 /***********************************************/
 /***************** to do list ******************/
-// error concealment‚É‘Î‰‚³‚¹‚é
+// error concealmentã«å¯¾å¿œã•ã›ã‚‹
 // 
 /**********************************************/
 
@@ -24,9 +24,9 @@ namespace mylib{
   protected:
     std::vector<Ldpc> vecLDPC;
     itpp::Modulator_2D Modulator;
-    int nLevel;			// bitsPerSymbol‚Æˆê
+    int nLevel;			// bitsPerSymbolã¨ä¸€ç·’
     unsigned nCodeLength;
-    double avrCodeRate;		// ƒVƒ“ƒ{ƒ‹ƒŒ[ƒg
+    double avrCodeRate;		// ã‚·ãƒ³ãƒœãƒ«ãƒ¬ãƒ¼ãƒˆ
     bool bSetDone;
 
   public:
@@ -34,8 +34,34 @@ namespace mylib{
     { }
     MlcMsd(std::vector<Ldpc> &vLDPC, itpp::Modulator_2D &Mod);
 
-    void Set(std::vector<Ldpc> &vLDPC, itpp::Modulator_2D &Mod);
+    void Set(std::vector<Ldpc> &vLDPC, itpp::Modulator_2D &Mod)
+    {
+      // vecLDPC.resize(vLDPC.size());
+      //   for(int i = 0; i < vLDPC.size(); i++){
+      //     &vecLDPC[i] = dynamic_cast< cLDPC_forMSD >(&vLDPC[i]);
+      // }
+      vecLDPC = vLDPC;
+
+      Modulator = Mod;
   
+      assert(static_cast<int>(vecLDPC.size()) == Modulator.bits_per_symbol());
+
+      nLevel = vecLDPC.size();
+  
+      nCodeLength = vecLDPC[0].CodeLength();
+      for(int level = 1; level < nLevel; level++){
+        assert(nCodeLength == vecLDPC[level].CodeLength());
+      } 
+
+      avrCodeRate = 0.0;
+      for(int level = 0; level < nLevel; level++){
+        avrCodeRate += vecLDPC[level].CodeRate();
+      }
+
+      bSetDone = true;
+
+    }
+
     void Encode(const std::vector<itpp::bvec> &vBits, itpp::cvec &symbols);
 
     itpp::cvec Encode(const std::vector<itpp::bvec> &vBits)
@@ -45,37 +71,51 @@ namespace mylib{
       return symbols;
     }
   
-    // ŠeƒŒƒxƒ‹‚ÌƒCƒeƒŒ[ƒVƒ‡ƒ“‰ñ”‚ğ•Ô‚·
+    // å„ãƒ¬ãƒ™ãƒ«ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³å›æ•°ã‚’è¿”ã™
+    // errConc = -1ã®ã¨ãã¯éš è”½ç„¡ã—
+    // ä¾‹ãˆã°1ãªã‚‰ã€ãƒ¬ãƒ™ãƒ«0ã¯ç¢ºå®Ÿã«å‡ºåŠ›ã€ãƒ¬ãƒ™ãƒ«1ä»¥é™ã§èª¤ã‚Šã‚ã‚Œã°ãã®æ™‚ç‚¹ã§0ã§åŸ‹ã‚ã‚‹
+    // ãƒ¬ãƒ™ãƒ«ä»¥ä¸Šã®æ•°å­—ã‚‚-1ã¨åŒã˜
     itpp::ivec Decode(const itpp::cvec &symbols,
                       std::vector< itpp::bvec > &vDecodedBits,
-                      double N0,
-                      unsigned loopMax);
+                      double            N0,
+                      unsigned          loopMax,
+                      int              errConc = -1); // ã©ã®ãƒ¬ãƒ™ãƒ«ã§ã‚¨ãƒ©ãƒ¼éš è”½ã™ã‚‹ã‹
 
     std::vector<itpp::bvec> Decode(const itpp::cvec &symbols,
                                    double N0,
-                                   unsigned loopMax)
+                                   unsigned loopMax,
+                                   int errConc = -1)
     {
       std::vector< itpp::bvec > vDecodedBits(Modulator.bits_per_symbol());
-      Decode(symbols, vDecodedBits, N0, loopMax);
+      Decode(symbols, vDecodedBits, N0, loopMax, errConc);
       return vDecodedBits;
     }
   
-  
+    std::vector< int > InfoLengths()
+    {
+      std::vector< int > lengths(nLevel);
+      for (int i = 0; i < nLevel; ++i){
+        lengths[i] = vecLDPC[i].InfoLength();
+      } // for i
+
+      return lengths;
+    }
+    
     double SymbolRate(){
       return avrCodeRate;
     }
   };
 
-  /*************** end of cMLC_MSD ********************/
+  /*************** end of MLC_MSD ********************/
 
-  // MLC—p‚ÉLDPC‚ğƒZƒbƒg‚·‚é
-  // •½‹Ï•„†‰»—¦‚ğ•Ô‚·
+  // MLCç”¨ã«LDPCã‚’ã‚»ãƒƒãƒˆã™ã‚‹
+  // å¹³å‡ç¬¦å·åŒ–ç‡ã‚’è¿”ã™
   double SetLDPC_MLC(std::vector< Ldpc > &vecLDPC,
                      unsigned nCodeLength,
                      itpp::ivec &vecRowWeight,
                      itpp::ivec &vecColWeight);
 
-  // ƒZƒbƒgƒp[ƒeƒBƒVƒ‡ƒjƒ“ƒOƒ}ƒbƒsƒ“ƒO‚É‚·‚é
+  // ã‚»ãƒƒãƒˆãƒ‘ãƒ¼ãƒ†ã‚£ã‚·ãƒ§ãƒ‹ãƒ³ã‚°ãƒãƒƒãƒ”ãƒ³ã‚°ã«ã™ã‚‹
   void SetModulatorNatural(itpp::Modulator_2D &Mod);
 
   // Proposals for MLC and MSD below.
@@ -90,14 +130,14 @@ namespace mylib{
   // end of proposals.
 
   /************************************************************************************
-   * DivideIntoLevels -- MLC—p‚É“ü—ÍŒn—ñ‚ğ•¡”‚ÌƒŒƒxƒ‹‚É•ªŠ„‚·‚éB
+   * DivideIntoLevels -- MLCç”¨ã«å…¥åŠ›ç³»åˆ—ã‚’è¤‡æ•°ã®ãƒ¬ãƒ™ãƒ«ã«åˆ†å‰²ã™ã‚‹ã€‚
    * 
    * Arguments:
-   *   input -- “ü—ÍŒn—ñ
-   *   numSamples -- ŠeƒŒƒxƒ‹‚Ìî•ñƒrƒbƒg”‚ğŠi”[
+   *   input -- å…¥åŠ›ç³»åˆ—
+   *   numSamples -- å„ãƒ¬ãƒ™ãƒ«ã®æƒ…å ±ãƒ“ãƒƒãƒˆæ•°ã‚’æ ¼ç´
    *
    * Return Value:
-   *   Vector_2D< kind > output -- ƒŒƒxƒ‹•ª‚¯‚³‚ê‚½î•ñŒn—ñ‚ªŠes‚ÉŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚é
+   *   Vector_2D< kind > output -- ãƒ¬ãƒ™ãƒ«åˆ†ã‘ã•ã‚ŒãŸæƒ…å ±ç³»åˆ—ãŒå„è¡Œã«å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ã‚‹
    ************************************************************************************/
   template< typename kind >
   inline mylib::Vector_2D< kind > DivideIntoLevels(const std::vector< kind > &input, const std::vector< int > &numSamples)
