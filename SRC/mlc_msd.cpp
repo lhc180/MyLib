@@ -116,12 +116,12 @@ namespace mylib{
         itpp::cvec newSymbols(0);
         itpp::ivec newBitmap(0);
         int        code          = DecodedCodes[i]; // 前レベルの復号結果
-        for(int s = 0; s < oldBitmap.size(); s++){
-          if((oldBitmap[s] & 1) == code){
-            newBitmap            = itpp::concat(newBitmap, oldBitmap[s] >> 1);
-            newSymbols           = itpp::concat(newSymbols, oldSymbols[s]);
-          }
-        }
+
+        for (int s = code; s < oldBitmap.size(); s+=2){
+          newBitmap            = itpp::concat(newBitmap, oldBitmap[s] >> 1);
+          newSymbols           = itpp::concat(newSymbols, oldSymbols[s]);
+        } // for s
+
         vecMod[i].set(newSymbols, newBitmap);
       } // for i
       
