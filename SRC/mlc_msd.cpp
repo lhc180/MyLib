@@ -10,12 +10,12 @@ namespace mylib{
   }
 
   void MlcMsd::Encode(const std::vector<itpp::bvec> &vBits,
-                        itpp::cvec &vSymbol)
+                      itpp::cvec &vSymbol)
   {
     assert(bSetDone);
 
     assert(static_cast<int>(vBits.size()) == nLevel);
-    vSymbol.set_size(0);
+    // vSymbol.set_size(nCodeLength);
 
     std::vector<itpp::bvec> vecBits = vBits;
 
@@ -34,116 +34,114 @@ namespace mylib{
       vecLDPC[level].Encode(vecBits[level], vecCode[level]);
     
     }
-  
+
+    itpp::bvec codes(nLevel*nCodeLength); 
     for(int n = 0; n < static_cast<int>(nCodeLength); n++){
-      itpp::bvec currentCodes(nLevel); 
       for(int level = 0; level < nLevel; level++){
-        currentCodes[nLevel-level-1] = vecCode[level][n]; // itpp::Modulatorの都合上
-                                // 低い要素番号ほど上位ビットを入れていく
-                                // ここを逆順にするとLevel0がもっと復号結果よくなる
+        codes[n*nLevel + level] = vecCode[nLevel - level - 1][n]; // itpp::Modulatorの都合上
+        // 低い要素番号ほど上位ビットを入れていく
       }
-      vSymbol = itpp::concat(vSymbol, Modulator.modulate_bits(currentCodes));
-    }
-
+    } // for n
+    vSymbol = Modulator.modulate_bits(codes);
   }
       
-  // 各レベルのイテレーション回数を返す
-  itpp::ivec MlcMsd::Decode(const itpp::cvec &vSymbol,
-                            std::vector< itpp::bvec > &vDecodedBits,
-                            const double      N0,
-                            const unsigned    loopMax,
-                            int        errConc)
-  {
-    assert(bSetDone);
+    // 各レベルのイテレーション回数を返す
+    itpp::ivec MlcMsd::Decode(const itpp::cvec &vSymbol,
+                              std::vector< itpp::bvec > &vDecodedBits,
+                              const double      N0,
+                              const unsigned    loopMax,
+                              int        errConc)
+    {
+      assert(bSetDone);
 
-    assert(vSymbol.size() == static_cast<int>(nCodeLength));
-    itpp::ivec vLoop(nLevel);
-    vLoop.zeros();
+      assert(vSymbol.size() == static_cast<int>(nCodeLength));
+      itpp::ivec vLoop(nLevel);
+      vLoop.zeros();
 
-    if (errConc < 0){
-      errConc = nLevel;
-    } // if 
-    
-    vDecodedBits.resize(nLevel);
-    for (int i = 0; i < nLevel; ++i){
-      vDecodedBits[i].set_size(vecLDPC[i].InfoLength());
-    } // for i
-    
-    // std::vector< itpp::bvec > vDecodedCodes(nLevel); // 復号された符号語
-    // 情報ビットではない
-
-    std::vector< itpp::Modulator_2D > vecMod(nCodeLength);
-  
-    for(int i = 0; i < static_cast<int>(nCodeLength); i++){
-      vecMod[i] = Modulator;
-    }
- 
-    itpp::bvec DecodedCodes;
-    // At first, decoding level 0.
-    vLoop[0]        = vecLDPC[0].Decode(vecMod, vSymbol, DecodedCodes, N0, loopMax);
-    bool error = false;         // どこかのレベルでエラーが起きたらtrueにする
-    // エラー隠蔽処理
-    if (vLoop[0] == static_cast< int >(loopMax)){
-      error = true;
-      if (errConc == 0){
-        for (int i = 0; i < nLevel; ++i){
-          vLoop[i] = loopMax;
-          vDecodedBits[i].zeros();
-        } // for i
-        return vLoop;
-      } // if errConc
-    } // if   vLoop[0]
-    
-    vDecodedBits[0] = DecodedCodes.left(vecLDPC[0].InfoLength());
-    
-    // Start decoding from level 0.
-    for(int level = 1; level < nLevel; level++){
-      // double tempN0 = N0 / static_cast<double>(vecLDPC.size()) * level; // ##
-
-      // errorConc == 1のときはここで終わるかも
-      if (level >= errConc && error){
-        for (int k = level; k < nLevel; ++k){
-          vLoop[k] = loopMax;
-          vDecodedBits[k].zeros();
-        } // for k
-        return vLoop;
-      } // if error
-      
-      // 全ての符号に対してModulatorをセットしていく
-      for(int i = 0; i < static_cast<int>(nCodeLength); i++){
-        itpp::cvec oldSymbols    = vecMod[i].get_symbols(); // ひとつ前のシンボル
-        itpp::ivec oldBitmap     = vecMod[i].get_bits2symbols(); // ひとつ前のビットマップ
-        itpp::cvec newSymbols(0);
-        itpp::ivec newBitmap(0);
-        int        code          = DecodedCodes[i]; // 前レベルの復号結果
-
-        for (int s = code; s < oldBitmap.size(); s+=2){
-          newBitmap            = itpp::concat(newBitmap, oldBitmap[s] >> 1);
-          newSymbols           = itpp::concat(newSymbols, oldSymbols[s]);
-        } // for s
-
-        vecMod[i].set(newSymbols, newBitmap);
-      } // for i
-      
-      vLoop[level] = vecLDPC[level].Decode(vecMod, vSymbol, DecodedCodes, N0, loopMax);
-
-      if (vLoop[level] == static_cast< int >(loopMax)){
-        error = true;
+      if (errConc < 0){
+        errConc = nLevel;
       } // if 
+    
+      vDecodedBits.resize(nLevel);
+      for (int i = 0; i < nLevel; ++i){
+        vDecodedBits[i].set_size(vecLDPC[i].InfoLength());
+      } // for i
+    
+      // std::vector< itpp::bvec > vDecodedCodes(nLevel); // 復号された符号語
+      // 情報ビットではない
 
-      if ((level >= errConc) && error){
-        for (int k = level; k < nLevel; ++k){
-          vLoop[k] = loopMax;
-          vDecodedBits[k].zeros();
-        } // for k
-        return vLoop;
-      } // if error
+      std::vector< itpp::Modulator_2D > vecMod(nCodeLength);
+  
+      for(int i = 0; i < static_cast<int>(nCodeLength); i++){
+        vecMod[i] = Modulator;
+      }
+ 
+      itpp::bvec DecodedCodes;
+      // At first, decoding level 0.
+      vLoop[0]        = vecLDPC[0].Decode(vecMod, vSymbol, DecodedCodes, N0, loopMax);
+      bool error = false;         // どこかのレベルでエラーが起きたらtrueにする
+      // エラー隠蔽処理
+      if (vLoop[0] == static_cast< int >(loopMax)){
+        error = true;
+        if (errConc == 0){
+          for (int i = 0; i < nLevel; ++i){
+            vLoop[i] = loopMax;
+            vDecodedBits[i].zeros();
+          } // for i
+          return vLoop;
+        } // if errConc
+      } // if   vLoop[0]
+    
+      vDecodedBits[0] = DecodedCodes.left(vecLDPC[0].InfoLength());
+    
+      // Start decoding from level 0.
+      for(int level = 1; level < nLevel; level++){
+        // double tempN0 = N0 / static_cast<double>(vecLDPC.size()) * level; // ##
+
+        // errorConc == 1のときはここで終わるかも
+        if (level >= errConc && error){
+          for (int k = level; k < nLevel; ++k){
+            vLoop[k] = loopMax;
+            vDecodedBits[k].zeros();
+          } // for k
+          return vLoop;
+        } // if error
       
-      vDecodedBits[level] = DecodedCodes.left(vecLDPC[level].InfoLength());
-    } // for level
+        // 全ての符号に対してModulatorをセットしていく
+        for(int i = 0; i < static_cast<int>(nCodeLength); i++){
+          itpp::cvec oldSymbols    = vecMod[i].get_symbols(); // ひとつ前のシンボル
+          itpp::ivec oldBitmap     = vecMod[i].get_bits2symbols(); // ひとつ前のビットマップ
+          itpp::cvec newSymbols(0);
+          itpp::ivec newBitmap(0);
+          int        code          = DecodedCodes[i]; // 前レベルの復号結果
+
+          for (int s = code; s < oldBitmap.size(); s+=2){
+            newBitmap            = itpp::concat(newBitmap, oldBitmap[s] >> 1);
+            newSymbols           = itpp::concat(newSymbols, oldSymbols[s]);
+          } // for s
+
+          vecMod[i].set(newSymbols, newBitmap);
+        } // for i
+      
+        vLoop[level] = vecLDPC[level].Decode(vecMod, vSymbol, DecodedCodes, N0, loopMax);
+
+        if (vLoop[level] == static_cast< int >(loopMax)){
+          error = true;
+        } // if 
+
+        if ((level >= errConc) && error){
+          for (int k = level; k < nLevel; ++k){
+            vLoop[k] = loopMax;
+            vDecodedBits[k].zeros();
+          } // for k
+          return vLoop;
+        } // if error
+      
+        vDecodedBits[level] = DecodedCodes.left(vecLDPC[level].InfoLength());
+      } // for level
        
-    return vLoop;
-  }
+      return vLoop;
+    }
 	 
   /******************* end of cMLC_MSD ************************/     
 
