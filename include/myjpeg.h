@@ -1,7 +1,7 @@
 /***************************************
  * This file defines my original JPEG decoder class using libjpeg.
  * 
- * Last Updated: <2013/05/27 14:00:12 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2013/06/05 14:04:31 from Yoshitos-iMac.local by yoshito>
  ***************************************/
 // To do list
 // -- 行数を指定してデータを読み込んでいく関数を作る.
@@ -11,8 +11,6 @@
 // -- JpegFileのclose()は最後かも
 // -- Huffman符号データをitpp::binで取り出す
 // -- Get Huffman codewords as they are every times appearing RST marker.
-// -- Huffman Tableの取得はJpeg2Dctのメンバ関数で行う
-// -- もしくはJpeg2Dctを継承させて新しいクラスを作るかJpeg2Dctをメンバに持ったクラスを作る
 // -- raw data (DCT係数)から画像を復元する関数を使う(生成されるのはJPEGファイル)
 // -- DCTの式を見直して丸め誤差を見る
 // -- もしかしたら、DC係数がDPCMかもしれないのでそれも確認する
@@ -26,10 +24,10 @@
 #include <cstdio>
 // #include <cassert>
 #include "mymatrix.h"
-#include "myhuffman.h"
+// #include "myhuffman.h"
 
 namespace mylib{
-
+  
   static const int IMG_DCT_SIZE      = 8;
   static const int IMG_DCT_SIZE2     = 64;
   static const int ZIGZAG_TABLE_SIZE = 64;
@@ -66,6 +64,20 @@ namespace mylib{
     return output;
   }
 
+  template<typename kind>
+  inline itpp::Vec< kind > ForwardZigzag(const itpp::Vec< kind > &input)
+  {
+    assert(input.size() == 64);
+  
+    itpp::Vec< kind > output(64);
+  
+    for(int i = 0; i < 64; i++)
+      {
+        output[i] = input[ ZIGZAG_TABLE[i] ];
+      }
+  
+    return output;
+  }
 
   template<typename kind>
   inline std::vector< kind > InverseZigzag(const std::vector< kind > &input)
@@ -81,6 +93,22 @@ namespace mylib{
   
     return output;
   }
+
+  template<typename kind>
+  inline itpp::Vec< kind > InverseZigzag(const itpp::Vec< kind > &input)
+  {
+    assert(input.size() == 64);
+  
+    itpp::Vec< kind > output(64);
+
+    for(int i = 0; i < 64; i++)
+      {
+        output[ ZIGZAG_TABLE[i] ] = input[i];
+      }
+  
+    return output;
+  }
+
   
   enum eDctElement {
     DC_ELEMENT = 0,
@@ -319,16 +347,19 @@ namespace mylib{
   class Jpeg2Dct: public JpegReader
   {
   private:
+    jpeg_decompress_struct cinfo_;
+    FILE *infile_;
     std::vector< int > widthInBlocks_, heightInBlocks_;
     std::vector< mylib::Vector_2D< mylib::Vector_2D< JCOEF > > > dctcoef_; // [componet](h_block, r_block)(h, r)
-    std::vector< mylib::Vector_2D< u_int > > quantizeTable_; // [component](h, r)
+    std::vector< mylib::Vector_2D< int > > quantizeTable_; // [component](h, r)
     std::vector< JHUFF_TBL > dcHuffmanTable_;    
     std::vector< JHUFF_TBL > acHuffmanTable_;
+    int restarInterval_;
     
   public:
-    Jpeg2Dct(): widthInBlocks_(0), heightInBlocks_(0),
-                dctcoef_(0), quantizeTable_(0), dcHuffmanTable_(0), acHuffmanTable_(0)
-    { }
+    // Jpeg2Dct(): widthInBlocks_(0), heightInBlocks_(0),
+    //             dctcoef_(0), quantizeTable_(0), dcHuffmanTable_(0), acHuffmanTable_(0), restarInterval(0)
+    // { }
 
     Jpeg2Dct(const char *jpegFileName, J_COLOR_SPACE colorSpace = JCS_RGB)
     {
@@ -355,7 +386,7 @@ namespace mylib{
       return dctcoef_[component](rowBlocks, colBlocks);
     }
 
-    mylib::Vector_2D< u_int > QuantTable(int component)
+    mylib::Vector_2D< int > QuantTable(int component)
     {
       return quantizeTable_[component];
     }
@@ -372,54 +403,59 @@ namespace mylib{
     
     void Close()
     {
+      (void) jpeg_finish_decompress(&cinfo_);
+      jpeg_destroy_decompress(&cinfo_);
+      fclose(infile_);
       dctcoef_.clear();
     }
 
     void Open(const char* jpegFileName, J_COLOR_SPACE colorSpace = JCS_RGB)
-    {
-      FILE *infile;
-      if ((infile = fopen(jpegFileName, "rb")) == NULL) {
+    {      
+      if ((infile_ = fopen(jpegFileName, "rb")) == NULL) {
         fprintf(stderr, "can't open %s\n", jpegFileName);
         exit(1);
       }
 
-      jpeg_decompress_struct cinfo;
+      //      jpeg_decompress_struct cinfo;
       my_jpeg_error_mgr      jerr;
 
-      cinfo.err           = jpeg_std_error(&jerr.pub);
+      cinfo_.err           = jpeg_std_error(&jerr.pub);
       jerr.pub.error_exit = my_error_exit;
 
       if (setjmp(jerr.setjmp_buffer)) {
-        jpeg_destroy_decompress(&cinfo);
-        fclose(infile);
+        jpeg_destroy_decompress(&cinfo_);
+        fclose(infile_);
         exit(1);
       }
 
-      jpeg_create_decompress(&cinfo);
+      jpeg_create_decompress(&cinfo_);
+
+      std::cout << "## numComponents = " << cinfo_.num_components << std::endl;
       
-      jpeg_stdio_src(&cinfo, infile);
+      jpeg_stdio_src(&cinfo_, infile_);
       
-      (void) jpeg_read_header(&cinfo, TRUE);
+      (void) jpeg_read_header(&cinfo_, TRUE);
 
       int numComponents = 3;
       if (colorSpace == JCS_GRAYSCALE)
         {
-          cinfo.out_color_space = JCS_GRAYSCALE;
+          cinfo_.out_color_space = JCS_GRAYSCALE;
           numComponents          = 1;
         }
       else if (colorSpace != JCS_UNKNOWN)
         {
-          cinfo.out_color_space = colorSpace;
+          cinfo_.out_color_space = colorSpace;
         }
     
-      jvirt_barray_ptr* coeff_arrays = jpeg_read_coefficients(&cinfo);
-    
-      SetWidth(cinfo.output_width);      
-      SetHeight(cinfo.output_height);
+      jvirt_barray_ptr* coeff_arrays = jpeg_read_coefficients(&cinfo_);
+
+      restarInterval_ = cinfo_.restart_interval;
+      
+      SetWidth(cinfo_.output_width);      
+      SetHeight(cinfo_.output_height);
         
       std::cout << "## height = " << Height() << " width = " << Width() << std::endl;
-      std::cout << "## numComponents = " << numComponents << std::endl;
-
+      std::cout << "## input numComponents = " << cinfo_.num_components << std::endl;
 
       dctcoef_.resize(numComponents);
       heightInBlocks_.resize(numComponents);
@@ -433,8 +469,7 @@ namespace mylib{
       JHUFF_TBL* dc_huff_tbl_ptr,* ac_huff_tbl_ptr;
       
       for (int component = 0; component < numComponents; ++component){
-        compptr = cinfo.comp_info + component;
-        std::cout << "## Debug." << std::endl;
+        compptr = cinfo_.comp_info + component;
 
         quantizeTable_[component].set_size(DCTSIZE, DCTSIZE);
 
@@ -442,8 +477,8 @@ namespace mylib{
           quantizeTable_[component](i/DCTSIZE, i%DCTSIZE) = compptr->quant_table->quantval[i];
         } // for i
 
-        dc_huff_tbl_ptr = cinfo.dc_huff_tbl_ptrs[component];
-        ac_huff_tbl_ptr = cinfo.ac_huff_tbl_ptrs[component];
+        dc_huff_tbl_ptr = cinfo_.dc_huff_tbl_ptrs[component];
+        ac_huff_tbl_ptr = cinfo_.ac_huff_tbl_ptrs[component];
         assert(dc_huff_tbl_ptr != NULL && ac_huff_tbl_ptr != NULL);
         dcHuffmanTable_[component] = *dc_huff_tbl_ptr;
         acHuffmanTable_[component] = *ac_huff_tbl_ptr;
@@ -457,8 +492,8 @@ namespace mylib{
                   << " width_in_blocks = " << compptr->width_in_blocks << std::endl;
 
         for (int blockY = 0; blockY < heightInBlocks_[component]; ++blockY){
-          JBLOCKARRAY buffer = (cinfo.mem->access_virt_barray)((j_common_ptr)&cinfo, coeff_arrays[component], blockY, JDIMENSION(1), FALSE);
-
+          JBLOCKARRAY buffer = (cinfo_.mem->access_virt_barray)((j_common_ptr)&cinfo_, coeff_arrays[component], blockY, JDIMENSION(1), FALSE);
+          
           for (int blockX = 0; blockX < widthInBlocks_[component]; ++blockX){
             dctcoef_[component](blockY, blockX).set_size(DCTSIZE, DCTSIZE);
             JCOEFPTR blockptr = buffer[0][blockX];
@@ -469,23 +504,230 @@ namespace mylib{
           }   // for blockX
         }     // for blockY
       }       // for component
-    
-      (void) jpeg_finish_decompress(&cinfo);
 
-      jpeg_destroy_decompress(&cinfo);
+      
+    }
 
-      fclose(infile);
-    
+    j_decompress_ptr Cinfo()
+    {
+      return &cinfo_;
     }
     
   };
 
   /************************************************************************************
-   * JpegHuffman
+   * Dct2Jpeg 
+   * 
+   * jpeglib.hを使ってrawデータからJPEGデータを作る
+   ************************************************************************************/
+  class Dct2Jpeg
+  {
+  private:
+    jpeg_compress_struct cinfo_;
+    my_jpeg_error_mgr      jerr;
+    FILE *outfile_;
+    jvirt_barray_ptr* coeff_arrays_;
+    JBLOCKARRAY coef_buffers_[MAX_COMPONENTS];
+    
+  public:
+    // Dct2Jpeg(const char* jpegFileName, jpeg_compress_struct& cinfo)
+    // {
+    //   Init(jpegFileName, cinfo);
+    // }
+    
+    Dct2Jpeg(const char* jpegFileName, j_decompress_ptr srcinfo)
+    {
+      Init(jpegFileName, srcinfo);
+    }
+    virtual ~Dct2Jpeg()
+    {
+      Close();
+    }
+
+    // void Init(const char* jpegFileName, jpeg_compress_struct& cinfo)
+    // {
+    //   cinfo_ = cinfo;
+    //   Init(jpegFileName);
+    // }
+
+    void Init(const char* jpegFileName, j_decompress_ptr srcinfo)
+    {
+
+      cinfo_.err = jpeg_std_error(&jerr.pub);
+      // jerr.pub.error_exit = my_error_exit;
+
+      jpeg_create_compress(&cinfo_);
+      
+      // DCT係数を蓄える領域を確保
+      for (int compnum=0; compnum < srcinfo->num_components; compnum++){
+        coef_buffers_[compnum] = ((&cinfo_)->mem->alloc_barray) 
+          ((j_common_ptr) &cinfo_, JPOOL_IMAGE,
+           srcinfo->comp_info[compnum].width_in_blocks,
+           srcinfo->comp_info[compnum].height_in_blocks);
+      }
+      
+      coeff_arrays_ = jpeg_read_coefficients(srcinfo);
+      jpeg_copy_critical_parameters(srcinfo, &cinfo_);
+      
+      if ((outfile_ = fopen(jpegFileName, "wb")) == NULL) {
+        fprintf(stderr, "can't open %s\n", jpegFileName);
+        exit(1);
+      }
+    }
+
+    // DCT係数を保存していく
+    void Make(std::vector< mylib::Vector_2D< mylib::Vector_2D< JCOEF > > >& dctcoef) // dctcoef[component](blockY, blockX)(y, x)
+    {
+      
+      int numComponents = cinfo_.num_components;
+      std::cout << "## numComponents = " << numComponents << std::endl;
+      
+      assert(numComponents == static_cast< int >(dctcoef.size()));
+
+      
+      jpeg_component_info* compptr;
+      JBLOCKARRAY row_ptrs[MAX_COMPONENTS];
+      
+      for (int component = 0; component < numComponents; ++component){
+        compptr = cinfo_.comp_info + component;
+        
+        int heightInBlocks_ = compptr->height_in_blocks;
+        int widthInBlocks_  = compptr->width_in_blocks;
+        
+        for (int blockY = 0; blockY < heightInBlocks_; ++blockY){
+          row_ptrs[component] = (cinfo_.mem->access_virt_barray)((j_common_ptr)&cinfo_, coeff_arrays_[component], blockY, JDIMENSION(1), TRUE);
+          
+          for (int blockX = 0; blockX < widthInBlocks_; ++blockX){
+            JCOEFPTR blockptr = row_ptrs[component][0][blockX];
+            
+            for (int i = 0; i < DCTSIZE2; ++i){
+              row_ptrs[component][0][blockX][i] = dctcoef[component](blockY, blockX)(i/DCTSIZE, i%DCTSIZE);
+            } // for i
+          }   // for blockX
+        }     // for blockY
+      } // for comp
+
+      jpeg_stdio_dest(&cinfo_, outfile_);
+
+      std::cout << "## OK !!" << std::endl;
+      jpeg_write_coefficients(&cinfo_, coeff_arrays_);
+      
+      jpeg_finish_compress(&cinfo_); // 最後
+    }
+
+    void Close()
+    {
+      fclose(outfile_);
+      jpeg_destroy_compress(&cinfo_); 
+    }
+  };
+  
+  
+  /************************************************************************************
+   * JpegHuffmanEncoder
    * 
    * jpeglib.hのJHUFF_TBLを使ってハフマン符号器を作る
    ************************************************************************************/
-  class JpegHuffman
+  class JpegHuffmanEncoder
+  {
+  private:
+    int numElement_;
+    std::vector< u_char > sizeTable_;
+    std::vector< u_int > codeTable_;
+    
+  public:
+    //     JpegHuffmanEncoder(): numElement_(0), sizeTable_(256, 0), codeTable_(256, 0){ }
+    explicit JpegHuffmanEncoder(const JHUFF_TBL& jhuff_tbl): numElement_(0), sizeTable_(256, 0), codeTable_(256, 0)
+    {
+      Set(jhuff_tbl);
+    }
+    virtual ~JpegHuffmanEncoder(){ }
+
+    void Set(const JHUFF_TBL& jhuff_tbl)
+    {
+      assert(&jhuff_tbl != NULL);
+
+      int num = 0;
+      for (int i = 1; i <= 16; ++i){
+        // std::cout << "## bits[" << i << "] = " << static_cast< int >(jhuff_tbl.bits[i]) << std::endl;
+        num += jhuff_tbl.bits[i];
+      } // for i
+
+      numElement_ = num;
+      // sizeTable_.resize(num);
+      // codeTable_.resize(num);
+
+      std::vector< u_char > t_size(num, 0);
+      std::vector< u_int > t_code(num, 0);
+      
+      // サイズテーブルの生成
+      int p = 0;
+      for (int l = 1; l <= 16; ++l){
+        int i = jhuff_tbl.bits[l];
+        assert(i >= 0 && p + i <= 256);
+        
+        while(i--){
+          t_size[p++] = static_cast< char >(l);
+        } // while i
+      } // for l
+
+      t_size[p] = 0;
+      int lastp = p;
+      
+      // コードテーブルの生成
+      
+      int code = 0;
+      int si = t_size[0];
+      p = 0;
+      while (t_size[p]){
+        while (t_size[p] == si){
+          t_code[p++] = code;
+          code++;
+        } // while si
+
+        // if (k >= num){
+        //   break;
+        // } // if k
+
+        assert(code < (1 << si));
+        
+        code <<= 1;         // 符号語長を1ビット増やす
+        si++;               // サイズを1ビット増やす
+
+      } // while 1
+      
+      for (int i = 0; i < lastp; ++i){
+        int v = jhuff_tbl.huffval[i];
+        codeTable_[v] = t_code[i];
+        sizeTable_[v] = t_size[i];
+      } // for i 
+    }
+
+    // エンコーダ
+    itpp::bvec operator ()(int input) const
+    {
+      //  std::cout << "## numElement_ = " << numElement_ << std::endl;
+      assert(input >= 0 && input < 256);
+      itpp::bvec output = itpp::dec2bin(static_cast< int >(sizeTable_[input]), static_cast< int >(codeTable_[input]));
+      return output;
+    }
+
+    itpp::bvec operator ()(const std::vector< int >& input) const
+    {
+      itpp::bvec output(0);
+      for (std::vector< int >::const_iterator ite = input.begin(); ite != input.end(); ++ite){
+        output = itpp::concat(output, operator()(*ite));
+      } // for ite
+      return output;
+    }
+  };
+
+  /************************************************************************************
+   * JpegHuffmanDecoder
+   * 
+   * jpeglib.hのJHUFF_TBLを使ってハフマン符号器を作る
+   ************************************************************************************/
+  class JpegHuffmanDecoder
   {
   private:
     int numElement_;
@@ -494,12 +736,12 @@ namespace mylib{
     std::vector< u_char > valueTable_;
     
   public:
-    JpegHuffman(): numElement_(0), sizeTable_(0), codeTable_(0), valueTable_(0){ }
-    explicit JpegHuffman(const JHUFF_TBL& jhuff_tbl)
+    // JpegHuffmanDecoder(): numElement_(0), sizeTable_(0), codeTable_(0), valueTable_(0){ }
+    explicit JpegHuffmanDecoder(const JHUFF_TBL& jhuff_tbl)
     {
       Set(jhuff_tbl);
     }
-    virtual ~JpegHuffman(){ }
+    virtual ~JpegHuffmanDecoder(){ }
 
     void Set(const JHUFF_TBL& jhuff_tbl)
     {
@@ -507,7 +749,7 @@ namespace mylib{
 
       int num = 0;
       for (int i = 1; i <= 16; ++i){
-        std::cout << "## bits[" << i << "] = " << static_cast< int >(jhuff_tbl.bits[i]) << std::endl;
+        // std::cout << "## bits[" << i << "] = " << static_cast< int >(jhuff_tbl.bits[i]) << std::endl;
         num += jhuff_tbl.bits[i];
       } // for i
 
@@ -552,25 +794,8 @@ namespace mylib{
       } // for i 
     }
 
-    // エンコーダ
-    itpp::bvec Encode(int input) const
-    {
-      std::cout << "## numElement_ = " << numElement_ << std::endl;
-      assert(input >= 0 && input < numElement_);
-      itpp::bvec output = itpp::dec2bin(static_cast< int >(sizeTable_[input]), static_cast< int >(codeTable_[input]));
-      return output;
-    }
-
-    itpp::bvec Encode(const std::vector< int >& input) const
-    {
-      itpp::bvec output(0);
-      for (std::vector< int >::const_iterator ite = input.begin(); ite != input.end(); ++ite){
-        output = itpp::concat(output, Encode(*ite));
-      } // for ite
-      return output;
-    }
-
-    int Decode1Code(const itpp::bvec& input, itpp::bvec* output)
+    // 1語のみのデコード
+    int operator ()(const itpp::bvec& input, itpp::bvec* output)
     {
       u_int code = 0;             // ハフマン符号の候補
       u_char length = 0;          // ハフマン符号候補のビット数
@@ -578,7 +803,7 @@ namespace mylib{
 
       while (k < numElement_ && length <= 16 && length < input.size()){
         length++;
-        code <<= 1;
+        //         code <<= 1;
         itpp::bvec temp = input.mid(0, length);
         code = itpp::bin2dec(temp);
 
@@ -595,13 +820,13 @@ namespace mylib{
       return -1;
     }
 
-    std::vector< int > Decode(const itpp::bvec& input)
+    std::vector< int > operator ()(const itpp::bvec& input)
     {
       std::vector< int > decoded(0);
       itpp::bvec t_input = input;
       itpp::bvec t_output;
       int res = 0;
-      while ((res = Decode1Code(t_input, &t_output)) >= 0){
+      while ((res = operator()(t_input, &t_output)) >= 0){
         decoded.push_back(res);
         t_input = t_output;
       } // while res
@@ -609,21 +834,29 @@ namespace mylib{
       return decoded;
     }
 
+    void PrintTable()
+    {
+      for (int i = 0; i < numElement_; ++i){
+        std::cout << static_cast< int >(valueTable_[i]) << "\t" <<
+          itpp::dec2bin(static_cast< int >(sizeTable_[i]), static_cast< int >(codeTable_[i])) << std::endl;
+      } // for i
+    }
+    
     // friend class JpegEntropy;
   };
 
   /************************************************************************************
-   * JpegEntropy 
+   * JpegEntropyEncoder
    * 
    * ハフマン符号とランレングス符号を組み合わせたJPEGのエントロピー符号化
    * コンポーネントの数だけ用意しなければいけない
    * つまりグレイスケールなら1つ、RGBなどなら3つ
    ************************************************************************************/
-  class JpegEntropy
+  class JpegEntropyEncoder
   {
   private:
-    JpegHuffman dcHuffman_;
-    JpegHuffman acHuffman_;
+    JpegHuffmanEncoder dcHuffman_;
+    JpegHuffmanEncoder acHuffman_;
     
     itpp::bvec DcEncode(int input)
     {
@@ -636,11 +869,11 @@ namespace mylib{
         bits++;
       } // while absInput
       
-      itpp::bvec huffman = dcHuffman_.Encode(bits);
+      itpp::bvec huffman = dcHuffman_(bits);
       
       itpp::bvec value(0);
       if (bits != 0){
-        value = itpp::dec2bin(bits, absInput);
+        value = itpp::dec2bin(bits, abs(input));
         if (input < 0){         // 負の数の場合ビットを反転させる(テキストとはやり方違う)
           value += 1;
         } // if input
@@ -657,7 +890,7 @@ namespace mylib{
 
       int absInput = abs(input);
       while (*run > 15){
-        itpp::bvec temp = acHuffman_.Encode(ZRL_INDEX);
+        itpp::bvec temp = acHuffman_(ZRL_INDEX);
         output = itpp::concat(output, temp);
         *run -= 16;
       } // while *run
@@ -668,12 +901,12 @@ namespace mylib{
         absInput >>= 1;
         bits++;
       } // while absInput
-      int index = *run * 10 + bits + (*run == 15);
-      itpp::bvec huffman = acHuffman_.Encode(index);
-
+      int index = (*run << 4) + bits; // ## jpeglib.hに従った。
+      itpp::bvec huffman = acHuffman_(index);
+      
       output = itpp::concat(output, huffman);
 
-      itpp::bvec value = itpp::dec2bin(bits, absInput);
+      itpp::bvec value = itpp::dec2bin(bits, abs(input));
       if (input < 0){           // 負の場合はビット反転
         value += itpp::bin(1);
       } // if input
@@ -681,116 +914,17 @@ namespace mylib{
 
       return output;
     }
-
-    /************************************************************************************
-     * DcDecode -- DC成分のエントロピー復号
-     * 
-     * Arguments:
-     *   input -- 入力バイナリデータ
-     *   output -- 復号に用いたものを除いた残りのバイナリデータ
-     *   result -- 復号結果
-     *
-     * Return Value:
-     *   bool -- 復号成功ならtrue
-     ************************************************************************************/    
-    bool DcDecode(const itpp::bvec& input, itpp::bvec* output, int* result)
-    {
-      itpp::bvec t_output(0);
-      int category = dcHuffman_.Decode1Code(input, &t_output); // 差分値のビット数
-      int diff = 0;                                            // DC成分の差分値
-      if (category >= 0){
-        itpp::bvec temp = t_output.mid(0, category);
-        if (temp[0] == 0){      // 差分が負の場合はビット反転してある
-          temp += itpp::bin(1);
-          diff -= itpp::bin2dec(temp);
-        } // if temp[0]
-        else{
-          diff = itpp::bin2dec(temp);
-        } // else
-
-        *output = t_output.get(category, -1);
-        *result = diff;
-        return true;
-      } // if category
-      else{                     // categoryが負の場合
-        *output = t_output;
-        *result = 0;
-        return false;
-      }
-    }
-
-    bool AcDecode(const itpp::bvec& input, itpp::bvec* output, std::vector< int >* results)
-    {
-      results->resize(IMG_DCT_SIZE2-1, 0);
-      int k = 1;
-      itpp::bvec t_input = input;
-      itpp::bvec t_output(0);
-      while (k < IMG_DCT_SIZE2){
-        int category = acHuffman_.Decode1Code(t_input, &t_output);
-        if (category == 0){
-          while (k < IMG_DCT_SIZE2){
-            (*results)[k] = 0;
-            k++;
-          } // while k
-          break;
-        } // if category
-        else if(category < 0){
-          *output = t_output;
-          return false;
-        }
-
-        int run = category >> 4;
-        category &= 0x0f;
-
-        int acValue = 0;
-        if (category){
-          itpp::bvec temp = t_output.mid(0, category);
-          if (temp[0] == 0){
-            temp += itpp::bin(1);
-            acValue -= itpp::bin2dec(temp);
-          } // if temp[0]
-          else{
-            acValue = itpp::bin2dec(temp);
-          } // else
-          
-          t_output = t_output.get(category, -1);
-
-        } // if category
-        else if(run != 15){     // EOBでもZRLでもない
-          *output = t_output;
-          return false;
-        }
-
-        if (run + k > IMG_DCT_SIZE2 - 1){ // 係数が多すぎる
-          *output = t_output;
-          return false;
-        } // if run + k
-
-        while (run > 0){
-          (*results)[k] = 0;
-          k++;
-          run--;
-        } // while run
-
-        (*results)[k] = acValue; // ランレングスの後に数値
-        
-        t_input = t_output;
-      } // while k
-
-      *output = t_output;
-      return true;
-    }
     
   public:
     // コンストラクタは2種類
-    JpegEntropy(const JpegHuffman& dcHuffman, const JpegHuffman& acHuffman): dcHuffman_(dcHuffman), acHuffman_(acHuffman)
+    JpegEntropyEncoder(const JpegHuffmanEncoder& dcHuffman, const JpegHuffmanEncoder& acHuffman): dcHuffman_(dcHuffman), acHuffman_(acHuffman)
     { }
-    JpegEntropy(const JHUFF_TBL& dcHuffTable, const JHUFF_TBL& acHuffTable):
+    JpegEntropyEncoder(const JHUFF_TBL& dcHuffTable, const JHUFF_TBL& acHuffTable):
       dcHuffman_(dcHuffTable), acHuffman_(acHuffTable)
     { }
     
     // 8*8の1ブロックのみの符号化
-    itpp::bvec Encode(const std::vector< JCOEF >& input)
+    itpp::bvec operator ()(const std::vector< JCOEF >& input)
     {
       assert(static_cast< int >(input.size()) == IMG_DCT_SIZE2);
       // DC成分
@@ -807,7 +941,7 @@ namespace mylib{
         } // if input[n]
         else{
           if (n == IMG_DCT_SIZE2-1){
-            itpp::bvec temp = acHuffman_.Encode(EOB_INDEX);
+            itpp::bvec temp = acHuffman_(EOB_INDEX);
             acCode = itpp::concat(acCode, temp);
           } // if n
           else{
@@ -821,6 +955,233 @@ namespace mylib{
       return output;
     }
 
+    itpp::bvec operator ()(const itpp::Vec< JCOEF >& input)
+    {
+      assert(static_cast< int >(input.size()) == IMG_DCT_SIZE2);
+      // DC成分
+      itpp::bvec dcCode = DcEncode(input[0]);
+      
+      // AC成分
+      itpp::bvec acCode(0);
+      int run = 0;
+      for (int n = 1; n < IMG_DCT_SIZE2; ++n){
+        // 係数が0でなければ
+        if (input[n] != 0){
+          acCode = itpp::concat(acCode, AcEncode(input[n], &run));
+          run = 0;
+        } // if input[n]
+        else{
+          if (n == IMG_DCT_SIZE2-1){
+            itpp::bvec temp = acHuffman_(EOB_INDEX);
+            acCode = itpp::concat(acCode, temp);
+          } // if n
+          else{
+            run++;
+          } // else n
+          
+        } // else input[n]
+        
+      } // for n
+      itpp::bvec output = itpp::concat(dcCode, acCode);
+      return output;
+    }
+
+    
+  };
+
+  
+  class JpegEntropyDecoder
+  {
+  private:
+    JpegHuffmanDecoder dcHuffman_;
+    JpegHuffmanDecoder acHuffman_;
+    /************************************************************************************
+     * DcDecode -- DC成分のエントロピー復号
+     * 
+     * Arguments:
+     *   input -- 入力バイナリデータ
+     *   output -- 復号に用いたものを除いた残りのバイナリデータ
+     *   result -- 復号結果
+     *
+     * Return Value:
+     *   bool -- 復号成功ならtrue
+     ************************************************************************************/    
+    bool DcDecode(const itpp::bvec& input, itpp::bvec* output, int* result)
+    {
+      itpp::bvec t_output(0);
+      int category = dcHuffman_(input, &t_output); // 差分値のビット数
+      int diff = 0;      // DC成分の差分値
+      if (category > 0){
+        itpp::bvec temp = t_output.mid(0, category);
+        if (temp[0] == 0){      // 差分が負の場合はビット反転してある
+          temp += itpp::bin(1);
+          diff -= itpp::bin2dec(temp);
+        } // if temp[0]
+        else{
+          diff = itpp::bin2dec(temp);
+        } // else
+
+        *output = t_output.get(category, -1);
+        *result = diff;
+        return true;
+      } // if category
+      else if (category == 0){
+        *output = t_output;
+        *result = 0;
+        return true;
+      } // if category
+      else{                     // categoryが負の場合
+        *output = t_output;
+        *result = 0;
+        return false;
+      }
+    }
+
+    bool AcDecode(const itpp::bvec& input, itpp::bvec* output, std::vector< int >* results)
+    {
+      results->resize(IMG_DCT_SIZE2-1, 0);
+      int k = 0;
+      itpp::bvec t_input = input;
+      itpp::bvec t_output(0);
+      while (k < IMG_DCT_SIZE2-1){
+        int category = acHuffman_(t_input, &t_output);
+        //        std::cout << "## category = " << category << std::endl;
+        if (category == 0){
+          while (k < IMG_DCT_SIZE2-1){
+            (*results)[k] = 0;
+            k++;
+          } // while k
+          break;
+        } // if category
+        else if(category < 0){
+          *output = t_output;
+          return false;
+        }
+
+        int run = category >> 4;
+        category &= 0x0f;
+
+        int acValue = 0;
+        if (category){
+          // std::cout << "## category = " << category << std::endl;
+          itpp::bvec temp = t_output.mid(0, category); // ## ここでエラー
+                                                       // categoryがt_outputの要素数超えていたらダメ
+          if (temp[0] == 0){
+            temp += itpp::bin(1);
+            acValue -= itpp::bin2dec(temp);
+          } // if temp[0]
+          else{
+            acValue = itpp::bin2dec(temp);
+          } // else
+          
+          t_output = t_output.get(category, -1);
+
+        } // if category
+        else if(run != 15){     // EOBでもZRLでもない
+          *output = t_output;
+          return false;
+        }
+
+        if (run + k > IMG_DCT_SIZE2 - 2){ // 係数が多すぎる
+          *output = t_output;
+          return false;
+        } // if run + k
+
+        // std::cout << "## run = "  << run << std::endl;
+        
+        while (run > 0){
+          (*results)[k] = 0;
+          k++;
+          run--;
+        } // while run
+
+        // std::cout << "## acValue = " << acValue << std::endl;
+        (*results)[k] = acValue; // ランレングスの後に数値
+        k++;
+        t_input = t_output;
+      } // while k
+
+      *output = t_output;
+      return true;
+    }
+
+    bool AcDecode(const itpp::bvec& input, itpp::bvec* output, itpp::ivec* results)
+    {
+      results->set_size(IMG_DCT_SIZE2-1, 0);
+      int k = 0;
+      itpp::bvec t_input = input;
+      itpp::bvec t_output(0);
+      while (k < IMG_DCT_SIZE2-1){
+        int category = acHuffman_(t_input, &t_output);
+        //        std::cout << "## category = " << category << std::endl;
+        if (category == 0){
+          while (k < IMG_DCT_SIZE2-1){
+            (*results)[k] = 0;
+            k++;
+          } // while k
+          break;
+        } // if category
+        else if(category < 0){
+          *output = t_output;
+          return false;
+        }
+
+        int run = category >> 4;
+        category &= 0x0f;
+
+        int acValue = 0;
+        if (category){
+          // std::cout << "## category = " << category << std::endl;
+          itpp::bvec temp = t_output.mid(0, category); // ## ここでエラー
+                                                       // categoryがt_outputの要素数超えていたらダメ
+          if (temp[0] == 0){
+            temp += itpp::bin(1);
+            acValue -= itpp::bin2dec(temp);
+          } // if temp[0]
+          else{
+            acValue = itpp::bin2dec(temp);
+          } // else
+          
+          t_output = t_output.get(category, -1);
+
+        } // if category
+        else if(run != 15){     // EOBでもZRLでもない
+          *output = t_output;
+          return false;
+        }
+
+        if (run + k > IMG_DCT_SIZE2 - 2){ // 係数が多すぎる
+          *output = t_output;
+          return false;
+        } // if run + k
+
+        // std::cout << "## run = "  << run << std::endl;
+        
+        while (run > 0){
+          (*results)[k] = 0;
+          k++;
+          run--;
+        } // while run
+
+        // std::cout << "## acValue = " << acValue << std::endl;
+        (*results)[k] = acValue; // ランレングスの後に数値
+        k++;
+        t_input = t_output;
+      } // while k
+
+      *output = t_output;
+      return true;
+    }
+    
+    
+  public:
+    // コンストラクタは2種類
+    JpegEntropyDecoder(const JpegHuffmanDecoder& dcHuffman, const JpegHuffmanDecoder& acHuffman): dcHuffman_(dcHuffman), acHuffman_(acHuffman)
+    { }
+    JpegEntropyDecoder(const JHUFF_TBL& dcHuffTable, const JHUFF_TBL& acHuffTable):
+      dcHuffman_(dcHuffTable), acHuffman_(acHuffTable)
+    { }
+    
     /************************************************************************************
      * Decode -- エントロピー復号
      * もし途中で復号エラーが起きたら、それ以降は0で埋めるという処理を行う
@@ -831,7 +1192,29 @@ namespace mylib{
      * Return Value:
      *   std::vector< int > -- 出力データ系列
      ************************************************************************************/
-    std::vector< int > Decode(const itpp::bvec& input)
+    itpp::ivec operator ()(const itpp::bvec& input)
+    {
+      itpp::bvec t_output;
+      int dcCoeff;
+      if (DcDecode(input, &t_output, &dcCoeff) == false){
+        return itpp::ivec(IMG_DCT_SIZE2);
+      }
+      
+      itpp::bvec t_input = t_output;
+      itpp::ivec acCoeff;
+      if (AcDecode(t_input, &t_output, &acCoeff) == false){ // 一応エラーが出たらチェックする
+        std::cerr << "Error has occured in AcDecode."  << std::endl;
+      }
+
+      // for (int i = 0; i < static_cast< int >(acCoeff.size()); ++i){
+      //   std::cout << "## acCoeff[i]" << acCoeff[i] << std::endl;
+      // } // for i
+      acCoeff.ins(0, dcCoeff);
+      return acCoeff;
+    }
+
+    // 戻り値をstd::vectorにしたもの
+    std::vector< int > Do(const itpp::bvec& input)
     {
       itpp::bvec t_output;
       int dcCoeff;
@@ -844,12 +1227,35 @@ namespace mylib{
       if (AcDecode(t_input, &t_output, &acCoeff) == false){ // 一応エラーが出たらチェックする
         std::cerr << "Error has occured in AcDecode."  << std::endl;
       }
+
+      // for (int i = 0; i < static_cast< int >(acCoeff.size()); ++i){
+      //   std::cout << "## acCoeff[i]" << acCoeff[i] << std::endl;
+      // } // for i
       std::vector< int > output = mylib::Concat(dcCoeff, acCoeff);
       return output;
     }
-    
   };
 
+  /************************************************************************************
+   * Jpeg2Binary 
+   * 
+   * JPEGデータをハフマン符号化されたバイナリデータにする
+   ************************************************************************************/
+  // class Jpeg2Binary
+  // {
+  // private:
+  //   Jpeg2Dct jpeg2dct;
+  //   std::vector< JpegEntropyEncoder > entropyEncoder;
+  //   std::vector< int > preDcCoef;
+    
+  // public:
+  //   Jpeg2Binary(const char* fileName, J_COLOR_SPACE colorSpace = JCS_GRAYSCALE): jpeg2dct(filename, colorSpace)
+  //   {
+      
+  //   }
+  //   virtual ~Jpeg2Binary();
+    
+  // };
   
 }
 
