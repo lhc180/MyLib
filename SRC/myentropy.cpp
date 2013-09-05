@@ -6,7 +6,7 @@
  * Contents:
  *   EntropyEncoderとEntropyDecoderクラスの実装
  *
- * Last Updated: <2013/07/08 21:41:44 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2013/09/05 14:58:07 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 #include "../include/myentropy.h"
@@ -19,7 +19,7 @@ namespace mylib{
   {
     itpp::bvec output(0);
     for (int i = 0; i < input.size(); ++i){
-      output = itpp::concat(output, DcEncode(input[i]));
+      output = itpp::concat(output, DcEncode_(input[i]));
     } // for ite
     return output;
   }
@@ -31,7 +31,7 @@ namespace mylib{
     for (int n = 0; n < input.size(); ++n){
       // 係数が0でなければ
       if (input[n] != 0){
-        itpp::bvec temp = AcEncode(input[n], &run);
+        itpp::bvec temp = AcEncode_(input[n], &run);
         output = itpp::concat(output, temp);
         run = 0;
       } // if input[n]
@@ -54,13 +54,14 @@ namespace mylib{
   // ---------- EntropyEncoder ----------
   
   // ++++++++++++++++ EntropyDecoder ++++++++++++++++++++
-  bool EntropyDecoder::AcDecode(const itpp::bvec& input,
+  bool EntropyDecoder::AcDecode_(const itpp::bvec& input,
                                 itpp::bvec* output,
                                 itpp::Vec< int >* results,
-                                u_int size)
+                                int size)
   {
     results->set_size(size);
-    u_int k = 0;
+    results->zeros();
+    int k = 0;
     itpp::bvec t_input = input;
     itpp::bvec t_output(0);
     itpp::bvec temp2;
@@ -137,7 +138,7 @@ namespace mylib{
       
     for (int i = 0; i < size; ++i){
       itpp::bvec t_output;
-      if (DcDecode(t_input, &t_output, &result)){
+      if (DcDecode_(t_input, &t_output, &result)){
         output[i] = result;
         t_input = t_output;
       } // if
@@ -155,7 +156,7 @@ namespace mylib{
     int result;
       
     for (int i = 0; i < size; ++i){
-      if (DcDecode(t_input, rest, &result)){
+      if (DcDecode_(t_input, rest, &result)){
         output[i] = result;
         t_input = *rest;
       } // if
@@ -171,14 +172,14 @@ namespace mylib{
   {
     itpp::Vec< int > output;
     itpp::bvec t_output;
-    this->AcDecode(input, &t_output, &output, size); // ## falseなら復号失敗だけどエラー隠蔽している
+    this->AcDecode_(input, &t_output, &output, size); // ## falseなら復号失敗だけどエラー隠蔽している
     return output;
   }
 
   itpp::Vec< int > EntropyDecoder::DecodeAc(const itpp::bvec& input, int size, itpp::bvec* rest)
   {
     itpp::Vec< int > output;
-    this->AcDecode(input, rest, &output, size); // ## falseなら復号失敗だけどエラー隠蔽している
+    this->AcDecode_(input, rest, &output, size); // ## falseなら復号失敗だけどエラー隠蔽している
     return output;
   }
 
@@ -188,13 +189,13 @@ namespace mylib{
     int blocks = originalSize / DCTSIZE2;
 
     itpp::Vec< int > output(originalSize);
+    output.zeros();
     itpp::bvec t_input = input;
-
     // DCのデコード
     for (int i = 0; i < blocks; ++i){
       int result;
       itpp::bvec t_output;
-      if (DcDecode(t_input, &t_output, &result)){
+      if (DcDecode_(t_input, &t_output, &result)){
         output[i] = result;
         t_input = t_output;
       } // if
@@ -208,7 +209,7 @@ namespace mylib{
     itpp::bvec t_output;
     // std::cout << "## originalSize - blocks = " << originalSize - blocks << std::endl;
       
-    this->AcDecode(t_input, &t_output, &acOut, originalSize - blocks);
+    this->AcDecode_(t_input, &t_output, &acOut, originalSize - blocks);
 
     // std::cout << "## decoded AC" << std::endl;
       
