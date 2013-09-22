@@ -6,7 +6,7 @@
  * Contents:
  *   EntropyEncoderとEntropyDecoderクラスの実装
  *
- * Last Updated: <2013/09/05 14:58:07 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2013/09/23 01:02:52 from yoshitos-mac-mini.local by yoshito>
  ************************************************************************************/
 
 #include "../include/myentropy.h"
