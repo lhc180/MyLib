@@ -6,29 +6,32 @@
 #include <itpp/itbase.h>
 #include <itpp/itcomm.h>
 
-class cCapacity{
-private:
-  itpp::Modulator_2D Modulator;
-  int nBitsPerSymbol;
-  int nSymbols;
-  itpp::cvec vecSymbols;
-  bool bSetMod;
+namespace mylib{
+  class Capacity{
+  private:
+    itpp::Modulator_2D modulator_;
+    int bitsPerSymbol_;
+    int numSymbols_;
+    itpp::cvec symbols_;
+    bool setMod_;
 
-public:
-  cCapacity(): nBitsPerSymbol(0), nSymbols(0), vecSymbols(0), bSetMod(false) 
-  { }
-  cCapacity(itpp::Modulator_2D &Mod)
-  {
-    setModulator(Mod);
-  }
+  public:
+    Capacity(): bitsPerSymbol_(0), numSymbols_(0), symbols_(0), setMod_(false) 
+    { }
+    Capacity(const itpp::Modulator_2D &Mod)
+    {
+      SetModulator(Mod);
+    }
 
-  // ~cCapacity() --- デフォルトデストラクタ
+    // ~Capacity() --- デフォルトデストラクタ
 
-  void setModulator(itpp::Modulator_2D &Mod );
+    void SetModulator(const itpp::Modulator_2D &Mod );
 
-  // nTrans --- the number of transmitted symbol, nTrial --- trial times 
-  double getCapacity(double EsN0dB, int nTrans = 1000, int nTrial = 100);
-};
-
+    // nTrans --- the number of transmitted symbol, nTrial --- trial times 
+    double GetCapacity(double EsN0dB, int nTrans = 1000, int nTrial = 100);
+    
+  };
+  
+}
 
 #endif

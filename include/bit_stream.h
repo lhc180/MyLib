@@ -5,34 +5,21 @@
 // MP3のビットストリーム用のクラス
 /***********************************************************/
 
-// myimg.hの名前衝突と回避する
-#ifndef TYPEDEF_INT32
-#define TYPEDEF_INT32
-typedef unsigned char UINT8;
-typedef unsigned short UINT16;
-typedef short INT16;
-typedef int INT32;
-#endif
 
-typedef char INT8;
-typedef unsigned int UINT32;
 
-#ifndef TRUE
-#define TRUE    true
-#endif
-#ifndef FALSE
-#define FALSE   false
-#endif
-#ifndef BOOL
-#define BOOL bool
-#endif
+typedef unsigned char Uint8;
+typedef unsigned short Uint16;
+typedef short Int16;
+typedef int Int32;             // at least 32
+typedef char Int8;
+typedef unsigned int Uint32;
 
 #define FIFO_SIZE 6144
 
 class CBitStream
 {
 private:
-  UINT8   m_pbyte[FIFO_SIZE];
+  Uint8   m_pbyte[FIFO_SIZE];
   int     m_nFramePos;
   int     m_nBufBitPos;
   int     m_nBufBytePos;
@@ -41,22 +28,22 @@ private:
 
 public:
   CBitStream();
-  CBitStream( UINT8* pData, int nSize ) { CBitStream(); SetData( pData, nSize ); }
+  CBitStream( Uint8* pData, int nSize ) { CBitStream(); SetData( pData, nSize ); }
   virtual ~CBitStream();
   void Reset();
 
   void SkipBits( int n );
-  UINT32 PeekBits( int n );
-  UINT32 GetBits( int n );
-  UINT16 Get1Bit() { return (UINT16)GetBits(1); }
+  Uint32 PeekBits( int n );
+  Uint32 GetBits( int n );
+  Uint16 Get1Bit() { return (Uint16)GetBits(1); }
   void PurgeBits( int nBits ) { GetBits(nBits); }
-  BOOL IsOverrun();
-  BOOL SetData( UINT8* pData, int nSize );
+  bool IsOverrun();
+  bool SetData( Uint8* pData, int nSize );
 
-  BOOL PutFrameMainData( const UINT8* pMainData, int nSize, int nMainDataBegin );
+  bool PutFrameMainData( const Uint8* pMainData, int nSize, int nMainDataBegin );
   void ResetDataBitCount();
   int GetDataBitCount() const;
-  BOOL SeekDataCountBitsPos( UINT32 nBits );
+  bool SeekDataCountBitsPos( Uint32 nBits );
 };
 
 #endif

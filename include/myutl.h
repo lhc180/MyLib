@@ -8,6 +8,7 @@
 #include<cstdlib>
 #include<cassert>
 #include<cmath>
+#include<itpp/itbase.h>
 // #include"./mymatrix.h"
 // #include"./mymatrix_utl.h"
 
@@ -15,7 +16,6 @@
 // itppが使えない環境用の各種変換用関数
 // また、その他の変換用の関数など
 //
-// itppは使わない
 /****************************/
 
 typedef unsigned char u_char;
@@ -25,19 +25,26 @@ namespace mylib
 {
   const double INFTY = 1E200;
 
+  // itppとstdの相互変換
+  template < typename kind >
+  itpp::Vec< kind > ToItppVec(const std::vector< kind >& input);
+
+  template < typename kind >
+  std::vector< kind > ToStdVector(const itpp::Vec< kind >& input);
+  
   // int型のvectorをnormで正規化する
-  void                normalizeData(const std::vector<int> &input, std::vector<double> &output, unsigned norm);
-  std::vector<double> normalizeData(const std::vector<int> &input, unsigned norm);
+  inline void                normalizeData(const std::vector<int> &input, std::vector<double> &output, unsigned norm);
+  inline std::vector<double> normalizeData(const std::vector<int> &input, unsigned norm);
 
   // double型のvectorをnormでdenormalizeする
-  void             denormalizeData(const std::vector<double> &input, std::vector<int> &output, unsigned norm);
-  std::vector<int> denormalizeData(const std::vector<double> &input, unsigned norm);
+  inline void             denormalizeData(const std::vector<double> &input, std::vector<int> &output, unsigned norm);
+  inline std::vector<int> denormalizeData(const std::vector<double> &input, unsigned norm);
 
   // fileにvectorを出力するが、withIndexがtrueならインデックスも付加する
   template<typename kind>
   void fprintVec(std::ofstream            &file,
-		  const std::vector<kind> &input,
-		  bool                     withIndex = true);
+                 const std::vector<kind> &input,
+                 bool                     withIndex = true);
 
   // start~endをdivで刻んだ値にする
   template<typename kind>
@@ -61,12 +68,15 @@ namespace mylib
   // inputのstart番目の要素からnumber分抜き出す
   // numberに負の数を入れた場合は、最後の要素まで抜き出す
   template<typename kind>
-  std::vector<kind> getMid(const std::vector<kind> &input, const int start, const int number);
+  std::vector<kind> Mid(const std::vector<kind> &input, const int start, const int number);
 
   // forwardVecにbackwardVecを結合する
   template<typename kind>
-  std::vector<kind> concat(const std::vector<kind> &forwardVec, const std::vector<kind> &backwardVec);
-
+  std::vector<kind> Concat(const std::vector<kind> &forwardVec, const std::vector<kind> &backwardVec);
+  template <typename kind>
+  std::vector<kind> Concat(kind forward, const std::vector<kind>& backwardVec);
+  
+  
   template<typename type>
   type maxOf(type x1, type x2);
 
@@ -79,11 +89,14 @@ namespace mylib
   template <typename kind>
   kind Min(const std::vector< kind > &input);
 
+  template <typename kind>
+  kind Sum(const std::vector< kind > &input);
+  
   //   int toShort(double input);
-//   std::vector<int> toShort(const std::vector<double> &input);
-
-  int              toInt(double input);
-  std::vector<int> toInt(const std::vector<double> &input);
+  //   std::vector<int> toShort(const std::vector<double> &input);
+  
+  template < typename kind >
+  std::vector<int> ToInt(const std::vector<kind> &input);
 
   template< typename kind >
   double toDouble(kind input);
@@ -108,12 +121,80 @@ namespace mylib
   // ファイルの拡張子を取り出す
   std::string FileExtention(const char* fileName);
 
+  // ファイルのサイズを返す
+  size_t FileSize(const char* fileName);
+  
   // 2のべき乗かどうかのチェック
   bool Radix2(int input);
 
   // 絶対値
   std::vector< double > Abs(const std::vector< double > &input);
-}                               // end of namespace mylib
+
+  template < typename kind >
+  inline std::vector< kind > LevelShift(const std::vector < kind > &input, kind level)
+  {
+    std::vector< kind > output(input.size());
+    for(int i = 0; i < static_cast< int >(input.size()); i++)
+      {
+        output[i] = input[i] + level;
+      }
+
+    return output;
+  
+  }
+
+  template<typename kind>
+  inline std::vector< kind > Divide(const std::vector< kind > &input, const std::vector< kind > &qTable)
+  {
+    assert(input.size() == qTable.size());
+  
+    std::vector< kind > output(input.size());
+    for(int i = 0; i < input.size(); i++)
+      {
+        output[i] = input[i] / qTable[i];
+      }
+
+    return output;
+  }
+
+  template<typename kind>
+  inline std::vector< kind > Multiply(const std::vector< kind > &input, const std::vector< kind > &qTable)
+  {
+    assert(input.size() == qTable.size());
+  
+    std::vector< kind > output(input.size());
+    for(int i = 0; i < input.size(); i++)
+      {
+        output[i] = input[i] * qTable[i];
+      }
+
+    return output;
+  }
+
+  template < typename kind >
+  inline itpp::Vec< kind > ToItppVec(const std::vector< kind >& input)
+  {
+    itpp::Vec< kind > output(input.size());
+
+    int i = 0;
+    for (typename std::vector< kind >::const_iterator ite = input.begin(); ite != input.end(); ++ite){
+      output[i] = *ite;
+      ++i;
+    } // for ite
+    return output;
+  }
+
+  template < typename kind >
+  inline std::vector< kind > ToStdVector(const itpp::Vec< kind >& input)
+  {
+    std::vector< kind > output(input.size());
+    for (int i = 0, size = output.size(); i < size; ++i){
+      output[i] = input[i];
+    } // for i
+    return output;
+  }
+  
+} // end of namespace mylib
 
 template<typename kind>
 inline std::vector<kind> mylib::setVec(kind start, kind end, kind div)
@@ -187,7 +268,7 @@ inline std::vector<int> mylib::denormalizeData(const std::vector<double> &input,
 }
 
 template<typename kind> 
-void mylib::fprintVec(std::ofstream           &file, 
+inline void mylib::fprintVec(std::ofstream           &file, 
 		      const std::vector<kind> &input,
 		      bool withIndex)
 {
@@ -218,11 +299,11 @@ inline std::vector<int> mylib::dec2bin(int length, int index)
 
 inline int mylib::bin2dec(const std::vector<int> &inbvec, bool msb_first)
 {
-  int                                   i, temp   = 0;
-  int                                   sizebvec  = inbvec.size();
+  int i, temp   = 0;
+  int sizebvec  = inbvec.size();
   if (msb_first) {
     for (i = 0; i < sizebvec; i++) {
-      temp                                       += pow(2,sizebvec - i - 1) * inbvec[i];
+      temp += pow(2,sizebvec - i - 1) * inbvec[i];
     }
   }
   else {
@@ -234,38 +315,36 @@ inline int mylib::bin2dec(const std::vector<int> &inbvec, bool msb_first)
 }
 
 template<typename kind>
-inline std::vector<kind> mylib::getMid(const std::vector<kind> &input, const int start, const int number)
+inline std::vector<kind> mylib::Mid(const std::vector<kind> &input, const int start, const int number)
 {
-  assert((start >= 0) && (start + number <= static_cast<int>(input.size())));
-
-  std::vector<kind> temp(0);
-
-  
-  if(number < 0){
-    for(int i = start; i < static_cast<int>(input.size()); i++){
-      temp.push_back(input[i]);
-    }
-  }
+  if (number >= 0){
+    return std::vector< kind >(input.begin()+start, input.begin()+ start+ number);
+  } // if 
   else{
-    for(int i = 0; i < number; i++){
-      temp.push_back(input[start+i]);
-    }
-  }
-
-  return temp;
+    return std::vector< kind >(input.begin()+start, input.end());
+  } // else
 }
 
 template<typename kind>
-inline std::vector<kind> mylib::concat(const std::vector<kind> &forwardVec, const std::vector<kind> &backwardVec)
+inline std::vector<kind> mylib::Concat(const std::vector<kind> &forwardVec, const std::vector<kind> &backwardVec)
 {
   std::vector<kind> temp = forwardVec;
 
-  for(int i = 0; i < static_cast<int>(backwardVec.size()); i++){
-    temp.push_back(backwardVec[i]);
-  }
+  temp.insert(temp.end(), backwardVec.begin(), backwardVec.end());
 
   return temp;
 }
+
+template <typename kind>
+inline std::vector<kind> mylib::Concat(kind forward, const std::vector<kind>& backwardVec)
+{
+  std::vector<kind> temp(1);
+  temp[0] = forward;
+  std::vector<kind> output = mylib::Concat(temp, backwardVec);
+
+  return output;
+}
+  
 
 template<typename type>
 inline type mylib::maxOf(type x1, type x2)
@@ -294,7 +373,7 @@ inline kind mylib::Max(const std::vector< kind > &input)
 }
 
 template<typename type>
-type mylib::minOf(type x1, type x2)
+inline type mylib::minOf(type x1, type x2)
 {
   if(x1 < x2){
     return x1;
@@ -308,7 +387,7 @@ template <typename kind>
 inline kind mylib::Min(const std::vector< kind > &input)
 {
   kind min = input[0];
-  for (typename std::vector< kind >::const_iterator curInput;
+  for (typename std::vector< kind >::const_iterator curInput = input.begin();
        curInput != input.end(); ++curInput){
     if (min > *curInput){
       min = *curInput;
@@ -318,6 +397,17 @@ inline kind mylib::Min(const std::vector< kind > &input)
   return min;
 }
 
+template <typename kind>
+inline kind mylib::Sum(const std::vector< kind > &input)
+{
+  kind sum = 0;
+  for (typename std::vector< kind >::const_iterator curInput = input.begin();
+       curInput != input.end(); ++curInput){
+    sum += *curInput;
+  } // for curInput
+
+  return sum;
+}
 
 // inline int mylib::toShort(double input)
 // {
@@ -356,17 +446,14 @@ inline kind mylib::Min(const std::vector< kind > &input)
 //   return output;
 // }
 
-inline int mylib::toInt(double input)
-{
-  return mylib::round_uPoint(input);
-}
 
-inline std::vector<int> mylib::toInt(const std::vector<double> &input)
+template < typename kind >
+inline std::vector<int> mylib::ToInt(const std::vector<kind> &input)
 {
   std::vector<int> output(input.size());
 
   for(int i = 0; i < static_cast<int>(input.size()); i++){
-    output[i] = mylib::round_uPoint(input[i]);
+    output[i] = static_cast< int >(input[i]);
   }
 
   return output;
@@ -452,6 +539,14 @@ inline std::string mylib::FileExtention(const char* filename_c)
 
   std::cout << "Error: File extention unrecognized." << std::endl;
   exit(1);
+}
+
+inline size_t mylib::FileSize(const char* filename)
+{
+  std::ifstream infile(filename);
+  size_t fileSize = (size_t)infile.seekg(0, std::ios::end).tellg();
+  infile.close();
+  return fileSize;
 }
 
 inline bool mylib::Radix2(int input)

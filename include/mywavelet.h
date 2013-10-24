@@ -7,8 +7,22 @@
 #include "myutl.h"
 #include "mymatrix.h"
 
-// 2次元ウェーブレット変換のクラス
-// 1次元は作らない
+/************************************************************************************
+ * Wavelet
+ *
+ * ウェーブレット変換と変換領域を1次元配列にするための関数を含む
+ *
+ * Contents:
+ *   Wavelet2D
+ *   To1D_forWVT
+ *   To2D_forWVT
+ *
+ * Last Updated: <2013/03/11 21:10:12 from Yoshitos-iMac.local by yoshito>
+ ************************************************************************************/
+
+// =============== To Do List ===============
+// -- ヘッダと実装ファイルの分割
+// ==========================================
 
 
 namespace mylib{
@@ -189,13 +203,13 @@ namespace mylib{
       std::vector< kind > output = To1D_forWVT(quarterPixels.GetBlock(0,0)); // 再帰関数
 
       Vector_2D< kind > temp = quarterPixels.GetBlock(0,1);
-      output = concat(output, temp.To1D());
+      output = Concat(output, temp.To1D());
     
       temp = quarterPixels.GetBlock(1,0);
-      output = concat(output, temp.To1D());
+      output = Concat(output, temp.To1D());
 
       temp = quarterPixels.GetBlock(1,1);
-      output = concat(output, temp.To1D());
+      output = Concat(output, temp.To1D());
 
       return output;
     } // else height
@@ -218,21 +232,45 @@ namespace mylib{
       int side = static_cast< int >(sqrt(sizeVec));
       assert(Radix2(side));
       CompPixels< kind > output(side, side);
-      Vector_2D< kind > temp2D = To2D_forWVT(getMid(input, 0, sizeVec/4)); // 再帰関数
+      Vector_2D< kind > temp2D = To2D_forWVT(Mid(input, 0, sizeVec/4)); // 再帰関数
       assert(temp2D.Width() == side/2);
       output(0, 0, temp2D);
       
-      std::vector< kind > temp = getMid(input, sizeVec/4, sizeVec/4);
+      std::vector< kind > temp = Mid(input, sizeVec/4, sizeVec/4);
       output(0, side/2, To2D(temp, side/2));
 
-      temp = getMid(input, 2*sizeVec/4, sizeVec/4);
+      temp = Mid(input, 2*sizeVec/4, sizeVec/4);
       output(side/2, 0, To2D(temp, side/2));
 
-      temp = getMid(input, 3*sizeVec/4, sizeVec/4);
+      temp = Mid(input, 3*sizeVec/4, sizeVec/4);
       output(side/2, side/2, To2D(temp, side/2));
 
       return output.Get();
     } // else size
+  }
+
+  /************************************************************************************
+   * NumAreas -- ウェーブレット変換された領域が何個のエリア分割数
+   * ただし右下右上左下は同じエリア扱い
+   * 
+   * Arguments:
+   *   waveletSize -- wavelet変換領域の1辺の長さ
+   *
+   * Return Value:
+   *   int -- 分割数
+   ************************************************************************************/
+  inline int NumAreas(int waveletSize)
+  {
+    return log2(static_cast< double >(waveletSize)) + 1;
+  }
+
+  // 上で分けたエリアの番号の総ピクセル数
+  inline int NumPix(int area)
+  {
+    int startPos = static_cast< int >(pow(pow(2, area-1),2));
+    int numPix = static_cast< int >(pow(pow(2, area),2)) - startPos; // 正方形から左上1/4を抜いた部分
+
+    return numPix;
   }
 
   

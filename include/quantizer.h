@@ -286,18 +286,22 @@ namespace mylib{
     // 四捨五入(もし振幅がmaxAmp_を超えてたら補正)
     virtual int ToInt(double input)
     {
-      if (input >= 0 && input > maxAmp_ - 1){
-        input = maxAmp_ - 1;
-      } // if input
-      else if(input < 0 && input < -maxAmp_){
-        input = -maxAmp_;
+      if(quantizeSize_ == 0){
+        return 0;
       }
-      int output = itpp::round_i(input);
+      else{
+        if (input >= 0 && input > maxAmp_ - 1){
+          input = maxAmp_ - 1;
+        } // if input
+        else if(input < 0 && input < -maxAmp_){
+          input = -maxAmp_;
+        }
+        int output = itpp::round_i(input);
       
-      return output;
+        return output;
+      }
+      
     }
-
-    
     
   public:
     StepQ(): Quantizer()
@@ -307,6 +311,14 @@ namespace mylib{
       Set(qSize);
     }
 
+    int MaxAmp() const{
+      return maxAmp_ - 1;
+    }
+
+    int MinAmp() const{
+      return -maxAmp_;
+    }
+    
     virtual void Set(int qSize)
     {
       if (qSize < 0){
@@ -323,6 +335,15 @@ namespace mylib{
       return static_cast< double >(ToInt(input));
     }
 
+    virtual std::vector<double> Quantize(const std::vector<double> &input)
+    {
+      std::vector< double > output(input.size());
+      for (unsigned i = 0; i < input.size(); ++i){
+        output[i] = Quantize(input[i]);
+      } // for i
+      return output;
+    }
+    
     // MSB first
     virtual itpp::bvec Quantize2bvec(double input)
     {
@@ -359,6 +380,9 @@ namespace mylib{
     }
 
   };
+
+  int NecessaryBits(double max, double min);
+  
   
 }
 

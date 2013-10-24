@@ -22,14 +22,14 @@ CMpegFile::~CMpegFile()
   }
 }
 
-BOOL CMpegFile::Open( const char* pFile )
+bool CMpegFile::Open( const char* pFile )
 {
   m_pFile = fopen( pFile, "rb" );
   if( m_pFile==NULL ){
-    return FALSE;
+    return false;
   }
 
-  return TRUE;
+  return true;
 }
 
 void CMpegFile::Close()
@@ -63,13 +63,13 @@ inline unsigned short CalcCRC( unsigned char* pCheckBuf, int nBytes )
   return (unsigned short)crc;
 }
 
-BOOL CMpegFile::SeekMpegFrame( CMpegFrame* pMpegFrame )
+bool CMpegFile::SeekMpegFrame( CMpegFrame* pMpegFrame )
 {
-  UINT8 byte = 0;
-  UINT8 byte2[2];
-  UINT8 byteHeader2[2];
-  UINT32 dwPos;
-  UINT16 word;
+  Uint8 byte = 0;
+  Uint8 byte2[2];
+  Uint8 byteHeader2[2];
+  Uint32 dwPos;
+  Uint16 word;
         
   //////////////////////////////////////////////////////////////////
   // フレームヘッダーの検索
@@ -79,14 +79,14 @@ BOOL CMpegFile::SeekMpegFrame( CMpegFrame* pMpegFrame )
     dwPos = ftell(m_pFile);
     if( fread( &byte2, 2, 1, m_pFile )==0 ){
       // std::cout << "## Error in serching sync words.\n";
-      return FALSE;
+      return false;
     }
                 
     word = (byte2[0]<<8) + byte2[1];
     for( int i=0; (word & 0xfff0)!=0xfff0; i++ ){
       if( fread( &byte, 1, 1, m_pFile )==0 ){
 	// std::cout << "## Error in serching sync words.\n";
-	return FALSE;
+	return false;
       }
                         
       word <<= 8;
@@ -96,7 +96,7 @@ BOOL CMpegFile::SeekMpegFrame( CMpegFrame* pMpegFrame )
       // MP3ファイルではないと判断する
       if( i>4096*2 ){
 	std::cerr << "## Error: Can not find a sync header.\n";
-	return FALSE;
+	return false;
       }
     }
                 
@@ -106,7 +106,7 @@ BOOL CMpegFile::SeekMpegFrame( CMpegFrame* pMpegFrame )
                 
     if( fread( &byte2, 2, 1, m_pFile)==0 ){
       std::cout << "## Error: Illegal header file.\n";
-      return FALSE;
+      return false;
     }
     memcpy( byteHeader2, byte2, 2 );
     word = (byte2[0]<<8) + byte2[1];
@@ -132,7 +132,7 @@ BOOL CMpegFile::SeekMpegFrame( CMpegFrame* pMpegFrame )
   //////////////////////////////////////////////////////////////////
   if( pMpegFrame->m_nProtectionBit==0 ){
     if( fread( byte2, 2, 1, m_pFile)==0 ){
-      return FALSE;
+      return false;
     }
     pMpegFrame->m_nCRCCheck = (byte2[0]<<8) + byte2[1];
   }
@@ -143,7 +143,7 @@ BOOL CMpegFile::SeekMpegFrame( CMpegFrame* pMpegFrame )
   //////////////////////////////////////////////////////////////////
   // サイド情報の読み込み
   //////////////////////////////////////////////////////////////////
-  UINT8 byteSide[64];
+  Uint8 byteSide[64];
   int nSideSize;
   if( pMpegFrame->GetChannels()==1 ){
     nSideSize = 17;
@@ -153,25 +153,25 @@ BOOL CMpegFile::SeekMpegFrame( CMpegFrame* pMpegFrame )
   }
 
   if( fread( byteSide, nSideSize, 1, m_pFile)==0 ){
-    return FALSE;
+    return false;
   }
   CBitStream bs( byteSide, nSideSize );
         
   if( !DecodeSideInfo( &bs, pMpegFrame ) ){
-    return FALSE;
+    return false;
   }
   
   //////////////////////////////////////////////////////////////////
   // CRCチェック
   //////////////////////////////////////////////////////////////////
   if( !pMpegFrame->m_nProtectionBit ){
-    UINT8 pCheckBuf[34];
+    Uint8 pCheckBuf[34];
     memcpy( pCheckBuf, byteHeader2, 2 ); //ヘッダー
     memcpy( pCheckBuf+2, byteSide, nSideSize ); //サイド情報
-    UINT16 crc = CalcCRC( pCheckBuf, nSideSize+2 );
+    Uint16 crc = CalcCRC( pCheckBuf, nSideSize+2 );
     if( crc!=pMpegFrame->m_nCRCCheck ){
       //CRCエラーの場合、デコードを中止する
-      return FALSE;
+      return false;
       //continue;
     }
   }
@@ -180,7 +180,7 @@ BOOL CMpegFile::SeekMpegFrame( CMpegFrame* pMpegFrame )
   // サポートフォーマットのチェック
   //////////////////////////////////////////////////////////////////
   if( pMpegFrame->m_nID!=1 || pMpegFrame->m_nLayer!=1 || pMpegFrame->m_nBitrateIndex==0 ){
-    return FALSE;
+    return false;
   }
  
   //////////////////////////////////////////////////////////////////
@@ -188,23 +188,23 @@ BOOL CMpegFile::SeekMpegFrame( CMpegFrame* pMpegFrame )
   //////////////////////////////////////////////////////////////////
   int nMainDataSize = pMpegFrame->GetMainDataSize();
   if( nMainDataSize<0 ){
-    return FALSE;
+    return false;
   }
   // std::cout << "## nMainSize = " << nMainSize << std::endl;
   
   if( fread( pMpegFrame->m_pbyteMainData, nMainDataSize, 1, m_pFile)==0 ){
     // std::cout << "Error: Can not get main data.\n";
-    return FALSE;
+    return false;
   }
   pMpegFrame->m_nMainDataSize = nMainDataSize;
   // std::cout << "## Serching header.\n";  
-  return TRUE;
+  return true;
 }
 
-BOOL CMpegFile::DecodeSideInfo( CBitStream* pbs, CMpegFrame* pMpegFrame )
+bool CMpegFile::DecodeSideInfo( CBitStream* pbs, CMpegFrame* pMpegFrame )
 {
   int gr, ch, i, window;
-  pMpegFrame->m_nMainDataBegin = (UINT16)pbs->GetBits(9);
+  pMpegFrame->m_nMainDataBegin = (Uint16)pbs->GetBits(9);
   if( pMpegFrame->GetChannels()==1 ){
     //Private Bits
     pbs->SkipBits(5);
@@ -216,52 +216,52 @@ BOOL CMpegFile::DecodeSideInfo( CBitStream* pbs, CMpegFrame* pMpegFrame )
 
   for( ch=0; ch<pMpegFrame->GetChannels(); ch++){
     for( i=0; i<4; i++){
-      pMpegFrame->m_nScfSi[ch][i] = (UINT16)pbs->GetBits(1);
+      pMpegFrame->m_nScfSi[ch][i] = (Uint16)pbs->GetBits(1);
     }
   }
 
   for( gr=0; gr<2; gr++){
     for( ch=0; ch<pMpegFrame->GetChannels(); ch++){
-      pMpegFrame->m_GranuleInfo[ch][gr].nPart23Length = (UINT16)pbs->GetBits(12);
-      pMpegFrame->m_GranuleInfo[ch][gr].nBigValues = (UINT16)pbs->GetBits(9);
-      pMpegFrame->m_GranuleInfo[ch][gr].nGlobalGain = (UINT16)pbs->GetBits(8);
-      pMpegFrame->m_GranuleInfo[ch][gr].nScalefacCompress = (UINT16)pbs->GetBits(4);
+      pMpegFrame->m_GranuleInfo[ch][gr].nPart23Length = (Uint16)pbs->GetBits(12);
+      pMpegFrame->m_GranuleInfo[ch][gr].nBigValues = (Uint16)pbs->GetBits(9);
+      pMpegFrame->m_GranuleInfo[ch][gr].nGlobalGain = (Uint16)pbs->GetBits(8);
+      pMpegFrame->m_GranuleInfo[ch][gr].nScalefacCompress = (Uint16)pbs->GetBits(4);
       pMpegFrame->m_GranuleInfo[ch][gr].nWindowSwitchingFlag = pbs->GetBits(1);
       if( pMpegFrame->m_GranuleInfo[ch][gr].nWindowSwitchingFlag ){
-	pMpegFrame->m_GranuleInfo[ch][gr].nBlockType = (UINT16)pbs->GetBits(2);
+	pMpegFrame->m_GranuleInfo[ch][gr].nBlockType = (Uint16)pbs->GetBits(2);
 	pMpegFrame->m_GranuleInfo[ch][gr].nMixedBlockFlag = pbs->GetBits(1);
 	if (pMpegFrame->m_GranuleInfo[ch][gr].nBlockType==0){
 	  // このケースで、ブロックタイプ0は不正
-	  return FALSE;
+	  return false;
 	}
 
 	// このケースでは、Region0とRegion1のみであるため
 	// ハフマンテーブルは２つで問題ない。
 	for( window=0; window<2; window++ ){
-	  pMpegFrame->m_GranuleInfo[ch][gr].nTableSelect[window] = (UINT16)pbs->GetBits(5);
+	  pMpegFrame->m_GranuleInfo[ch][gr].nTableSelect[window] = (Uint16)pbs->GetBits(5);
 	}
 
 	for( window=0; window<3; window++ ){
-	  pMpegFrame->m_GranuleInfo[ch][gr].nSubblockGain[window] = (UINT16)pbs->GetBits(3);
+	  pMpegFrame->m_GranuleInfo[ch][gr].nSubblockGain[window] = (Uint16)pbs->GetBits(3);
 	}
       }
       else { //if NOT m_bWindowSwitching
 	// ノーマルロングブロック（ブロックタイプ0）
 	for( int window=0; window<3; window++ ){
-	  pMpegFrame->m_GranuleInfo[ch][gr].nTableSelect[window] = (UINT16)pbs->GetBits(5);
+	  pMpegFrame->m_GranuleInfo[ch][gr].nTableSelect[window] = (Uint16)pbs->GetBits(5);
 	}
 
-	pMpegFrame->m_GranuleInfo[ch][gr].nRegion0Count = (UINT16)pbs->GetBits(4);
-	pMpegFrame->m_GranuleInfo[ch][gr].nRegion1Count = (UINT16)pbs->GetBits(3);
-	pMpegFrame->m_GranuleInfo[ch][gr].nMixedBlockFlag = FALSE;
+	pMpegFrame->m_GranuleInfo[ch][gr].nRegion0Count = (Uint16)pbs->GetBits(4);
+	pMpegFrame->m_GranuleInfo[ch][gr].nRegion1Count = (Uint16)pbs->GetBits(3);
+	pMpegFrame->m_GranuleInfo[ch][gr].nMixedBlockFlag = false;
 	pMpegFrame->m_GranuleInfo[ch][gr].nBlockType = 0;
       } 
 
-      pMpegFrame->m_GranuleInfo[ch][gr].nPreFlag = (UINT16)pbs->GetBits(1);
-      pMpegFrame->m_GranuleInfo[ch][gr].nScalefacScale = (UINT16)pbs->GetBits(1);
-      pMpegFrame->m_GranuleInfo[ch][gr].nCount1TableSelect = (UINT16)pbs->GetBits(1);
+      pMpegFrame->m_GranuleInfo[ch][gr].nPreFlag = (Uint16)pbs->GetBits(1);
+      pMpegFrame->m_GranuleInfo[ch][gr].nScalefacScale = (Uint16)pbs->GetBits(1);
+      pMpegFrame->m_GranuleInfo[ch][gr].nCount1TableSelect = (Uint16)pbs->GetBits(1);
     } //for ch
   } //for gr
 
-  return TRUE;
+  return true;
 }

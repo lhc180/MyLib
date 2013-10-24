@@ -13,8 +13,8 @@
 
 struct SScalefactor
 {
-  UINT16 nLongBlock[23];      // [Scalefactor Band#] //Max 4bits
-  UINT16 nShortBlock[3][13];  // [Window][ScaleFactor Band#] //Max 3bits
+  Uint16 nLongBlock[23];      // [Scalefactor Band#] //Max 4bits
+  Uint16 nShortBlock[3][13];  // [Window][ScaleFactor Band#] //Max 3bits
 };
 
 struct SScalefactorBandIndex
@@ -26,31 +26,31 @@ struct SScalefactorBandIndex
 
 struct SGranuleInfo
 {
-  UINT16  nPart23Length;                  // 12 Bits
-  UINT16  nBigValues;                     // 9 Bits
-  UINT16  nGlobalGain;                    // 8 Bits
-  UINT16  nScalefacCompress;              // 4 Bits
-  UINT16  nWindowSwitchingFlag;           // 1 Bit
-  UINT16  nBlockType;                     // 2 Bits 
-  UINT16  nMixedBlockFlag;                // 1 Bit
-  UINT16  nTableSelect[3];                // 5 Bits * 3
-  UINT16  nSubblockGain[3];               // 3 Bits * 3
-  UINT16  nRegion0Count;                  // 4 Bits
-  UINT16  nRegion1Count;                  // 3 Bits
-  UINT16  nPreFlag;                       // 1 Bit 
-  UINT16  nScalefacScale;                 // 1 Bit
-  UINT16  nCount1TableSelect;             // 1 Bit 0:QUAD_A 1:QUAD_B
+  Uint16  nPart23Length;                  // 12 Bits
+  Uint16  nBigValues;                     // 9 Bits
+  Uint16  nGlobalGain;                    // 8 Bits
+  Uint16  nScalefacCompress;              // 4 Bits
+  Uint16  nWindowSwitchingFlag;           // 1 Bit
+  Uint16  nBlockType;                     // 2 Bits 
+  Uint16  nMixedBlockFlag;                // 1 Bit
+  Uint16  nTableSelect[3];                // 5 Bits * 3
+  Uint16  nSubblockGain[3];               // 3 Bits * 3
+  Uint16  nRegion0Count;                  // 4 Bits
+  Uint16  nRegion1Count;                  // 3 Bits
+  Uint16  nPreFlag;                       // 1 Bit 
+  Uint16  nScalefacScale;                 // 1 Bit
+  Uint16  nCount1TableSelect;             // 1 Bit 0:QUAD_A 1:QUAD_B
 
-  BOOL IsMixedBlock() const { return nBlockType==2 && nMixedBlockFlag; }
-  BOOL IsLongBlock() const { return nBlockType!=2; }
-  BOOL IsShortBlock() const { return nBlockType==2 && !nMixedBlockFlag; }
+  bool IsMixedBlock() const { return nBlockType==2 && nMixedBlockFlag; }
+  bool IsLongBlock() const { return nBlockType!=2; }
+  bool IsShortBlock() const { return nBlockType==2 && !nMixedBlockFlag; }
 };
 
 struct SSampleMap
 {
-  UINT16 nBlockType;
-  UINT16 nSubblock;
-  UINT16 nOrderIndex;
+  Uint16 nBlockType;
+  Uint16 nSubblock;
+  Uint16 nOrderIndex;
   double fScale;
 };
 
@@ -65,33 +65,33 @@ class CMpegFrame
 {
 private:
   //フレームヘッダー項目
-  UINT16 m_nID;                           //1 bit
-  UINT16 m_nLayer;                        //2 bits
-  UINT16 m_nProtectionBit;                //1 bit
-  UINT16 m_nBitrateIndex;                 //4 bits
-  UINT16 m_nSamplingFrequency;            //2 bits
-  UINT16 m_nPaddingBit;                   //1 bit
-  UINT16 m_nMode;                         //2 bits
-  UINT16 m_nModeExtention;                //2 bits
-  UINT16 m_nCopyright;                    //1 bit
-  UINT16 m_nOriginal;                     //1 bit
-  UINT16 m_nEmphasis;                     //2 bitb
+  Uint16 m_nID;                           //1 bit
+  Uint16 m_nLayer;                        //2 bits
+  Uint16 m_nProtectionBit;                //1 bit
+  Uint16 m_nBitrateIndex;                 //4 bits
+  Uint16 m_nSamplingFrequency;            //2 bits
+  Uint16 m_nPaddingBit;                   //1 bit
+  Uint16 m_nMode;                         //2 bits
+  Uint16 m_nModeExtention;                //2 bits
+  Uint16 m_nCopyright;                    //1 bit
+  Uint16 m_nOriginal;                     //1 bit
+  Uint16 m_nEmphasis;                     //2 bitb
 
   //サイド情報項目
-  UINT16  m_nCRCCheck;
-  UINT16  m_nMainDataBegin;
-  UINT16  m_nScfSi[2][4];                 // [Channel][] 1 Bit
+  Uint16  m_nCRCCheck;
+  Uint16  m_nMainDataBegin;
+  Uint16  m_nScfSi[2][4];                 // [Channel][] 1 Bit
   SGranuleInfo m_GranuleInfo[2][2];       // [Channel][Granule]
 
   //メイン情報項目
-  UINT8   m_pbyteMainData[2048];
+  Uint8   m_pbyteMainData[2048];
   int     m_nMainDataSize;
 
 public:
   CMpegFrame();
   ~CMpegFrame();
 
-  BOOL IsValidHeader() const;
+  bool IsValidHeader() const;
   int GetFrameSize() const;
   int GetMainDataSize() const;
   int GetSampleNum() const;
@@ -180,7 +180,7 @@ private:
   void ProcessMSStereo( double x[2][576], int nISIndex );
 
   void DecodeScalefactors( SScalefactor sf[2][2] );
-  BOOL DecodeHuffmanCode( int is[576] );
+  bool DecodeHuffmanCode( int is[576] );
   void CreateSampleMap(  const SScalefactor* psf, SSampleMap* psm );
   void Dequantize( const SSampleMap* psm, const int is[576], double xr[576] );
   void Reorder( const SSampleMap* psm, double xr[576] );
@@ -188,14 +188,14 @@ private:
   void Antialias( double lr[576] );
   void ImdctSynthesys( const double lr[576], double pfb[576] );
   void SubbandSynthesys( const double pfb[576], double pfbOut[576] );
-  int  CreatePcm( const double pfbOut[2][576], INT16 *pcm );
+  int  CreatePcm( const double pfbOut[2][576], Int16 *pcm );
 
 public:
   CMpegDecoder();
   virtual ~CMpegDecoder();
   void Reset();
 
-  BOOL DecodeFrame( const CMpegFrame* pMpegFrame, INT16* pcm, int* pnDataNum );
+  bool DecodeFrame( const CMpegFrame* pMpegFrame, Int16* pcm, int* pnDataNum );
 }; 
 /*********************end of CMpegDecoder***************/
 

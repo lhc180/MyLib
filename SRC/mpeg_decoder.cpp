@@ -69,7 +69,7 @@ void CMpegDecoder::Reset()
 
 }
 
-BOOL CMpegDecoder::DecodeFrame( const CMpegFrame* pMpegFrame, INT16* pcm, int* pnDataNum )
+bool CMpegDecoder::DecodeFrame( const CMpegFrame* pMpegFrame, Int16* pcm, int* pnDataNum )
 {
   SScalefactor Scalefactor[2][2];        // [Channel][Granule]
   SSampleMap SampleMap[2][576];        // [Channel][Sample]
@@ -88,7 +88,7 @@ BOOL CMpegDecoder::DecodeFrame( const CMpegFrame* pMpegFrame, INT16* pcm, int* p
 			      , m_pMpegFrame->GetMainDataSize(), m_pMpegFrame->m_nMainDataBegin ) )
     {
       // MP3ファイルの第1フレームでは必ずFALSEを返すが、それで正常。
-      return FALSE;
+      return false;
     }
 
 
@@ -107,7 +107,7 @@ BOOL CMpegDecoder::DecodeFrame( const CMpegFrame* pMpegFrame, INT16* pcm, int* p
       //-----------------------------------------------------------
       if( !DecodeHuffmanCode( is[m_nChannel] ) ){
 	// MP3ファイルまたはプログラムの不正
-	return FALSE;
+	return false;
       }
 
       // 次のビット読み込み位置へ移動する
@@ -179,10 +179,10 @@ BOOL CMpegDecoder::DecodeFrame( const CMpegFrame* pMpegFrame, INT16* pcm, int* p
     
   *pnDataNum = nPcmPoint;
 
-  return TRUE;
+  return true;
 }
 
-static INT16 g_nSlenTable[2][16] = 
+static Int16 g_nSlenTable[2][16] = 
   { { 0, 0, 0, 0, 3, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4},
     { 0, 1, 2, 3, 0, 1, 2, 3, 1, 2, 3, 1, 2, 3, 2, 3} 
   };
@@ -287,8 +287,8 @@ void CMpegDecoder::DecodeScalefactors( SScalefactor Scalefactor[2][2] )
 
 struct SHuffmanTable
 {
-  INT16   ptr;
-  INT16   x, y;
+  Int16   ptr;
+  Int16   x, y;
 };
 
 struct SHuffmanTableLook
@@ -299,8 +299,8 @@ struct SHuffmanTableLook
 
 struct SHuffmanTableQuad
 {
-  INT16   ptr;
-  INT16   v, w, x, y;
+  Int16   ptr;
+  Int16   v, w, x, y;
 };
 
 struct SHuffmanTableLookQuad
@@ -1828,9 +1828,9 @@ inline static void LookupHuffman( int nTable, CBitStream* pbs, int* xy )
   int* y = xy+1;
     
   // Lookup in Huffman table.
-  register INT16 point0 = 0;
-  register INT16 bit = 0;
-  register INT16 point;
+  register Int16 point0 = 0;
+  register Int16 bit = 0;
+  register Int16 point;
   do {
     point = point0;
     bit = pbs->Get1Bit();
@@ -1862,9 +1862,9 @@ inline static void LookupHuffmanQuad( int nTable, CBitStream* pbs, int* vwxy )
   int* y = vwxy+3;
     
   // Lookup in Huffman table.
-  register INT16 point0 = 0;
-  register INT16 bit = 0;
-  register INT16 point;
+  register Int16 point0 = 0;
+  register Int16 bit = 0;
+  register Int16 point;
   do {
     point = point0;
     bit = pbs->Get1Bit();
@@ -1914,7 +1914,7 @@ bool CMpegDecoder::DecodeHuffmanCode( int is[576] )
   for( ; nIndex<=576-2 && nIndex<pgi->nBigValues*2; nIndex+=2 ){
     if( m_bs.IsOverrun() ){
       m_nLastError = ERROR_BITOVERRUN;
-      return FALSE;
+      return false;
     }
 
     int nTable;
@@ -1940,7 +1940,7 @@ bool CMpegDecoder::DecodeHuffmanCode( int is[576] )
   for( ; nIndex<=576-4 && m_bs.GetDataBitCount()<pgi->nPart23Length; nIndex+=4 ){
     if( m_bs.IsOverrun() ){
       m_nLastError = ERROR_BITOVERRUN;
-      return FALSE;
+      return false;
     }
 
     LookupHuffmanQuad( pgi->nCount1TableSelect, &m_bs, &is[nIndex] );
@@ -1953,7 +1953,7 @@ bool CMpegDecoder::DecodeHuffmanCode( int is[576] )
     is[nIndex] = 0;
   }
 
-  return TRUE;
+  return true;
 }
 
 /*******************ハフマン符号終了***********************/
@@ -2102,9 +2102,9 @@ void CMpegDecoder::Reorder( const SSampleMap* pSampleMap, double xr[576] )
 
 void CMpegDecoder::JointStereoDecode( const SScalefactor* pScalefactor, double xr[2][576] )
 {
-  BOOL bMSStereo = m_pMpegFrame->GetMode()==1 
+  bool bMSStereo = m_pMpegFrame->GetMode()==1 
     && m_pMpegFrame->GetModeExtention() & 0x02; 
-  BOOL bIStereo = m_pMpegFrame->GetMode()==1
+  bool bIStereo = m_pMpegFrame->GetMode()==1
     && m_pMpegFrame->GetModeExtention() & 0x01;
 
   int nISIndex = 576;
@@ -2123,10 +2123,10 @@ void CMpegDecoder::JointStereoDecode( const SScalefactor* pScalefactor, double x
   }
 }
 
-static BOOL g_bInitProcessIStereo = FALSE;
-static BOOL g_bInitAntialias = FALSE;
-static BOOL g_bInitImdct = FALSE;
-static BOOL g_bInitSubband = FALSE;
+static bool g_bInitProcessIStereo = false;
+static bool g_bInitAntialias = false;
+static bool g_bInitImdct = false;
+static bool g_bInitSubband = false;
 static double g_fRatio[7];
 
 static void InitializeProcessIStereo()
@@ -2173,7 +2173,7 @@ int CMpegDecoder::ProcessIStereo( const SScalefactor* pScalefactor, double x[2][
 {
   if( !g_bInitProcessIStereo ){
     InitializeProcessIStereo();
-    g_bInitProcessIStereo = TRUE;
+    g_bInitProcessIStereo = true;
   }
 
   const SGranuleInfo* pgi = &m_pMpegFrame->m_GranuleInfo[m_nChannel][m_nGranule];
@@ -2261,7 +2261,7 @@ void CMpegDecoder::Antialias( double lr[] )
 {
   if( !g_bInitAntialias ){
     InitializeAntialias();
-    g_bInitAntialias = TRUE;
+    g_bInitAntialias = true;
   }
 
   const SGranuleInfo* pgi = &m_pMpegFrame->m_GranuleInfo[m_nChannel][m_nGranule];
@@ -2340,7 +2340,7 @@ void CMpegDecoder::ImdctSynthesys( const double lr[576], double pfb[576] )
 {
   if( !g_bInitImdct ){
     InitializeImdctSynthesys();
-    g_bInitImdct = TRUE;
+    g_bInitImdct = true;
   }
 
   const SGranuleInfo* pgi = &m_pMpegFrame->m_GranuleInfo[m_nChannel][m_nGranule];
@@ -2587,7 +2587,7 @@ void CMpegDecoder::SubbandSynthesys( const double pfb[576], double pfbOut[576] )
 {
   if( !g_bInitSubband ){
     InitializeSubbandSynthesys();
-    g_bInitSubband = TRUE;
+    g_bInitSubband = true;
   }
 
   //変数名が長いので付け替える
@@ -2631,15 +2631,15 @@ void CMpegDecoder::SubbandSynthesys( const double pfb[576], double pfbOut[576] )
   }
 }
 
-int CMpegDecoder::CreatePcm( const double pfbOut[2][576], INT16* pcm )
+int CMpegDecoder::CreatePcm( const double pfbOut[2][576], Int16* pcm )
 {
   int clip = 0;
   int nPcmIndex = 0;
     
   for( int i=0; i<576; i++ ){
     for( int ch=0; ch<m_pMpegFrame->GetChannels(); ch++ ){
-      INT32 lOut = (INT32)(pfbOut[ch][i] * 32768L);
-
+      Int32 lOut = (Int32)(pfbOut[ch][i] * 32768L);
+      
       if( lOut>32767L ){
 	pcm[nPcmIndex++] = 32767;
 	++clip;
@@ -2649,7 +2649,7 @@ int CMpegDecoder::CreatePcm( const double pfbOut[2][576], INT16* pcm )
 	++clip;
       }
       else{
-	pcm[nPcmIndex++] = (INT16)lOut;
+	pcm[nPcmIndex++] = (Int16)lOut;
       }
     }
   }

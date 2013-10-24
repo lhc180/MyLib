@@ -1,6 +1,6 @@
 #include <cmath>
 #include "../include/pqmf.h"
-// #include "../include/myutl.h"
+#include "../include/myutl.h"
 
 static const double h[FILTER_LENGTH] = {
   0.0,
@@ -675,7 +675,7 @@ void cPQMF::analyze(const std::vector<double> &input, mylib::vec_2D &output_2D)
   analyze(input, output);
 
   for(int subband = 0; subband < static_cast<int>(SUBBAND_NUM); subband++){
-    std::vector<double> temp = mylib::getMid(output, output.size()/SUBBAND_NUM*subband,
+    std::vector<double> temp = mylib::Mid(output, output.size()/SUBBAND_NUM*subband,
                                              output.size()/SUBBAND_NUM);
     output_2D(subband) = temp;
   }
@@ -775,7 +775,7 @@ void cPQMF::synthesize(const mylib::vec_2D &input_2D, std::vector<double> &outpu
   std::vector<double> input(0);
 
   for(int subband = 0; subband < static_cast<int>(SUBBAND_NUM); subband++){
-    input = mylib::concat(input, input_2D(subband));
+    input = mylib::Concat(input, input_2D(subband));
   }
 
   synthesize(input, output);

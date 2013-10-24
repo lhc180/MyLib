@@ -12,7 +12,6 @@
 #include "myutl.h"
 // #include <itpp/itbase.h>
 
-
 namespace mylib
 {
 
@@ -31,7 +30,7 @@ namespace mylib
     
   public:
     // constructor
-    Vector_2D(int rows = 0, int cols = 0): vMat_(rows, std::vector< kind>(cols,0))
+    Vector_2D(int rows = 0, int cols = 0, kind val = 0): vMat_(rows, std::vector< kind>(cols,val))
     { }
     
     // destructor
@@ -121,23 +120,23 @@ namespace mylib
     
     // row行col列目の要素へのアクセス
     const kind &operator()(int row, int col) const{
-      check_rowRange(row);
-      check_colRange(row, col);
+      // check_rowRange(row);
+      // check_colRange(row, col);
       return vMat_[row][col];
     }
     kind &operator()(int row, int col){
-      check_rowRange(row);
-      check_colRange(row, col);
+      // check_rowRange(row);
+      // check_colRange(row, col);
       return vMat_[row][col];
     }
 
     // row行のvectorへのアクセス
     const std::vector<kind> &operator()(int row) const{
-      check_rowRange(row);
+      // check_rowRange(row);
       return vMat_[row];
     }
     std::vector<kind> &operator()(int row){
-      check_rowRange(row);
+      // check_rowRange(row);
       return vMat_[row];
     }
 
@@ -183,7 +182,7 @@ namespace mylib
     // Add element to row.
     void push_back(int row, kind elem)
     {
-      check_rowRange(row);
+      // check_rowRange(row);
       vMat_[row].push_back(elem);
     }
 
@@ -214,7 +213,7 @@ namespace mylib
 
     // transform to std::vector.
     // The order is (0,0) -> (0,size_cols(0)-1) -> (1, 0) ~~~ (size_rows()-1, size_cols()-1)
-    std::vector< kind > to_1D() const
+    std::vector< kind > To1D() const
     {
       std::vector< kind > output(0);
       
@@ -238,31 +237,51 @@ namespace mylib
 
   
   template< typename kind >
-  inline Vector_2D< kind > to_2D(const std::vector< kind > &input, int numCols)
+  inline Vector_2D< kind > To2D(const std::vector< kind > &input, int numCols)
   {
     int numRows = input.size() / numCols + 
       ((input.size() % numCols == 0) ? 0 : 1);
     
-    Vector_2D< kind > output(numRows);
-    for(int i = 0; i < input.size(); i++)
-      {
-        int row = i / numCols;
-        output(row).push_back(input[i]);
-      }
+    Vector_2D< kind > output(numRows, numCols);
+
+    for(int i = 0, size = input.size(); i < size; i++){
+      int row = i / numCols;
+      int col = i % numCols;
+      output(row, col) = input[i];
+    } // for i
     
     return output;
   }
 
   template< typename kind >
-  inline Vector_2D< double > toDouble(const Vector_2D< kind > &input)
+  inline Vector_2D< int > ToInt(const Vector_2D< kind > &input)
+  {
+    Vector_2D< int > output(input.size_rows(), 0);
+
+    for(int row = 0; row < input.size_rows(); row++)
+      {
+        output(row).resize(input.size_cols(row));
+        for(int col = 0; col < input.size_cols(row); col++)
+          {
+            output(row, col) = static_cast< int >(input(row, col));
+          } // for col
+      }     // for row
+    
+    return output;
+  }
+
+  
+  template< typename kind >
+  inline Vector_2D< double > ToDouble(const Vector_2D< kind > &input)
   {
     Vector_2D< double > output(input.size_rows(), 0);
 
     for(int row = 0; row < input.size_rows(); row++)
       {
+        output(row).resize(input.size_cols(row));
         for(int col = 0; col < input.size_cols(row); col++)
           {
-            output(row).push_back(static_cast< double >(input(row, col)));
+            output(row, col) = static_cast< double >(input(row, col));
           } // for col
       }     // for row
     
@@ -270,21 +289,57 @@ namespace mylib
   }
 
   template< typename kind >
-  inline Vector_2D< u_char > toU_char(const Vector_2D< kind > &input)
+  inline Vector_2D< u_char > ToU_char(const Vector_2D< kind > &input)
   {
     Vector_2D< u_char > output(input.size_rows(), 0);
 
+    // std::cout << "## called" << std::endl;
+    
     for(int row = 0; row < input.size_rows(); row++)
       {
+        output(row).resize(input.size_cols(row));
         for(int col = 0; col < input.size_cols(row); col++)
           {
-            output(row).push_back(static_cast< u_char >(input(row, col)));
+            kind temp = input(row, col);
+            if (temp > 255){
+              temp = 255;
+            } // if
+            if(temp < 0){
+              temp = 0;
+            }
+            output(row, col) = static_cast< u_char >(temp);
           } // for col
       }     // for row
     
     return output;
   }
 
+  template < typename kind >
+  inline itpp::Mat< kind > ToItppMat(const mylib::Vector_2D< kind >& input)
+  {
+    assert(input.is_rectangular());
+    itpp::Mat< kind > output(input.Height(), input.Width());
+    
+    for (int r = 0, rows = input.Height(); r < rows; ++r){
+      std::vector< kind > temp = input(r);
+      output.set_row(r, ToItppVec(temp));
+    } // for r
+
+    return output;
+  }
+
+  template < typename kind >
+  inline mylib::Vector_2D< kind > ToVector_2D(const itpp::Mat< kind >& input)
+  {
+    mylib::Vector_2D< kind > output(input.rows(), input.cols());
+
+    for (int r = 0, rows = input.rows(); r < rows ; ++r){
+      itpp::Vec< kind > temp = input.get_row(r);
+      output(r) = ToStdVector(temp);
+    } // for r
+    return output;
+  }
+  
   inline vec_2D Abs(const vec_2D &input)
   {
     vec_2D output(input.size_rows(), 0);
@@ -316,13 +371,183 @@ namespace mylib
     kind min = input(0,0);
 
     for (int i = 0; i < input.size_rows(); ++i){
-    int temp = Min(input(i));
+      int temp = Min(input(i));
       if(min > temp){
         min = temp;
       }
     } // for curInput
     return min;
   }
+
+  template < typename kind >
+  inline Vector_2D< kind > LevelShift(const Vector_2D< kind > &input, kind level)
+  {
+    Vector_2D< kind > output(input.size_rows(), 0);
+  
+    for(int row = 0; row < input.size_rows(); row++)
+      {
+        output(row) = LevelShift(input(row), level);
+      }
+  
+    return output;
+  }
+
+  template<typename kind>
+  inline Vector_2D< kind > Divide(const Vector_2D< kind > &input,
+                                  const Vector_2D< kind > &qTable)
+  {
+    assert(input.size_rows() == qTable.size_rows());
+
+    Vector_2D< kind > output(input.size_rows());
+    for(int row = 0; row < input.size_rows(); row++)
+      {
+        output(row) = Divide(input(row), qTable(row));
+      }
+
+    return output;
+  }
+
+  template<typename kind>
+  inline Vector_2D< kind > Multiply(const Vector_2D< kind > &input,
+                                    const Vector_2D< kind > &qTable)
+  {
+    assert(input.size_rows() == qTable.size_rows());
+
+    Vector_2D< kind > output(input.size_rows());
+    for(int row = 0; row < input.size_rows(); row++)
+      {
+        output(row) = Multiply(input(row), qTable(row));
+      }
+
+    return output;
+  }
+
+  // Divides BMP pixel data into square areas.
+  template< typename kind >
+  class DividePixels
+  {
+  protected:
+    Vector_2D< kind > pixels_;
+    int numPix_;
+    mutable int totalHsize_;
+    mutable int totalVsize_;
+    mutable int numHBlocks_;
+    mutable int numVBlocks_;
+  
+  public:
+    DividePixels(const Vector_2D< kind >  &pixels, 
+                 int numPix): pixels_(pixels), numPix_(numPix)
+    {
+      assert(pixels_.is_rectangular());
+
+      totalHsize_ = pixels_.size_cols(0);
+      totalVsize_ = pixels_.size_rows();
+        
+      numHBlocks_ = totalHsize_ / numPix_;
+      if(totalHsize_ % numPix_ != 0)
+        {
+          numHBlocks_++;
+        }
+    
+      numVBlocks_ = totalVsize_ / numPix_;
+      if(totalVsize_ % numPix_ != 0)
+        {
+          numVBlocks_++;
+        }
+    }
+  
+    Vector_2D< kind > GetBlock(int Vblock, int Hblock) const
+    {
+      assert(Vblock >= 0 && Vblock < numVBlocks_);
+      assert(Hblock >= 0 && Hblock < numHBlocks_);
+    
+      int startRow = Vblock * numPix_;
+      int startCol = Hblock * numPix_;
+    
+      Vector_2D< kind > output(numPix_, numPix_);
+      for(int v = 0; v < numPix_; v++)
+        {
+          int row = startRow + v;
+          if(startRow + v >= totalHsize_)
+            {
+              row = totalHsize_ - 1;
+            }
+          for(int h = 0; h < numPix_; h++)
+            {
+              int col = startCol + h;
+              if(startCol + h >= totalHsize_)
+                {
+                  col = totalVsize_ - 1;
+                }
+              output(v, h) = pixels_(row, col);
+            }
+        }
+        
+      return output;
+    }
+
+    Vector_2D< kind > operator()(int vBlock, int hBlock) const
+    {
+      return GetBlock(vBlock, hBlock);
+    }
+    
+    int Hblocks() const
+    {
+      return numHBlocks_;
+    }
+    int Vblocks() const
+    {
+      return numVBlocks_;
+    }
+  };
+
+  // Compose Vector_2D divided into blocks.
+  template< typename kind >
+  class CompPixels
+  {
+  protected:
+    Vector_2D< kind > pixels_;
+    int totalHsize_;
+    int totalVsize_;
+  
+  public:
+    CompPixels(int totalVsize, int totalHsize):
+      pixels_(totalVsize, totalHsize), totalHsize_(totalHsize), totalVsize_(totalVsize)
+    {
+    }
+  
+    void operator()(int startRow, int startCol, const Vector_2D< kind > &input)
+    {
+      assert(startRow >= 0 && startRow < totalVsize_);
+      assert(startCol >= 0 && startCol < totalHsize_);
+      assert(input.is_rectangular());
+    
+      for(int v = 0; v < input.size_rows(); v++)
+        {
+          int row = startRow + v;
+          if(row >= totalVsize_)
+            {
+              break;
+            }
+          for(int h = 0; h < input.size_cols(0); h++)
+            {
+              int col = startCol + h;
+              if(col >= totalHsize_)
+                {
+                  break;
+                }
+              pixels_(row, col) = input(v, h);
+            }
+        }
+    }
+  
+    Vector_2D< kind > Get()
+    {
+      return pixels_;
+    }
+  };
+
+  
   
 } // end of namespace mylib
 

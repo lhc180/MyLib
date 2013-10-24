@@ -19,46 +19,59 @@
 
 
 /***************** class cMLC_MSD *********************/
+/************************************************************************************
+ * MlcMsd 
+ * 
+ * ModはMSB first
+ ************************************************************************************/
+
 namespace mylib{
   class MlcMsd{
   protected:
-    std::vector<Ldpc> vecLDPC;
-    itpp::Modulator_2D Modulator;
-    int nLevel;			// bitsPerSymbolと一緒
-    unsigned nCodeLength;
-    double avrCodeRate;		// シンボルレート
-    bool bSetDone;
+    std::vector<Ldpc> vecLDPC_;
+    itpp::Modulator_2D modulator_;
+    int numLevels_;			// bitsPerSymbolと一緒
+    unsigned codeLength_;
+    double avrCodeRate_;		// シンボルレート
+    bool setDone_;
 
+    virtual void LevelDownModulator(std::vector< itpp::Modulator_2D >* vecMod, const itpp::bvec& decodedCode);
+    
   public:
-    MlcMsd() : nLevel(0), nCodeLength(0), avrCodeRate(0), bSetDone(false)
+    MlcMsd() : numLevels_(0), codeLength_(0), avrCodeRate_(0), setDone_(false)
     { }
     MlcMsd(std::vector<Ldpc> &vLDPC, itpp::Modulator_2D &Mod);
 
+    virtual ~MlcMsd()
+    {
+      vecLDPC_.clear();
+    }
+    
     void Set(std::vector<Ldpc> &vLDPC, itpp::Modulator_2D &Mod)
     {
       // vecLDPC.resize(vLDPC.size());
       //   for(int i = 0; i < vLDPC.size(); i++){
       //     &vecLDPC[i] = dynamic_cast< cLDPC_forMSD >(&vLDPC[i]);
       // }
-      vecLDPC = vLDPC;
+      vecLDPC_ = vLDPC;
 
-      Modulator = Mod;
+      modulator_ = Mod;
   
-      assert(static_cast<int>(vecLDPC.size()) == Modulator.bits_per_symbol());
+      assert(static_cast<int>(vecLDPC_.size()) == modulator_.bits_per_symbol());
 
-      nLevel = vecLDPC.size();
+      numLevels_ = vecLDPC_.size();
   
-      nCodeLength = vecLDPC[0].CodeLength();
-      for(int level = 1; level < nLevel; level++){
-        assert(nCodeLength == vecLDPC[level].CodeLength());
+      codeLength_ = vecLDPC_[0].CodeLength();
+      for(int level = 1; level < numLevels_; level++){
+        assert(codeLength_ == vecLDPC_[level].CodeLength());
       } 
 
-      avrCodeRate = 0.0;
-      for(int level = 0; level < nLevel; level++){
-        avrCodeRate += vecLDPC[level].CodeRate();
+      avrCodeRate_ = 0.0;
+      for(int level = 0; level < numLevels_; level++){
+        avrCodeRate_ += vecLDPC_[level].CodeRate();
       }
 
-      bSetDone = true;
+      setDone_ = true;
 
     }
 
@@ -70,7 +83,11 @@ namespace mylib{
       Encode(vBits, symbols);
       return symbols;
     }
-  
+
+    // ## デバッグ用
+    void EncodeTest(const std::vector< itpp::bvec >& vBits, itpp::cvec& symbols, std::vector< itpp::bvec >& codes);
+    
+    
     // 各レベルのイテレーション回数を返す
     // errConc = -1のときは隠蔽無し
     // 例えば1なら、レベル0は確実に出力、レベル1以降で誤りあればその時点で0で埋める
@@ -86,46 +103,142 @@ namespace mylib{
                                    unsigned loopMax,
                                    int errConc = -1)
     {
-      std::vector< itpp::bvec > vDecodedBits(Modulator.bits_per_symbol());
+      std::vector< itpp::bvec > vDecodedBits(modulator_.bits_per_symbol());
       Decode(symbols, vDecodedBits, N0, loopMax, errConc);
       return vDecodedBits;
     }
-  
+
+    // ##
+    itpp::bvec DecodeTest(const itpp::cvec& symbols,
+                          const std::vector< itpp::bvec >& knownBits,
+                          double n0,
+                          unsigned loopMax);
+    
+    
     std::vector< int > InfoLengths()
     {
-      std::vector< int > lengths(nLevel);
-      for (int i = 0; i < nLevel; ++i){
-        lengths[i] = vecLDPC[i].InfoLength();
+      std::vector< int > lengths(numLevels_);
+      for (int i = 0; i < numLevels_; ++i){
+        lengths[i] = vecLDPC_[i].InfoLength();
       } // for i
 
       return lengths;
     }
     
     double SymbolRate(){
-      return avrCodeRate;
+      return avrCodeRate_;
     }
   };
 
   /*************** end of MLC_MSD ********************/
 
+  /************************************************************************************
+   * MlcMsdForBP
+   *
+   * 8PSK BlockPartitioning用のMSD
+   * レベル1と2をマルチスレッドで復号する
+   * MlcMsdの派生クラスで作る
+   ************************************************************************************/
+
+  class MlcMsdWith8pskBp: public MlcMsd
+  {
+  public:
+    // constructor
+    MlcMsdWith8pskBp(): MlcMsd() { }
+    MlcMsdWith8pskBp(std::vector<Ldpc> &vLDPC, itpp::Modulator_2D &Mod)
+    {
+      this->Set(vLDPC, Mod);
+    }
+    
+    // destructor
+    virtual ~MlcMsdWith8pskBp() { }
+
+    void Set(std::vector<Ldpc>& vLDPC, itpp::Modulator_2D &Mod)
+    {
+      if (Mod.bits_per_symbol() != 3){
+        std::cerr << "Error: Mod.bits_per_symbol() != 3 in MlcMsdFor8pskBp." << std::endl;
+        exit(8);
+      } // if
+      MlcMsd::Set(vLDPC, Mod);
+    }
+    
+    std::vector< itpp::bvec > Decode(const itpp::cvec &symbols,
+                                     double N0,
+                                     unsigned loopMax,
+                                     int errConc = -1);
+    
+  };
+  
+  // -------------------- MlcMsdForBP --------------------
+  
   // MLC用にLDPCをセットする
   // 平均符号化率を返す
-  double SetLDPC_MLC(std::vector< Ldpc > &vecLDPC,
-                     unsigned nCodeLength,
+  double SetLdpcForMlc(std::vector< Ldpc > &vecLDPC_,
+                     unsigned codeLength_,
                      itpp::ivec &vecRowWeight,
                      itpp::ivec &vecColWeight);
 
-  // セットパーティショニングマッピングにする
-  void SetModulatorNatural(itpp::Modulator_2D &Mod);
+  // // セットパーティショニングマッピングにする
+  // void SetModulatorNatural(itpp::Modulator_2D &Mod);
+
+  /************************************************************************************
+   * NaturalPSK 
+   * 
+   * セットパーティショニング(ナチュラル)マッピングのPSK
+   ************************************************************************************/
+  class SetPartitioningPSK: public itpp::PSK
+  {
+  protected:
+    virtual void Init();
+    
+  public:
+    explicit SetPartitioningPSK(int m): itpp::PSK(m)
+    {
+      Init();
+    }
+    virtual ~SetPartitioningPSK()
+    { }
+  };
+
+  /************************************************************************************
+   * ReverseSpPSK 
+   * 
+   * セットパーティショニングの逆マッピング
+   ************************************************************************************/
+  class ReverseSpPSK: public itpp::PSK
+  {
+  protected:
+    virtual void Init();
+    
+  public:
+    explicit ReverseSpPSK(int m): itpp::PSK(m)
+    {
+      Init();
+    }
+    virtual ~ReverseSpPSK()
+    { }
+  };
+  
+  
+  // itpp::Modulatorのデフォルトのグレイマッピングがそのままblock partitioning
+  class BlockPartitioningPSK: public itpp::PSK
+  {
+  public:
+    BlockPartitioningPSK(int m): itpp::PSK(m)
+    { }
+    virtual ~BlockPartitioningPSK()
+    { }
+  };
+
 
   // Proposals for MLC and MSD below.
   // These adjust lengths of info bits such that higher level info bits move to
   // lower level.
-  std::vector< itpp::bvec > AdjustInfoLength_forMLC(const std::vector< itpp::bvec > &infoBits,
-                                                    const std::vector< int > &infoLengths_LDPC);
+  // std::vector< itpp::bvec > AdjustInfoLength_forMLC(const std::vector< itpp::bvec > &infoBits,
+  //                                                   const std::vector< int > &infoLengths_LDPC);
 
-  std::vector< itpp::bvec > AdjustInfoLength_fromMSD(const std::vector< itpp::bvec > &decodedInfo,
-                                                     const std::vector< int > &infoLengths);
+  // std::vector< itpp::bvec > AdjustInfoLength_fromMSD(const std::vector< itpp::bvec > &decodedInfo,
+  //                                                    const std::vector< int > &infoLengths);
 
   // end of proposals.
 

@@ -23,17 +23,17 @@ CMpegFrame::~CMpegFrame()
 {
 }
 
-BOOL CMpegFrame::IsValidHeader() const
+bool CMpegFrame::IsValidHeader() const
 {
   if( m_nLayer>=0 && m_nLayer<=2
       &&  m_nBitrateIndex>=1 && m_nBitrateIndex<=14
       &&  m_nSamplingFrequency>=0 && m_nSamplingFrequency<=2
       &&  m_nEmphasis!=2 )
     {
-      return TRUE;
+      return true;
     }
   else{
-    return FALSE;
+    return false;
   }
 }
 

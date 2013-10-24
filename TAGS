@@ -1,56 +1,52 @@
 
-include/adpcm.h,21
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/adpcm.h,21
 #define ADPCM_H2,16
 
-include/adpcm_delayfree.h,238
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/adpcm_delayfree.h,238
 #define ADPCM_DELAYFREE_H2,26
 const double _QUANTIZE_MAX_AMP 13,389
 class adpcmDelayFree{adpcmDelayFree15,428
   adpcmDelayFree(adpcmDelayFree::adpcmDelayFree32,1119
   virtual ~adpcmDelayFree(adpcmDelayFree::~adpcmDelayFree69,2302
 
-include/adpcm_delayfree_noiseShaper.h,174
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/adpcm_delayfree_noiseShaper.h,174
 #define ADPCM_DELAYFREE_NOISESHAPER_H2,38
 class adpcmWithNoiseShaper:adpcmWithNoiseShaper21,742
   adpcmWithNoiseShaper(adpcmWithNoiseShaper::adpcmWithNoiseShaper32,1060
 
-include/adpcm_lms.h,86
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/adpcm_lms.h,86
 #define ADPCM_LMS_H2,20
 class adpcmLMS 15,399
   adpcmLMS(adpcmLMS::adpcmLMS23,613
 
-include/bit_stream.h,497
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/bit_stream.h,402
 #define BIT_STREAM_H2,21
-#define TYPEDEF_INT3210,280
-typedef unsigned char UINT8;11,302
-typedef unsigned short UINT16;12,331
-typedef short INT16;13,362
-typedef int INT32;14,383
-typedef char INT8;17,410
-typedef unsigned int UINT32;18,429
-#define TRUE 21,472
-#define FALSE 24,514
-#define BOOL 27,556
-#define FIFO_SIZE 30,582
-class CBitStream32,606
-  CBitStream(CBitStream::CBitStream44,807
-  UINT16 Get1Bit(CBitStream::Get1Bit51,1013
-  void PurgeBits(CBitStream::PurgeBits52,1063
+typedef unsigned char Uint8;10,219
+typedef unsigned short Uint16;11,248
+typedef short Int16;12,279
+typedef int Int32;13,300
+typedef char Int8;14,346
+typedef unsigned int Uint32;15,365
+#define FIFO_SIZE 17,395
+class CBitStream19,419
+  CBitStream(CBitStream::CBitStream31,620
+  Uint16 Get1Bit(CBitStream::Get1Bit38,826
+  void PurgeBits(CBitStream::PurgeBits39,876
 
-include/c_cpp_mediation.h,138
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/c_cpp_mediation.h,138
 #define C_CPP_MEDIATION_H2,27
 void arrayToVector(8,130
 void arrayToVector(17,336
 void vectorToArray(27,544
 void vectorToArray(35,714
 
-include/capacity.h,139
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/capacity.h,138
 #define CAPACITY_H2,20
-class cCapacity{cCapacity9,244
-  cCapacity(cCapacity::cCapacity18,399
-  cCapacity(cCapacity::cCapacity20,485
+  class Capacity{Capacity10,262
+    Capacity(Capacity::Capacity19,434
+    Capacity(Capacity::Capacity21,524
 
-include/convolutional_code.h,582
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/convolutional_code.h,582
 #define CONVOLUTIONAL_CODE_H2,30
 class cConvolutionalCode{cConvolutionalCode20,450
   struct tState{cConvolutionalCode::tState33,1009
@@ -63,7 +59,7 @@ class cRCPCCode{cRCPCCode112,3701
   cRCPCCode(cRCPCCode::cRCPCCode122,3995
   void set(cRCPCCode::set127,4146
 
-include/convolutional_code2.h,327
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/convolutional_code2.h,327
 #define CONVOLUTIONAL_CODE_H2,30
 class cConvolutionalCode{cConvolutionalCode19,430
   struct tState{cConvolutionalCode::tState32,989
@@ -71,38 +67,80 @@ class cConvolutionalCode{cConvolutionalCode19,430
   virtual ~cConvolutionalCode(cConvolutionalCode::~cConvolutionalCode48,1548
 class cPuncturedConvolutionalCode70,2412
 
-include/ldpc.h,168
-#define MY_LDPC_H2,18
-typedef struct tIndex1{tIndex131,1008
-} index1;33,1063
-class cLDPC{cLDPC35,1074
-  cLDPC(cLDPC::cLDPC77,2552
-  cLDPC(cLDPC::cLDPC79,2626
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/distortion.h,86
+#define DISTORTION_H2,22
+  class cSNR20,489
+    cSNR(27,572
+    void reset(32,649
 
-include/ldpc_sparse.h,137
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/ldpc_sparse.h,137
 #define LDPC_SPARSE_H2,22
 typedef struct tIndex1{tIndex134,1052
 } index1;36,1107
 class ldpc{ldpc38,1118
   ldpc(ldpc::ldpc76,2483
 
-include/mlc_msd.h,299
-#define MLC_MSD_H2,19
-class cMLC_MSD{cMLC_MSD21,602
-  cMLC_MSD(cMLC_MSD::cMLC_MSD31,831
-  itpp::cvec encode(cMLC_MSD::encode39,1126
-  std::vector<itpp::bvec> decode(cMLC_MSD::decode52,1457
-  double symbolRate(cMLC_MSD::symbolRate62,1782
-mylib::Vector_2D< kind > divideIntoLevels(92,2850
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/length_adjuster.h,1753
+#define LENGTH_ADJUSTER_H2,26
+namespace mylib{mylib7,97
+  class SourceLengthAdjuster_MLC18,343
+    SourceLengthAdjuster_MLC(SourceLengthAdjuster_MLC::SourceLengthAdjuster_MLC25,486
+    SourceLengthAdjuster_MLC(SourceLengthAdjuster_MLC::SourceLengthAdjuster_MLC27,565
+    virtual ~SourceLengthAdjuster_MLC(SourceLengthAdjuster_MLC::~SourceLengthAdjuster_MLC32,788
+    virtual void Set(SourceLengthAdjuster_MLC::Set38,903
+  class AdvanceAdjuster_MLC:AdvanceAdjuster_MLC49,1387
+    AdvanceAdjuster_MLC(AdvanceAdjuster_MLC::AdvanceAdjuster_MLC53,1481
+    AdvanceAdjuster_MLC(AdvanceAdjuster_MLC::AdvanceAdjuster_MLC56,1518
+    virtual ~AdvanceAdjuster_MLC(AdvanceAdjuster_MLC::~AdvanceAdjuster_MLC61,1740
+  class SkipAdjuster_MLC:SkipAdjuster_MLC71,2156
+    SkipAdjuster_MLC(SkipAdjuster_MLC::SkipAdjuster_MLC78,2333
+    SkipAdjuster_MLC(SkipAdjuster_MLC::SkipAdjuster_MLC80,2364
+    virtual ~SkipAdjuster_MLC(SkipAdjuster_MLC::~SkipAdjuster_MLC86,2636
+    void Set(SkipAdjuster_MLC::Set89,2677
+  class RandomAdjuster_MLC:RandomAdjuster_MLC100,3173
+    RandomAdjuster_MLC(RandomAdjuster_MLC::RandomAdjuster_MLC104,3274
+    RandomAdjuster_MLC(RandomAdjuster_MLC::RandomAdjuster_MLC106,3307
+    virtual ~RandomAdjuster_MLC(RandomAdjuster_MLC::~RandomAdjuster_MLC111,3527
+  class SkipRandomAdjuster_MLC:SkipRandomAdjuster_MLC119,3822
+    SkipRandomAdjuster_MLC(SkipRandomAdjuster_MLC::SkipRandomAdjuster_MLC122,3913
+    virtual ~SkipRandomAdjuster_MLC(SkipRandomAdjuster_MLC::~SkipRandomAdjuster_MLC127,4158
+  class NaturalAdjuster_MLC:NaturalAdjuster_MLC138,4652
+    NaturalAdjuster_MLC(NaturalAdjuster_MLC::NaturalAdjuster_MLC141,4727
+    NaturalAdjuster_MLC(NaturalAdjuster_MLC::NaturalAdjuster_MLC143,4761
 
-include/mpeg.h,1094
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mlc_msd.h,1310
+#define MLC_MSD_H2,18
+  class MlcMsd{MlcMsd29,889
+    MlcMsd(MlcMsd::MlcMsd41,1256
+    virtual ~MlcMsd(MlcMsd::~MlcMsd45,1407
+    void Set(MlcMsd::Set50,1470
+    itpp::cvec Encode(MlcMsd::Encode80,2303
+    std::vector<itpp::bvec> Decode(MlcMsd::Decode101,3181
+    std::vector< int > InfoLengths(MlcMsd::InfoLengths118,3795
+    double SymbolRate(MlcMsd::SymbolRate128,4026
+  class MlcMsdWith8pskBp:MlcMsdWith8pskBp143,4482
+    MlcMsdWith8pskBp(MlcMsdWith8pskBp::MlcMsdWith8pskBp147,4555
+    MlcMsdWith8pskBp(MlcMsdWith8pskBp::MlcMsdWith8pskBp148,4592
+    virtual ~MlcMsdWith8pskBp(MlcMsdWith8pskBp::~MlcMsdWith8pskBp154,4728
+    void Set(MlcMsdWith8pskBp::Set156,4765
+  class SetPartitioningPSK:SetPartitioningPSK189,6005
+    explicit SetPartitioningPSK(SetPartitioningPSK::SetPartitioningPSK195,6107
+    virtual ~SetPartitioningPSK(SetPartitioningPSK::~SetPartitioningPSK199,6186
+  class ReverseSpPSK:ReverseSpPSK208,6499
+    explicit ReverseSpPSK(ReverseSpPSK::ReverseSpPSK214,6595
+    virtual ~ReverseSpPSK(ReverseSpPSK::~ReverseSpPSK218,6668
+  class BlockPartitioningPSK:BlockPartitioningPSK224,6814
+    BlockPartitioningPSK(BlockPartitioningPSK::BlockPartitioningPSK227,6875
+    virtual ~BlockPartitioningPSK(BlockPartitioningPSK::~BlockPartitioningPSK229,6929
+
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mpeg.h,1094
 #define MPEG_H2,16
 struct SScalefactor14,426
 struct SScalefactorBandIndex20,596
 struct SGranuleInfo27,771
-  BOOL IsMixedBlock(44,1563
-  BOOL IsLongBlock(45,1637
-  BOOL IsShortBlock(46,1691
+  bool IsMixedBlock(44,1563
+  bool IsLongBlock(45,1637
+  bool IsShortBlock(46,1691
 struct SSampleMap49,1772
 class CMpegFrame64,2175
   int GetID(CMpegFrame::GetID102,3334
@@ -123,7 +161,7 @@ class CMpegFile135,4592
   bool IsOpen(CMpegFile::IsOpen148,4804
 class CMpegDecoder160,5269
 
-include/mpeg_binary.h,897
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mpeg_binary.h,897
 #define MPEG_BINARY_H2,23
 class cMpegToBinary{cMpegToBinary35,960
   cMpegToBinary(cMpegToBinary::cMpegToBinary47,1196
@@ -140,290 +178,398 @@ class cArrangedBinaryToMpeg{cArrangedBinaryToMpeg133,3383
   cArrangedBinaryToMpeg(cArrangedBinaryToMpeg::cArrangedBinaryToMpeg145,3664
   cArrangedBinaryToMpeg(cArrangedBinaryToMpeg::cArrangedBinaryToMpeg150,3808
 
-include/mpeg_file.h,86
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mpeg_file.h,86
 #define MPEG_FILE_H2,21
 class CMpegFile4,44
   BOOL IsOpen(CMpegFile::IsOpen17,256
 
-include/mpeg_frame.h,26
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mpeg_frame.h,26
 #define MPEG_FRAME_H2,22
 
-include/myaudio.h,24
-#define MYAUDIO_H6,135
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/myaudio.h,23
+#define MYAUDIO_H2,19
 
-include/mybmp.h,369
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mybinmat.h,1059
+#define MYBINMAT_H2,19
+  class BinMat8,80
+    void CheckRange(16,179
+    explicit BinMat(27,545
+    virtual ~BinMat(BinMat::~BinMat39,763
+    int Rows(BinMat::Rows47,897
+    int Height(BinMat::Height48,936
+    int Cols(BinMat::Cols50,978
+    int Width(BinMat::Width51,1017
+    void SetSize(BinMat::SetSize53,1058
+    void Resize(BinMat::Resize57,1141
+    void Zeros(BinMat::Zeros62,1224
+    void Ones(BinMat::Ones63,1260
+    void Delete(BinMat::Delete65,1295
+  inline BinMat BinMat::operator = BinMat::operator =147,3995
+  inline BinMat BinMat::operator = BinMat::operator =169,4420
+  inline BinMat operator +(operator +768,16616
+  inline BinMat operator +(operator +779,16867
+  inline BinMat operator +(operator +788,17046
+  inline BinMat operator *(operator *797,17225
+  inline BinMat operator *(operator *811,17560
+  inline BinMat operator *(operator *820,17743
+  inline BinVec operator *(operator *829,17922
+  inline BinVec operator *(operator *840,18165
+inline std::ostream& operator << operator <<853,18439
+
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mybinvec.h,857
+#define MYBINVEC_H23,740
+static const int SIZE_UCHAR 30,841
+  class BinVec34,908
+    void CheckRange(46,1109
+    explicit BinVec(56,1302
+    ~BinVec(BinVec::~BinVec74,1641
+    int Length(BinVec::Length79,1718
+    int Size(BinVec::Size82,1774
+    void SetSize(BinVec::SetSize86,1823
+    void Resize(BinVec::Resize90,1890
+    void Delete(BinVec::Delete100,2151
+  inline BinVec BinVec::operator = BinVec::operator =195,4586
+  inline BinVec BinVec::operator = BinVec::operator =205,4805
+  inline BinVec operator +(operator +567,12125
+  inline BinVec operator +(operator +579,12410
+  inline BinVec operator +(operator +595,12715
+  inline itpp::bin operator *(operator *611,13023
+  inline BinVec operator *(operator *625,13332
+  inline BinVec operator *(operator *643,13737
+inline std::ostream& operator << operator <<677,14426
+
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mybinvec_sub.h,729
+#define MYBINVEC_H23,740
+static const int SIZE_UCHAR 30,841
+  class BinVec34,908
+    void CheckRange(40,977
+    explicit BinVec(50,1170
+    ~BinVec(BinVec::~BinVec68,1509
+    int Length(BinVec::Length73,1586
+    int Size(BinVec::Size76,1642
+    void SetSize(BinVec::SetSize80,1691
+    void Resize(BinVec::Resize84,1758
+    void Delete(BinVec::Delete94,2019
+  class BinVecIterator131,3038
+    explicit BinVecIterator(BinVecIterator::BinVecIterator140,3172
+    virtual ~BinVecIterator(BinVecIterator::~BinVecIterator144,3255
+  inline BinVec BinVec::operator = BinVec::operator =204,4321
+  inline BinVec BinVec::operator = BinVec::operator =214,4540
+inline std::ostream& operator << operator <<564,11687
+
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mybmp.h,308
 #define MYBMP_H7,183
-class BmpReader16,325
-  BmpReader(BmpReader::BmpReader26,459
-  BmpReader(BmpReader::BmpReader29,497
-  ~BmpReader(BmpReader::~BmpReader34,585
-  void Set(BmpReader::Set39,622
-  void Close(BmpReader::Close57,1212
-  int Width(BmpReader::Width62,1266
-  int Height(BmpReader::Height65,1304
-  int Components(BmpReader::Components68,1342
+  class BmpReader17,342
+    BmpReader(27,494
+    BmpReader(30,536
+    ~BmpReader(35,632
+    void Set(40,677
+    void Close(BmpReader::Close58,1207
+    int Width(BmpReader::Width63,1269
+    int Height(BmpReader::Height66,1311
+    int Components(BmpReader::Components69,1353
 
-include/mycomm (Yoshito's beethoven@ochiailab's conflicted copy 2012-05-31).h,634
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mycomm.h,1334
 #define MYCOMM_H2,18
-enum MODULATOR_TYPE{MODULATOR_TYPE10,153
-enum MODULATOR_TYPE{TYPE_BPSK,TYPE_BPSK10,153
-enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK,10,153
-enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK,10,153
-enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK,10,153
-enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK, TYPE_16QAM}TYPE_16QAM10,153
-class cBERtoEbN015,371
-  cBERtoEbN0(cBERtoEbN0::cBERtoEbN022,467
-  cBERtoEbN0(cBERtoEbN0::cBERtoEbN023,503
-  void setModulatorType(cBERtoEbN0::setModulatorType28,585
-  double calcEbN0(cBERtoEbN0::calcEbN035,717
-double erfc_inv(51,1008
+enum MODULATOR_TYPE{MODULATOR_TYPE18,339
+enum MODULATOR_TYPE{TYPE_BPSK,TYPE_BPSK18,339
+enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK,18,339
+enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK,18,339
+enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK,18,339
+enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK, TYPE_16QAM}TYPE_16QAM18,339
+  class BERtoEbN032,979
+    BERtoEbN0(BERtoEbN0::BERtoEbN039,1086
+    BERtoEbN0(BERtoEbN0::BERtoEbN040,1123
+    void setModulatorType(BERtoEbN0::setModulatorType45,1212
+    double calcEbN0(BERtoEbN0::calcEbN052,1354
+  class Rand01{Rand0169,1749
+    Rand01(Rand01::Rand0174,1813
+    void setRate(Rand01::setRate78,1876
+    itpp::bin get(Rand01::get83,1981
+    double getRate(Rand01::getRate95,2215
+  class RandomArrange1vec102,2423
+    RandomArrange1vec(RandomArrange1vec::RandomArrange1vec110,2566
+    RandomArrange1vec(RandomArrange1vec::RandomArrange1vec111,2612
+    void set(RandomArrange1vec::set116,2699
+    itpp::bvec get(RandomArrange1vec::get123,2848
+  class BinCounter147,3449
+    BinCounter(BinCounter::BinCounter154,3558
+    void reset(BinCounter::reset162,3672
+    void update(BinCounter::update168,3755
+    void update(BinCounter::update176,3901
+    double GetRate(BinCounter::GetRate183,4068
 
-include/mycomm.h,1565
-#define MYCOMM_H2,18
-enum MODULATOR_TYPE{MODULATOR_TYPE14,261
-enum MODULATOR_TYPE{TYPE_BPSK,TYPE_BPSK14,261
-enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK,14,261
-enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK,14,261
-enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK,14,261
-enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK, TYPE_16QAM}TYPE_16QAM14,261
-class cBERtoEbN028,900
-  cBERtoEbN0(cBERtoEbN0::cBERtoEbN035,996
-  cBERtoEbN0(cBERtoEbN0::cBERtoEbN036,1032
-  void setModulatorType(cBERtoEbN0::setModulatorType41,1114
-  double calcEbN0(cBERtoEbN0::calcEbN048,1246
-class cRand01{cRand0165,1613
-  cRand01(cRand01::cRand0170,1670
-  void setRate(cRand01::setRate75,1752
-  itpp::bin get(cRand01::get80,1849
-  double getRate(cRand01::getRate92,2065
-class cRandomArrange1vec99,2261
-  cRandomArrange1vec(cRandomArrange1vec::cRandomArrange1vec107,2391
-  cRandomArrange1vec(cRandomArrange1vec::cRandomArrange1vec108,2436
-  void set(cRandomArrange1vec::set113,2516
-  itpp::bvec get(cRandomArrange1vec::get120,2653
-class cBinCounter144,3220
-  cBinCounter(cBinCounter::cBinCounter151,3318
-  void reset(cBinCounter::reset159,3421
-  void update(cBinCounter::update165,3494
-  double getRate(cBinCounter::getRate174,3637
-void mylib::makeInterleaver(190,4025
-double mylib::erfc_inv(206,4343
-itpp::bvec mylib::genErrors(250,5272
-itpp::bvec mylib::std_ivec2bvec(262,5531
-itpp::bvec mylib::itpp_ivec2bvec(275,5833
-std::vector<int> mylib::std_bvec2ivec(288,6112
-itpp::ivec mylib::itpp_bvec2ivec(301,6435
-
-include/mydct.h,547
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mydct.h,509
 #define MYDCT_H2,16
-const double DIV_SQRT2 9,118
-class cDct12,183
-  cDct(cDct::cDct20,288
-  cDct(cDct::cDct24,330
-  ~cDct(cDct::~cDct29,379
-  void setSize(cDct::setSize34,413
-  std::vector< kind > forward(cDct::forward53,811
-  itpp::Vec< kind > forward(cDct::forward76,1375
-  mylib::Vector_2D< kind > forward(cDct::forward99,1935
-  std::vector< kind > inverse(cDct::inverse129,2918
-  itpp::Vec< kind > inverse(cDct::inverse152,3486
-  mylib::Vector_2D< kind > inverse(cDct::inverse175,4048
-  void clear(cDct::clear206,5048
+  class Dct21,473
+    explicit Dct(Dct::Dct29,586
+    ~Dct(Dct::~Dct34,651
+    void SetSize(Dct::SetSize39,692
+    std::vector< kind > Forward(Dct::Forward58,1143
+    mylib::Vector_2D< kind > Forward(Dct::Forward81,1792
+    itpp::Mat< kind > Forward(Dct::Forward111,2874
+    std::vector< kind > Inverse(Dct::Inverse143,3963
+    mylib::Vector_2D< kind > Inverse(Dct::Inverse166,4585
+    itpp::Mat< kind > Inverse(Dct::Inverse195,5589
+    void Clear(Dct::Clear222,6523
 
-include/myimg.h,1178
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mydsp.h,21
+#define MYDSP_H2,16
+
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/myentropy.h,1860
+#define MYENTROPY_H2,20
+  class JpegHuffmanEncoder29,990
+    explicit JpegHuffmanEncoder(JpegHuffmanEncoder::JpegHuffmanEncoder38,1234
+    virtual ~JpegHuffmanEncoder(JpegHuffmanEncoder::~JpegHuffmanEncoder42,1384
+    itpp::bvec operator ()(JpegHuffmanEncoder::operator ()47,1492
+    itpp::bvec operator ()(JpegHuffmanEncoder::operator ()56,1885
+  class JpegHuffmanDecoder71,2418
+    explicit JpegHuffmanDecoder(JpegHuffmanDecoder::JpegHuffmanDecoder81,2703
+    virtual ~JpegHuffmanDecoder(JpegHuffmanDecoder::~JpegHuffmanDecoder85,2797
+    int operator ()(JpegHuffmanDecoder::operator ()90,2915
+    itpp::Vec< int > operator ()(JpegHuffmanDecoder::operator ()118,3926
+      while ((res = operator()(JpegHuffmanDecoder::operator()124,4105
+    void PrintTable(JpegHuffmanDecoder::PrintTable132,4289
+  class JpegEntropyEncoder150,5057
+    JpegEntropyEncoder(JpegEntropyEncoder::JpegEntropyEncoder162,5331
+    JpegEntropyEncoder(JpegEntropyEncoder::JpegEntropyEncoder164,5482
+    itpp::bvec operator ()(JpegEntropyEncoder::operator ()169,5679
+  class JpegEntropyDecoder203,6558
+    JpegEntropyDecoder(JpegEntropyDecoder::JpegEntropyDecoder226,7410
+    JpegEntropyDecoder(JpegEntropyDecoder::JpegEntropyDecoder228,7561
+    itpp::ivec operator ()(JpegEntropyDecoder::operator ()242,8195
+  class EntropyEncoder:EntropyEncoder267,9054
+    EntropyEncoder(EntropyEncoder::EntropyEncoder270,9118
+    EntropyEncoder(EntropyEncoder::EntropyEncoder273,9267
+    virtual ~EntropyEncoder(EntropyEncoder::~EntropyEncoder276,9418
+    itpp::bvec EncodeAll(EntropyEncoder::EncodeAll283,9648
+  class EntropyDecoder:EntropyDecoder300,10317
+    EntropyDecoder(EntropyDecoder::EntropyDecoder307,10559
+    EntropyDecoder(EntropyDecoder::EntropyDecoder309,10703
+    virtual ~EntropyDecoder(EntropyDecoder::~EntropyDecoder311,10837
+
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/myhuffman.h,423
+#define HUFFMAN_H2,18
+  struct HuffmanTable{HuffmanTable22,657
+  class Huffman30,889
+    struct ConvertHuffman::Convert36,995
+    bool Search(Huffman::Search57,1472
+     explicit Huffman(Huffman::Huffman69,1785
+    itpp::bvec Encode(Huffman::Encode96,2578
+    itpp::bvec Encode(Huffman::Encode103,2823
+    int Decode1Code(Huffman::Decode1Code112,3113
+    std::vector< int > Decode(Huffman::Decode137,3868
+
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/myimg.h,21
 #define MYIMG_H2,16
-static const int IMG_DCT_SIZE 14,211
-static const int IMG_DCT_SIZE2 15,251
-static const int ZIGZAG_TABLE_SIZE 16,292
-static const int ZIGZAG_TABLE[ZIGZAG_TABLE19,358
-inline std::vector< kind > forwardZigzag(33,696
-inline std::vector< kind > inverseZigzag(49,977
-inline std::vector< double > levelShift(63,1231
-inline mylib::Vector_2D< double > levelShift(75,1479
-inline std::vector< kind > divideByQTable(88,1801
-inline mylib::Vector_2D< kind > divideByQTable(102,2139
-inline std::vector< kind > multiplyByQTable(117,2589
-inline mylib::Vector_2D< kind > multiplyByQTable(131,2930
-inline double calcMSE(145,3361
-inline double calcMSE(165,3964
-inline double calcPSNR(188,4725
-inline double calcPSNR(214,5512
-class cDividePixels245,6505
-  cDividePixels(cDividePixels::cDividePixels256,6676
-  mylib::Vector_2D< kind > getBlock(cDividePixels::getBlock277,7169
-  int Hblocks(cDividePixels::Hblocks307,7951
-  int Vblocks(cDividePixels::Vblocks311,7999
-class cCompPixels319,8119
-  cCompPixels(cCompPixels::cCompPixels327,8235
-  void operator()(cCompPixels::operator()332,8379
-  mylib::Vector_2D< kind > get(cCompPixels::get357,9038
 
-include/myjpeg.h,1237
-#define MYJPEG_H16,637
-#define TYPEDEF_INT3227,856
-enum eDctElement 31,887
-  DC_ELEMENT 32,906
-  AC_ELEMENT 33,924
-struct my_jpeg_error_mgr 37,984
-typedef struct my_jpeg_error_mgr * my_jpeg_error_ptr;43,1119
-METHODDEF(45,1174
-inline int Components(59,1592
-class Jpeg2Bitmap/Jpeg2Bitmap73,1866
-  Jpeg2Bitmap(Jpeg2Bitmap::Jpeg2Bitmap80,1991
-  Jpeg2Bitmap(Jpeg2Bitmap::Jpeg2Bitmap84,2069
-  virtual ~Jpeg2Bitmap(Jpeg2Bitmap::~Jpeg2Bitmap89,2194
-  int Width(Jpeg2Bitmap::Width94,2241
-  int Height(Jpeg2Bitmap::Height99,2283
-  mylib::Vector_2D< JSAMPLE > Get(Jpeg2Bitmap::Get104,2327
-  void Close(Jpeg2Bitmap::Close109,2394
-  void Open(Jpeg2Bitmap::Open116,2445
-class Jpeg2Dct/Jpeg2Dct264,7553
-  Jpeg2Dct(Jpeg2Dct::Jpeg2Dct273,7881
-  Jpeg2Dct(Jpeg2Dct::Jpeg2Dct277,8010
-  virtual ~Jpeg2Dct(Jpeg2Dct::~Jpeg2Dct282,8132
-  int Width(Jpeg2Dct::Width287,8176
-  int Height(Jpeg2Dct::Height292,8218
-  int WidthInBlocks(Jpeg2Dct::WidthInBlocks297,8262
-  int HeightInBlocks(Jpeg2Dct::HeightInBlocks302,8344
-  mylib::Vector_2D< JCOEF > Get(Jpeg2Dct::Get307,8430
-  mylib::Vector_2D< u_int > QuantTable(Jpeg2Dct::QuantTable312,8570
-  void Close(Jpeg2Dct::Close317,8673
-  void Open(Jpeg2Dct::Open322,8719
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/myjpeg.h,1695
+#define MYJPEG_H19,885
+  enum eDctElement 161,4103
+    DC_ELEMENT eDctElement::DC_ELEMENT162,4124
+    AC_ELEMENT eDctElement::AC_ELEMENT163,4144
+  struct my_jpeg_error_mgr 167,4210
+  typedef struct my_jpeg_error_mgr * my_jpeg_error_ptr;173,4353
+  class JpegReader203,5084
+    virtual void SetWidth(JpegReader::SetWidth208,5156
+    virtual void SetHeight(JpegReader::SetHeight209,5213
+    JpegReader(JpegReader::JpegReader212,5289
+    virtual ~JpegReader(JpegReader::~JpegReader213,5333
+    int Width(JpegReader::Width215,5364
+    int Height(JpegReader::Height216,5424
+  class Jpeg2Bitmap:Jpeg2Bitmap222,5638
+    Jpeg2Bitmap(Jpeg2Bitmap::Jpeg2Bitmap228,5741
+    Jpeg2Bitmap(Jpeg2Bitmap::Jpeg2Bitmap231,5782
+    virtual ~Jpeg2Bitmap(Jpeg2Bitmap::~Jpeg2Bitmap236,5915
+    itpp::Mat< JSAMPLE > Get(Jpeg2Bitmap::Get242,6006
+    void Close(Jpeg2Bitmap::Close247,6074
+  class Jpeg2Dct:Jpeg2Dct257,6255
+    Jpeg2Dct(Jpeg2Dct::Jpeg2Dct274,6903
+    virtual ~Jpeg2Dct(Jpeg2Dct::~Jpeg2Dct279,7033
+    int WidthInBlocks(Jpeg2Dct::WidthInBlocks284,7085
+    int HeightInBlocks(Jpeg2Dct::HeightInBlocks289,7175
+    itpp::Mat< JCOEF > Get(Jpeg2Dct::Get294,7269
+    itpp::Mat< int > QuantTable(Jpeg2Dct::QuantTable299,7410
+    JHUFF_TBL DcHuffmanTable(Jpeg2Dct::DcHuffmanTable304,7510
+    JHUFF_TBL AcHuffmanTable(Jpeg2Dct::AcHuffmanTable309,7608
+    int RestartInterval(Jpeg2Dct::RestartInterval314,7706
+    void Close(Jpeg2Dct::Close319,7779
+    j_decompress_ptr Cinfo(Jpeg2Dct::Cinfo329,8024
+  class Dct2Jpeg341,8363
+    Dct2Jpeg(Dct2Jpeg::Dct2Jpeg356,8710
+    virtual ~Dct2Jpeg(Dct2Jpeg::~Dct2Jpeg360,8822
+    void Close(Dct2Jpeg::Close376,9257
 
-include/myldpc.h,109
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/myldpc.h,427
 #define MYLDPC_H2,17
-class cLDPC{cLDPC33,1029
-  cLDPC(cLDPC::cLDPC87,3084
-  cLDPC(cLDPC::cLDPC89,3158
+  struct DecoderParas 34,1096
+  class Ldpc{Ldpc39,1168
+    Ldpc(Ldpc::Ldpc103,3874
+    Ldpc(Ldpc::Ldpc105,3949
+    virtual unsigned CodeLength(Ldpc::CodeLength119,4498
+    virtual unsigned SymbolLength(Ldpc::SymbolLength124,4603
+    virtual unsigned InfoLength(Ldpc::InfoLength129,4716
+    virtual double CodeRate(Ldpc::CodeRate134,4838
+    virtual itpp::bvec Decode(Ldpc::Decode151,5458
 
-include/mymatrix.h,1524
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mymatrix.h,2026
 #define MYMATRIX_H2,20
-  class Vector_2D{Vector_2D20,396
-    void check_rowRange(Vector_2D::check_rowRange24,516
-    void check_colRange(Vector_2D::check_colRange28,635
-    Vector_2D(Vector_2D::Vector_2D34,803
-    ~Vector_2D(Vector_2D::~Vector_2D38,921
-    void set_size(Vector_2D::set_size44,1003
-    void resize(Vector_2D::resize53,1206
-    void set_colSize(Vector_2D::set_colSize58,1332
-    bool is_rectangular(Vector_2D::is_rectangular65,1527
-    void clear(Vector_2D::clear83,1911
-    void zeros(Vector_2D::zeros87,1961
-    void ones(Vector_2D::ones95,2155
-    int size_rows(Vector_2D::size_rows103,2353
-    int Height(Vector_2D::Height107,2418
-    int size_cols(Vector_2D::size_cols112,2532
-    int Width(Vector_2D::Width117,2641
-    const kind &operator()(Vector_2D::operator()123,2801
-    kind &operator()(Vector_2D::operator()128,2953
-    const std::vector<kind> &operator()(Vector_2D::operator()135,3137
-    std::vector<kind> &operator()(Vector_2D::operator()139,3255
-    void add_rows(Vector_2D::add_rows145,3404
-    void add_row(Vector_2D::add_row152,3577
-    void add_cols(Vector_2D::add_cols158,3721
-    void push_back(Vector_2D::push_back184,4401
-    Vector_2D< kind > get(Vector_2D::get192,4660
-    std::vector< kind > to_1D(Vector_2D::to_1D214,5419
-  typedef Vector_2D<double> vec_2D;232,5775
-  typedef Vector_2D<int> ivec_2D;233,5812
-  typedef Vector_2D< std::complex<double> > cvec_2D;234,5847
-inline std::ostream& operator << operator <<329,8121
+  class Vector_2D{Vector_2D19,394
+    void check_rowRange(Vector_2D::check_rowRange23,514
+    void check_colRange(Vector_2D::check_colRange27,633
+    Vector_2D(Vector_2D::Vector_2D33,801
+    ~Vector_2D(Vector_2D::~Vector_2D37,935
+    void set_size(Vector_2D::set_size43,1017
+    void resize(Vector_2D::resize52,1220
+    void set_colSize(Vector_2D::set_colSize57,1346
+    bool is_rectangular(Vector_2D::is_rectangular64,1541
+    void clear(Vector_2D::clear82,1925
+    void zeros(Vector_2D::zeros86,1975
+    void ones(Vector_2D::ones94,2169
+    int size_rows(Vector_2D::size_rows102,2367
+    int Height(Vector_2D::Height106,2432
+    int size_cols(Vector_2D::size_cols111,2546
+    int Width(Vector_2D::Width116,2655
+    const kind &operator()(Vector_2D::operator()122,2815
+    kind &operator()(Vector_2D::operator()127,2973
+    const std::vector<kind> &operator()(Vector_2D::operator()134,3163
+    std::vector<kind> &operator()(Vector_2D::operator()138,3284
+    void add_rows(Vector_2D::add_rows144,3436
+    void add_row(Vector_2D::add_row151,3609
+    void add_cols(Vector_2D::add_cols157,3753
+    void push_back(Vector_2D::push_back183,4433
+    Vector_2D< kind > get(Vector_2D::get191,4695
+    std::vector< kind > To1D(Vector_2D::To1D216,5488
+  typedef Vector_2D<double> vec_2D;234,5843
+  typedef Vector_2D<int> ivec_2D;235,5880
+  typedef Vector_2D< std::complex<double> > cvec_2D;236,5915
+  class DividePixels427,11048
+    DividePixels(DividePixels::DividePixels438,11274
+    Vector_2D< kind > GetBlock(DividePixels::GetBlock459,11813
+    Vector_2D< kind > operator()(DividePixels::operator()489,12667
+    int Hblocks(DividePixels::Hblocks494,12791
+    int Vblocks(DividePixels::Vblocks498,12857
+  class CompPixels506,13005
+    CompPixels(CompPixels::CompPixels514,13135
+    void operator()(CompPixels::operator()519,13291
+    Vector_2D< kind > Get(CompPixels::Get544,14014
+inline std::ostream& operator << operator <<557,14157
 
-include/mymatrix_utl.h,28
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mymatrix_utl.h,28
 #define MYMATRIX_UTL_H2,23
 
-include/mytiff.h,335
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/myprogjpeg.h,26
+#define MYPROGJPEG_H2,21
+
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/myprogjpeg_sub.h,26
+#define MYPROGJPEG_H2,21
+
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mytiff.h,265
 #define MYTIFF_H4,69
-class TiffReader12,185
-  TiffReader(TiffReader::TiffReader22,314
-  TiffReader(TiffReader::TiffReader26,355
-  ~TiffReader(TiffReader::~TiffReader31,418
-  void Set(TiffReader::Set36,458
-  void Close(TiffReader::Close76,1634
-  int Width(TiffReader::Width81,1682
-  int Height(TiffReader::Height86,1724
+  class TiffReader13,202
+    TiffReader(23,349
+    TiffReader(27,396
+    ~TiffReader(32,467
+    void Set(37,515
+    void Close(TiffReader::Close77,1753
+    int Width(TiffReader::Width82,1809
+    int Height(TiffReader::Height87,1859
 
-include/myutl.h,1230
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/myutl.h,1337
 #define MYUTL_H2,16
-typedef unsigned char u_char;21,406
-typedef unsigned int  u_int;22,436
-inline std::vector<kind> mylib::setVec(119,3654
-inline void mylib::vecZeros(136,3970
-inline double mylib::vecAverage(144,4134
-inline void mylib::normalizeData(155,4366
-inline std::vector<double> mylib::normalizeData(163,4633
-inline void mylib::denormalizeData(172,4829
-inline std::vector<int> mylib::denormalizeData(180,5076
-void mylib::fprintVec(190,5298
-inline std::vector<int> mylib::dec2bin(207,5686
-inline int mylib::bin2dec(219,5936
-inline std::vector<kind> mylib::getMid(237,6423
-inline std::vector<kind> mylib::concat(259,6904
-inline type mylib::maxOf(271,7208
-inline kind mylib::Max(282,7342
-type mylib::minOf(297,7656
-inline kind mylib::Min(308,7783
-inline int mylib::toInt(359,8920
-inline std::vector<int> mylib::toInt(364,9000
-double mylib::toDouble(377,9279
-std::vector<double> mylib::toDouble(384,9389
-inline int mylib::round_uPoint(395,9635
-inline int mylib::sgn(404,9744
-inline void mylib::setString(412,9834
-std::vector< kind > mylib::fReadLines(425,10038
-inline std::string mylib::FileExtention(439,10324
-inline bool mylib::Radix2(457,10770
-inline std::vector< double > mylib::Abs(469,10918
+typedef unsigned char u_char;21,407
+typedef unsigned int  u_int;22,437
+inline std::vector<kind> mylib::setVec(200,5802
+inline void mylib::vecZeros(217,6118
+inline double mylib::vecAverage(225,6282
+inline void mylib::normalizeData(236,6514
+inline std::vector<double> mylib::normalizeData(244,6781
+inline void mylib::denormalizeData(253,6977
+inline std::vector<int> mylib::denormalizeData(261,7224
+inline void mylib::fprintVec(271,7446
+inline std::vector<int> mylib::dec2bin(288,7841
+inline int mylib::bin2dec(300,8091
+inline std::vector<kind> mylib::Mid(318,8472
+inline std::vector<kind> mylib::Concat(329,8804
+inline std::vector<kind> mylib::Concat(339,9071
+inline type mylib::maxOf(350,9325
+inline kind mylib::Max(361,9459
+inline type mylib::minOf(376,9773
+inline kind mylib::Min(387,9907
+inline kind mylib::Sum(401,10223
+inline std::vector<int> mylib::ToInt(451,11370
+double mylib::toDouble(464,11646
+std::vector<double> mylib::toDouble(471,11756
+inline int mylib::round_uPoint(482,12002
+inline int mylib::sgn(491,12111
+inline void mylib::setString(499,12201
+std::vector< kind > mylib::fReadLines(512,12405
+inline std::string mylib::FileExtention(526,12691
+inline size_t mylib::FileSize(544,13137
+inline bool mylib::Radix2(552,13333
+inline std::vector< double > mylib::Abs(564,13481
 
-include/mywavelet.h,541
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mywavelet.h,405
 #define MYWAVELET_H2,20
-enum WaveletType{WaveletType13,230
-  WAVELET_DAUBECHIES,14,248
-  WAVELET_DAUBECHIES_CENTERED,15,270
-  WAVELET_HAAR,16,301
-  WAVELET_HAAR_CENTERED,17,317
-  WAVELET_BSPLINE,18,342
-  WAVELET_BSPLINE_CENTERED19,361
-class Wavelet2D22,392
-  explicit Wavelet2D(Wavelet2D::Wavelet2D33,516
-  virtual ~Wavelet2D(Wavelet2D::~Wavelet2D38,635
-inline void Wavelet2D::Alloc(49,833
-inline void Wavelet2D::Free(86,1632
-inline mylib::vec_2D Wavelet2D::Forward(91,1697
-inline mylib::vec_2D Wavelet2D::Inverse(128,2943
+  enum WaveletType{WaveletType29,736
+    WAVELET_DAUBECHIES,30,756
+    WAVELET_DAUBECHIES_CENTERED,31,780
+    WAVELET_HAAR,32,813
+    WAVELET_HAAR_CENTERED,33,831
+    WAVELET_BSPLINE,34,858
+    WAVELET_BSPLINE_CENTERED35,879
+  class Wavelet2D38,914
+    explicit Wavelet2D(47,1055
+    virtual ~Wavelet2D(52,1180
+    gsl_wavelet GslWavelet(Wavelet2D::GslWavelet61,1388
 
-include/pqmf.h,118
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/pqmf.h,118
 #define PQMF_H2,15
 const unsigned FILTER_LENGTH 17,341
 const unsigned SUBBAND_NUM 18,377
 class cPQMF{cPQMF21,412
 
-include/quantizer.h,874
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/quantizer.h,1672
 #define QUANTIZER_H2,20
-class cQuantizer{cQuantizer20,555
-  virtual int toInt(cQuantizer::toInt30,725
-  virtual double toDouble(cQuantizer::toDouble54,1182
-  virtual itpp::bvec dec2bin(cQuantizer::dec2bin75,1555
-  virtual int bin2dec(cQuantizer::bin2dec118,2442
-  cQuantizer(cQuantizer::cQuantizer141,2910
-  cQuantizer(cQuantizer::cQuantizer143,2979
-  virtual void set(cQuantizer::set152,3253
-  virtual int quantizeSize(cQuantizer::quantizeSize185,4249
-class cUnsignedQ:cUnsignedQ193,4339
-  virtual int toInt(cUnsignedQ::toInt196,4388
-  virtual double toDouble(cUnsignedQ::toDouble209,4689
-  virtual itpp::bvec dec2bin(cUnsignedQ::dec2bin217,4837
-  virtual int bin2dec(cUnsignedQ::bin2dec232,5109
-  cUnsignedQ(cUnsignedQ::cUnsignedQ251,5409
-  virtual void set(cUnsignedQ::set256,5495
-  virtual double quantize(cUnsignedQ::quantize271,5753
+  class Quantizer{Quantizer22,573
+    virtual int ToInt(32,758
+    virtual double ToDouble(Quantizer::ToDouble56,1255
+    virtual itpp::bvec Dec2bin(Quantizer::Dec2bin77,1666
+    virtual int Bin2dec(Quantizer::Bin2dec120,2617
+    Quantizer(Quantizer::Quantizer143,3123
+    Quantizer(Quantizer::Quantizer145,3193
+    virtual void Set(Quantizer::Set154,3482
+    virtual int QuantizeSize(Quantizer::QuantizeSize187,4526
+  class UnsignedQ:UnsignedQ195,4627
+    virtual int ToInt(UnsignedQ::ToInt198,4680
+    virtual double ToDouble(UnsignedQ::ToDouble211,4999
+    virtual itpp::bvec Dec2bin(UnsignedQ::Dec2bin219,5159
+    virtual int Bin2dec(UnsignedQ::Bin2dec234,5453
+    UnsignedQ(UnsignedQ::UnsignedQ253,5781
+    virtual void Set(UnsignedQ::Set258,5874
+    virtual double Quantize(UnsignedQ::Quantize273,6154
+  class StepQ:StepQ283,6363
+    virtual int ToInt(StepQ::ToInt287,6480
+    StepQ(StepQ::StepQ307,6886
+    StepQ(StepQ::StepQ309,6919
+    int MaxAmp(StepQ::MaxAmp314,6971
+    int MinAmp(StepQ::MinAmp318,7028
+    virtual void Set(StepQ::Set322,7086
+    virtual double Quantize(StepQ::Quantize333,7348
+    virtual std::vector<double> Quantize(StepQ::Quantize338,7453
+    virtual itpp::bvec Quantize2bvec(StepQ::Quantize2bvec348,7741
+    virtual itpp::bvec Quantize2bvec(StepQ::Quantize2bvec355,7979
+    virtual itpp::bvec Quantize2bvec(StepQ::Quantize2bvec359,8108
+    virtual double Dequantize(StepQ::Dequantize365,8258
+    virtual std::vector<double> Dequantize2stdvec(StepQ::Dequantize2stdvec372,8446
+    virtual itpp::vec Dequantize2itppvec(StepQ::Dequantize2itppvec377,8584
 
-include/quantizer2.h,105
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/quantizer2.h,105
 #define QUANTIZER_H2,20
 class cQuantizer{cQuantizer16,472
   cQuantizer(cQuantizer::cQuantizer23,600
 
-include/rcpc_theoretical.h,428
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/rcpc_theoretical.h,428
 #define RCPC_THEORETICAL_H2,27
 class thrRCPC{thrRCPC20,523
   thrRCPC(thrRCPC::thrRCPC22,546
@@ -435,11 +581,11 @@ class thrRCPC{thrRCPC20,523
   double getBER(thrRCPC::getBER58,1307
 inline double thrRCPC::calcBER(84,2038
 
-include/snr.h,38
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/snr.h,38
 #define SNR_H6,118
 class cSNR11,189
 
-include/stbi_load.h,419
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/stbi_load.h,419
 #define STBI_LOAD_H2,20
 #define _CRT_SECURE_NO_WARNINGS 127,5467
 #define STBI_VERSION 133,5575
@@ -453,10 +599,10 @@ typedef unsigned char stbi_uc;145,5753
 typedef void (*stbi_idct_8x8)stbi_idct_8x8244,9881
 typedef void (*stbi_YCbCr_to_RGB_run)stbi_YCbCr_to_RGB_run249,10201
 
-include/stbi_write.h,26
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/stbi_write.h,26
 #define STBI_WRITE_H2,21
 
-include/utility2.h,550
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/utility2.h,550
 #define UTILITY2_H2,19
 inline void mylib::vecZeros(68,1963
 inline void mylib::normalizeData(75,2103
@@ -472,7 +618,7 @@ inline std::vector<int> mylib::DoubleToShort(195,4506
 inline int mylib::round_uPoint(214,4967
 inline int mylib::sgn(223,5076
 
-include/wav.h,284
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/wav.h,284
 #define WAV_H2,14
 struct sWaveFileHeader29,965
 struct sChunk36,1157
@@ -484,7 +630,7 @@ class cWavRead67,1885
 class cWavMake110,3451
   cWavMake(cWavMake::cWavMake122,3808
 
-SRC/adpcm.cpp,743
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/adpcm.cpp,743
 const double MU_TILDE 17,567
 const double L_MIN 18,616
 const double EPSILON 19,706
@@ -506,26 +652,27 @@ void adpcmLMS::decoding(617,13382
 void adpcmLMS::decoding(648,13942
 double adpcmLMS::predictor(683,14539
 
-SRC/bit_stream.cpp,444
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/bit_stream.cpp,444
 CBitStream::CBitStream(4,58
 CBitStream::~CBitStream(9,104
 void CBitStream::Reset(13,139
 void CBitStream::SkipBits(22,254
-UINT32 CBitStream::PeekBits(31,415
-UINT32 CBitStream::GetBits(58,974
-BOOL CBitStream::IsOverrun(70,1120
-BOOL CBitStream::SetData(75,1192
-BOOL CBitStream::PutFrameMainData(85,1369
+Uint32 CBitStream::PeekBits(31,415
+Uint32 CBitStream::GetBits(58,974
+bool CBitStream::IsOverrun(70,1120
+bool CBitStream::SetData(75,1192
+bool CBitStream::PutFrameMainData(85,1369
 void CBitStream::ResetDataBitCount(113,2079
 int CBitStream::GetDataBitCount(118,2176
-BOOL CBitStream::SeekDataCountBitsPos(123,2281
+bool CBitStream::SeekDataCountBitsPos(123,2281
 
-SRC/capacity.cpp,108
-void cCapacity::setModulator(7,115
-inline double probability(21,435
-double cCapacity::getCapacity(29,654
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/capacity.cpp,219
+namespace mylib{mylib7,115
+  void Capacity::SetModulator(mylib::Capacity::SetModulator8,133
+  inline double probability(mylib::probability22,480
+  double Capacity::GetCapacity(mylib::Capacity::GetCapacity30,711
 
-SRC/convolutional_code.cpp,1332
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/convolutional_code.cpp,1332
 void cConvolutionalCode::checkInitialization(6,99
 cConvolutionalCode::cConvolutionalCode(14,271
 void cConvolutionalCode::setCode(23,533
@@ -554,31 +701,25 @@ void cPuncturedConvolutionalCode::decode_sd(1110,31821
 itpp::bvec cRCPCCode::encode(1119,32015
 std::vector<itpp::bvec> cRCPCCode::decode(1146,32734
 
-SRC/ldpc.cpp,808
-void cLDPC::setEncoder(8,113
-void cLDPC::setEncoder(25,505
-static void makeInterleaver(39,677
-void cLDPC::makeParityCheckMatrix(56,1015
-void cLDPC::printParityCheckMatrix(96,2027
-void cLDPC::makeGeneratorMatrix(104,2208
-void cLDPC::checkParityCondition(195,4697
-unsigned cLDPC::getCodeLength(209,4958
-unsigned cLDPC::getCheckSymbolLength(214,5017
-unsigned cLDPC::getInputLength(219,5083
-void cLDPC::encode(225,5156
-double cLDPC::getRate(238,5414
-int cLDPC::signOfNumber(244,5547
-double cLDPC::fFunction(258,5703
-void cLDPC::rowsProcessing(274,5881
-void cLDPC::colsProcessing(303,6790
-void cLDPC::estimateCode(321,7287
-bool cLDPC::checkParity(342,7772
-unsigned cLDPC::decode(362,8104
-itpp::vec cLDPC::calcLLR(441,10352
-itpp::vec cLDPC::calcLLR(490,12038
-unsigned cLDPC::decode(525,12991
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/distortion.cpp,710
+namespace mylib{mylib5,83
+  double cSNR::calc(mylib::cSNR::calc11,264
+  double cSNR::calc(mylib::cSNR::calc36,731
+  double cSNR::calc(mylib::cSNR::calc46,930
+  double cSNR::calc(mylib::cSNR::calc69,1372
+  double cSNR::getSegmentalSNR(mylib::cSNR::getSegmentalSNR94,1877
+  double CalcPEAQ(mylib::CalcPEAQ103,2081
+  double CalcSNR(mylib::CalcSNR150,3227
+  double CalcSDR(mylib::CalcSDR193,4471
+  double CalcMSE(mylib::CalcMSE199,4644
+  double CalcMSE(mylib::CalcMSE213,4973
+  double CalcMSE(mylib::CalcMSE232,5572
+  double CalcMSE(mylib::CalcMSE254,6302
+  double CalcPSNR(mylib::CalcPSNR275,6938
+  double CalcPSNR(mylib::CalcPSNR300,7725
+  double CalcPSNR(mylib::CalcPSNR329,8683
 
-SRC/ldpc_sparse.cpp,691
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/ldpc_sparse.cpp,691
 void ldpc::setEncoder(8,102
 static void makeInterleaver(21,284
 void ldpc::makeParityCheckMatrix(38,622
@@ -599,17 +740,29 @@ bool ldpc::checkParity(325,7430
 unsigned ldpc::decoding(346,7785
 itpp::vec ldpc::calcLLR(433,10146
 
-SRC/mlc_msd.cpp,305
-cMLC_MSD::cMLC_MSD(7,124
-void cMLC_MSD::set(12,224
-void cMLC_MSD::encode(40,916
-itpp::ivec cMLC_MSD::decode(78,2088
-double setLDPC_MLC(136,3986
-void setModulatorNatural(152,4381
-std::vector< itpp::bvec > adjustInfoLength_forMLC(177,4996
-std::vector< itpp::bvec > adjustInfoLength_fromMSD(199,5943
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/length_adjuster.cpp,636
+namespace mylib{mylib5,90
+  inline std::vector< itpp::bvec > AdvanceAdjuster_MLC::Forward(mylib::AdvanceAdjuster_MLC::Forward7,176
+  inline std::vector< itpp::bvec > AdvanceAdjuster_MLC::Inverse(mylib::AdvanceAdjuster_MLC::Inverse37,1421
+  inline std::vector< itpp::bvec > NaturalAdjuster_MLC::Forward(mylib::NaturalAdjuster_MLC::Forward69,2726
+  inline std::vector< itpp::bvec > NaturalAdjuster_MLC::Inverse(mylib::NaturalAdjuster_MLC::Inverse109,3971
+  std::vector< itpp::bvec > AdjustInfoLength_forMLC(mylib::AdjustInfoLength_forMLC144,4883
+  itpp::bvec AdjustInfoLength_fromMSD(mylib::AdjustInfoLength_fromMSD180,6071
 
-SRC/mpeg_binary.cpp,920
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/mlc_msd.cpp,681
+namespace mylib{mylib7,172
+  MlcMsd::MlcMsd(mylib::MlcMsd::MlcMsd8,189
+  void MlcMsd::Encode(mylib::MlcMsd::Encode13,289
+  void MlcMsd::EncodeTest(mylib::MlcMsd::EncodeTest50,1544
+  void MlcMsd::LevelDownModulator(mylib::MlcMsd::LevelDownModulator88,2852
+  itpp::ivec MlcMsd::Decode(mylib::MlcMsd::Decode116,4114
+  itpp::bvec MlcMsd::DecodeTest(mylib::MlcMsd::DecodeTest196,6702
+  std::vector< itpp::bvec > MlcMsdWith8pskBp::Decode(mylib::MlcMsdWith8pskBp::Decode227,7821
+  void SetPartitioningPSK::Init(mylib::SetPartitioningPSK::Init351,11994
+  void ReverseSpPSK::Init(mylib::ReverseSpPSK::Init367,12431
+  double SetLdpcForMlc(mylib::SetLdpcForMlc381,12646
+
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/mpeg_binary.cpp,920
 inline void getBits(20,516
 void cMpegToBinary::set(30,742
 void cMpegToBinary::usage(107,3283
@@ -631,7 +784,7 @@ void cArrangedBinaryToMpeg::set(387,10005
 void cArrangedBinaryToMpeg::usage(431,11252
 std::vector<CMpegFrame> cArrangedBinaryToMpeg::getVecMpegFrame(438,11389
 
-SRC/mpeg_decoder.cpp,3371
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/mpeg_decoder.cpp,3371
 static const int BLOCK_LONG 14,405
 static const int BLOCK_SHORT 15,439
 static const int ERROR_BITOVERRUN 16,474
@@ -639,8 +792,8 @@ SScalefactorBandIndex g_ScalefactorBandIndex[g_ScalefactorBandIndex18,517
 CMpegDecoder::CMpegDecoder(48,1400
 CMpegDecoder::~CMpegDecoder(53,1450
 void CMpegDecoder::Reset(57,1489
-BOOL CMpegDecoder::DecodeFrame(72,1842
-static INT16 g_nSlenTable[g_nSlenTable185,6292
+bool CMpegDecoder::DecodeFrame(72,1842
+static Int16 g_nSlenTable[g_nSlenTable185,6292
 void CMpegDecoder::DecodeScalefactors(190,6449
 struct SHuffmanTable288,9831
 struct SHuffmanTableLook294,9895
@@ -674,10 +827,10 @@ void CMpegDecoder::CreateSampleMap(1964,66293
 void CMpegDecoder::Dequantize(2072,70047
 void CMpegDecoder::Reorder(2086,70533
 void CMpegDecoder::JointStereoDecode(2103,70904
-static BOOL g_bInitProcessIStereo 2126,71609
-static BOOL g_bInitAntialias 2127,71653
-static BOOL g_bInitImdct 2128,71692
-static BOOL g_bInitSubband 2129,71727
+static bool g_bInitProcessIStereo 2126,71609
+static bool g_bInitAntialias 2127,71653
+static bool g_bInitImdct 2128,71692
+static bool g_bInitSubband 2129,71727
 static double g_fRatio[g_fRatio2130,71764
 static void InitializeProcessIStereo(2132,71794
 static int GetMaxCriticalBandLong(2140,71972
@@ -697,19 +850,19 @@ static double g_fPolyphaseCoefs[g_fPolyphaseCoefs2447,80293
 void CMpegDecoder::SubbandSynthesys(2586,88156
 int CMpegDecoder::CreatePcm(2634,89673
 
-SRC/mpeg_file.cpp,236
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/mpeg_file.cpp,236
 CMpegFile::CMpegFile(13,380
 CMpegFile::~CMpegFile(18,431
-BOOL CMpegFile::Open(25,502
+bool CMpegFile::Open(25,502
 void CMpegFile::Close(35,654
 inline unsigned short CalcCRC(43,759
-BOOL CMpegFile::SeekMpegFrame(66,1324
-BOOL CMpegFile::DecodeSideInfo(204,5708
+bool CMpegFile::SeekMpegFrame(66,1324
+bool CMpegFile::DecodeSideInfo(204,5708
 
-SRC/mpeg_frame.cpp,370
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/mpeg_frame.cpp,370
 CMpegFrame::CMpegFrame(14,385
 CMpegFrame::~CMpegFrame(22,561
-BOOL CMpegFrame::IsValidHeader(26,596
+bool CMpegFrame::IsValidHeader(26,596
 int CMpegFrame::GetFrameSize(40,888
 int CMpegFrame::GetMainDataSize(74,1870
 int CMpegFrame::GetSampleNum(97,2191
@@ -718,87 +871,112 @@ int g_nBitrate[g_nBitrate103,2303
 int CMpegFrame::GetFrequency(107,2442
 int CMpegFrame::GetBitrate(113,2549
 
-SRC/myaudio.cpp,98
-double calcPEAQ(13,295
-double calcSNR(60,1365
-double calcSDR(103,2549
-double calcMSE(109,2718
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/mybmp.cpp,881
+namespace mylib{mylib4,50
+  itpp::Mat< u_char > BmpReader::GetGray(mylib::BmpReader::GetGray6,118
+  std::vector< itpp::Mat< u_char > > BmpReader::Get(mylib::BmpReader::Get23,457
+  bool MakeBmp(mylib::MakeBmp48,1110
+  bool MakeBmp(mylib::MakeBmp77,1712
+  bool MakeBmpRGB(mylib::MakeBmpRGB109,2420
+  inline u_char ColorCompensation(mylib::ColorCompensation144,3134
+  std::vector< u_char > Rgb2Ycc(mylib::Rgb2Ycc157,3345
+  itpp::Vec< u_char > Rgb2Ycc(mylib::Rgb2Ycc170,3757
+  std::vector< u_char > Ycc2Rgb(mylib::Ycc2Rgb183,4163
+  itpp::Vec< u_char > Ycc2Rgb(mylib::Ycc2Rgb196,4557
+  std::vector< Vector_2D< u_char > > Rgb2Ycc(mylib::Rgb2Ycc210,4948
+  std::vector< itpp::Mat< u_char > > Rgb2Ycc(mylib::Rgb2Ycc235,5758
+  std::vector< Vector_2D< u_char > > Ycc2Rgb(mylib::Ycc2Rgb261,6568
+  std::vector< itpp::Mat< u_char > > Ycc2Rgb(mylib::Ycc2Rgb286,7378
 
-SRC/mybmp.cpp,187
-mylib::Vector_2D< u_char > BmpReader::GetGray(5,99
-std::vector< mylib::Vector_2D< u_char > > BmpReader::Get(22,424
-bool MakeBmp(47,1053
-bool MakeBmp(77,1662
-bool MakeBmpRGB(112,2420
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/myentropy.cpp,1351
+namespace mylib{mylib14,411
+  void JpegHuffmanEncoder::Set(mylib::JpegHuffmanEncoder::Set18,500
+  void JpegHuffmanDecoder::Set(mylib::JpegHuffmanDecoder::Set81,2062
+  itpp::bvec JpegEntropyEncoder::DcEncode_(mylib::JpegEntropyEncoder::DcEncode_137,3614
+  itpp::bvec JpegEntropyEncoder::AcEncode_(mylib::JpegEntropyEncoder::AcEncode_163,4263
+  bool JpegEntropyDecoder::DcDecode_(mylib::JpegEntropyDecoder::DcDecode_199,5267
+  bool JpegEntropyDecoder::AcDecode_(mylib::JpegEntropyDecoder::AcDecode_230,6186
+  itpp::bvec EntropyEncoder::EncodeDc(mylib::EntropyEncoder::EncodeDc304,8274
+  itpp::bvec EntropyEncoder::EncodeAc(mylib::EntropyEncoder::EncodeAc313,8520
+  itpp::bvec EntropyEncoder::EncodePart(mylib::EntropyEncoder::EncodePart340,9182
+  int EntropyDecoder::AcDecode_(mylib::EntropyDecoder::AcDecode_360,9696
+  itpp::Vec< int > EntropyDecoder::DecodeDc(mylib::EntropyDecoder::DecodeDc453,12074
+  itpp::Vec< int > EntropyDecoder::DecodeDc(mylib::EntropyDecoder::DecodeDc472,12590
+  itpp::Vec< int > EntropyDecoder::DecodeAc(mylib::EntropyDecoder::DecodeAc491,13092
+  itpp::Vec< int > EntropyDecoder::DecodeAc(mylib::EntropyDecoder::DecodeAc499,13373
+  itpp::Vec< int > EntropyDecoder::DecodeAll(mylib::EntropyDecoder::DecodeAll506,13642
+  int EntropyDecoder::DecodeAll(mylib::EntropyDecoder::DecodeAll514,13871
 
-SRC/mydct.cpp,435
-const double DIV_SQRT2 4,48
-void cDct< kind >::setSize(setSize7,115
-std::vector< kind > cDct< kind >::forward(forward27,515
-itpp::Vec< kind > cDct< kind >::forward(forward51,1085
-mylib::Vector_2D< kind > cDct< kind >::forward(forward76,1657
-std::vector < kind > cDct< kind >::inverse(inverse108,2580
-itpp::Vec < kind > cDct< kind >::inverse(inverse132,3157
-mylib::Vector_2D< kind > cDct< kind >::inverse(inverse157,3738
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/myentropy_flymake (yoshito's iMac の競合コピー 2013-09-23).cpp,693
+namespace mylib{mylib14,411
+  itpp::bvec EntropyEncoder::EncodeDc(mylib::EntropyEncoder::EncodeDc18,539
+  itpp::bvec EntropyEncoder::EncodeAc(mylib::EntropyEncoder::EncodeAc27,785
+  bool EntropyDecoder::AcDecode_(mylib::EntropyDecoder::AcDecode_57,1552
+  itpp::Vec< int > EntropyDecoder::DecodeDc(mylib::EntropyDecoder::DecodeDc133,3497
+  itpp::Vec< int > EntropyDecoder::DecodeDc(mylib::EntropyDecoder::DecodeDc152,4013
+  itpp::Vec< int > EntropyDecoder::DecodeAc(mylib::EntropyDecoder::DecodeAc172,4578
+  itpp::Vec< int > EntropyDecoder::DecodeAc(mylib::EntropyDecoder::DecodeAc180,4859
+  itpp::Vec< int > EntropyDecoder::DecodeAll(mylib::EntropyDecoder::DecodeAll188,5191
 
-SRC/myldpc.cpp,797
-void cLDPC::setEncoder(10,142
-void cLDPC::execute_setEncoder(27,542
-void cLDPC::makeParityCheckMatrix(52,1048
-void cLDPC::makeGeneratorMatrix(100,2287
-void cLDPC::checkParityCondition(191,4820
-unsigned cLDPC::getCodeLength(205,5123
-unsigned cLDPC::getCheckSymbolLength(210,5179
-unsigned cLDPC::getInputLength(215,5242
-void cLDPC::encode(221,5314
-double cLDPC::getRate(230,5481
-int cLDPC::signOfNumber(236,5610
-double cLDPC::fFunction(250,5766
-inline mylib::vec_2D transposeCompressedVector_2D(265,6043
-void cLDPC::rowsProcessing(284,6542
-void cLDPC::colsProcessing(312,7275
-void cLDPC::estimateCode(334,7825
-bool cLDPC::checkParity(356,8305
-unsigned cLDPC::decode(385,9165
-itpp::vec cLDPC::calcLLR(440,10837
-itpp::vec cLDPC::calcLLR(489,12528
-unsigned cLDPC::decode(524,13483
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/myjpeg.cpp,250
+namespace mylib{mylib14,359
+  void Jpeg2Bitmap::Open(mylib::Jpeg2Bitmap::Open17,418
+  void Jpeg2Dct::Open(mylib::Jpeg2Dct::Open160,5521
+  void Dct2Jpeg::Init(mylib::Dct2Jpeg::Init259,9032
+  void Dct2Jpeg::Make(mylib::Dct2Jpeg::Make284,9877
 
-SRC/mytiff.cpp,122
-mylib::Vector_2D< u_char > TiffReader::GetGray(6,72
-std::vector< mylib::Vector_2D< u_char > > TiffReader::GetRGB(27,594
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/myldpc.cpp,1450
+namespace mylib{mylib9,141
+  inline void Ldpc::Set(mylib::Ldpc::Set10,158
+  inline void Ldpc::SetupMatrix(mylib::Ldpc::SetupMatrix28,605
+  inline void Ldpc::MakeParityCheckMatrix(mylib::Ldpc::MakeParityCheckMatrix51,1154
+  inline void Ldpc::MakeGeneratorMatrix(mylib::Ldpc::MakeGeneratorMatrix88,2500
+  inline void Ldpc::CheckParityCondition(mylib::Ldpc::CheckParityCondition176,5127
+  inline void Ldpc::Encode(mylib::Ldpc::Encode192,5546
+  inline itpp::bvec Ldpc::Encode(mylib::Ldpc::Encode200,5713
+  inline double Ldpc::Ffunction(mylib::Ldpc::Ffunction208,5869
+  inline mylib::vec_2D TkransposeCompressedVector_2D(mylib::TkransposeCompressedVector_2D223,6175
+  void Ldpc::RowsProcessing(mylib::Ldpc::RowsProcessing242,6781
+  inline void Ldpc::ColsProcessing(mylib::Ldpc::ColsProcessing272,7791
+  inline void Ldpc::EstimateCode(mylib::Ldpc::EstimateCode292,8449
+  inline bool Ldpc::CheckParity(mylib::Ldpc::CheckParity314,9011
+  int Ldpc::Decode(mylib::Ldpc::Decode343,9926
+  int Ldpc::DecodeWithPadding0(mylib::Ldpc::DecodeWithPadding0406,11738
+  itpp::vec Ldpc::CalcLLR(mylib::Ldpc::CalcLLR477,13842
+  itpp::vec Ldpc::CalcLLRWithPads(mylib::Ldpc::CalcLLRWithPads524,15588
+  itpp::vec Ldpc::CalcLLR(mylib::Ldpc::CalcLLR573,17293
+  itpp::vec Ldpc::CalcLLR(mylib::Ldpc::CalcLLR606,18406
+  int Ldpc::Decode(mylib::Ldpc::Decode652,19904
+  DecoderParas Ldpc::DecodeAtLevel(mylib::Ldpc::DecodeAtLevel706,21460
 
-SRC/pqmf.cpp,247
-static const double h[h5,80
-cPQMF::cPQMF(522,8106
-void cPQMF::analyze(597,9813
-void cPQMF::analyze(633,10627
-void cPQMF::analyze(669,11423
-void cPQMF::synthesize(685,11877
-void cPQMF::synthesize(729,12819
-void cPQMF::synthesize(772,13742
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/mytiff.cpp,193
+namespace mylib{mylib3,32
+  itpp::Mat< u_char > TiffReader::GetGray(mylib::TiffReader::GetGray6,92
+  std::vector< itpp::Mat< u_char > > TiffReader::GetRGB(mylib::TiffReader::GetRGB27,634
 
-SRC/quantizer.cpp,370
-double cQuantizer::quantize(11,194
-std::vector<double> cQuantizer::quantize(32,577
-itpp::bvec cQuantizer::quantize2bvec(43,819
-itpp::bvec cQuantizer::quantize2bvec(54,986
-itpp::bvec cQuantizer::quantize2bvec(65,1228
-double cQuantizer::dequantize(76,1460
-std::vector<double> cQuantizer::dequantize2stdvec(87,1654
-itpp::vec cQuantizer::dequantize2itppvec(102,2026
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/pqmf.cpp,247
+static const double h[h5,77
+cPQMF::cPQMF(522,8103
+void cPQMF::analyze(597,9810
+void cPQMF::analyze(633,10624
+void cPQMF::analyze(669,11420
+void cPQMF::synthesize(685,11871
+void cPQMF::synthesize(729,12813
+void cPQMF::synthesize(772,13736
 
-SRC/quantizer2.cpp,353
-void cQuantizer::set(9,192
-double cQuantizer::quantize(51,1184
-std::vector<double> cQuantizer::quantize(68,1511
-int cQuantizer::quantizeReturnIndex(79,1753
-std::vector<int> cQuantizer::quantizeReturnIndex(96,2073
-double cQuantizer::dequantize(107,2331
-std::vector<double> cQuantizer::dequantize(114,2457
-int cQuantizer::getQuantizeSize(125,2700
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/quantizer.cpp,767
+namespace mylib{mylib9,192
+  inline double Quantizer::Quantize(mylib::Quantizer::Quantize11,210
+  inline std::vector<double> Quantizer::Quantize(mylib::Quantizer::Quantize32,633
+  inline itpp::bvec Quantizer::Quantize2bvec(mylib::Quantizer::Quantize2bvec45,975
+  inline itpp::bvec Quantizer::Quantize2bvec(mylib::Quantizer::Quantize2bvec56,1162
+  inline itpp::bvec Quantizer::Quantize2bvec(mylib::Quantizer::Quantize2bvec67,1426
+  inline double Quantizer::Dequantize(mylib::Quantizer::Dequantize78,1680
+  inline std::vector<double> Quantizer::Dequantize2stdvec(mylib::Quantizer::Dequantize2stdvec89,1894
+  inline itpp::vec Quantizer::Dequantize2itppvec(mylib::Quantizer::Dequantize2itppvec104,2294
+  int NecessaryBits(mylib::NecessaryBits119,2675
 
-SRC/snr.cpp,212
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/snr.cpp,212
 const double DELTA 5,69
 cSNR::cSNR(7,137
 void cSNR::reset(12,171
@@ -808,7 +986,7 @@ double cSNR::calc(53,864
 double cSNR::calc(76,1277
 double cSNR::getSegmentalSNR(101,1753
 
-SRC/stbi_load.cpp,10157
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/stbi_load.cpp,10157
    #define stbi_inline 20,331
    #define stbi_inline22,370
    #define stbi_inline 25,409
@@ -1059,7 +1237,7 @@ int stbi_info_from_file(4229,127647
 int stbi_info_from_memory(4241,127879
 int stbi_info_from_callbacks(4248,128048
 
-SRC/stbi_write.cpp,1504
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/stbi_write.cpp,1504
 typedef unsigned int stbiw_uint32;11,178
 typedef int stb_image_write_test[stb_image_write_test12,213
 static void writefv(14,282
@@ -1102,7 +1280,7 @@ static unsigned char stbi__paeth(323,11084
 unsigned char *stbi_write_png_to_mem(stbi_write_png_to_mem331,11337
 int stbi_write_png(421,14689
 
-SRC/wav.cpp,928
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/wav.cpp,928
 cWavRead::cWavRead(13,301
 cWavRead::~cWavRead(18,371
 void cWavRead::close(23,409
@@ -1130,5 +1308,3 @@ bool cWavMake::writeWave(398,10750
 bool cWavMake::writeWave(428,11535
 bool cWavMake::writeWave(460,12341
 bool cWavMake::writeWave(500,13484
-
-SRC/myimg.cpp,0
