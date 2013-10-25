@@ -269,35 +269,53 @@ inline std::ostream& operator << operator <<564,11687
     int Height(BmpReader::Height66,1311
     int Components(BmpReader::Components69,1353
 
-/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mycomm.h,1334
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mycomm.h,1335
 #define MYCOMM_H2,18
-enum MODULATOR_TYPE{MODULATOR_TYPE18,339
-enum MODULATOR_TYPE{TYPE_BPSK,TYPE_BPSK18,339
-enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK,18,339
-enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK,18,339
-enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK,18,339
-enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK, TYPE_16QAM}TYPE_16QAM18,339
-  class BERtoEbN032,979
-    BERtoEbN0(BERtoEbN0::BERtoEbN039,1086
-    BERtoEbN0(BERtoEbN0::BERtoEbN040,1123
-    void setModulatorType(BERtoEbN0::setModulatorType45,1212
-    double calcEbN0(BERtoEbN0::calcEbN052,1354
-  class Rand01{Rand0169,1749
-    Rand01(Rand01::Rand0174,1813
-    void setRate(Rand01::setRate78,1876
-    itpp::bin get(Rand01::get83,1981
-    double getRate(Rand01::getRate95,2215
-  class RandomArrange1vec102,2423
-    RandomArrange1vec(RandomArrange1vec::RandomArrange1vec110,2566
-    RandomArrange1vec(RandomArrange1vec::RandomArrange1vec111,2612
-    void set(RandomArrange1vec::set116,2699
-    itpp::bvec get(RandomArrange1vec::get123,2848
-  class BinCounter147,3449
-    BinCounter(BinCounter::BinCounter154,3558
-    void reset(BinCounter::reset162,3672
-    void update(BinCounter::update168,3755
-    void update(BinCounter::update176,3901
-    double GetRate(BinCounter::GetRate183,4068
+enum MODULATOR_TYPE{MODULATOR_TYPE19,369
+enum MODULATOR_TYPE{TYPE_BPSK,TYPE_BPSK19,369
+enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK,19,369
+enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK,19,369
+enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK,19,369
+enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK, TYPE_16QAM}TYPE_16QAM19,369
+  class BERtoEbN033,1009
+    BERtoEbN0(BERtoEbN0::BERtoEbN040,1116
+    BERtoEbN0(BERtoEbN0::BERtoEbN041,1153
+    void setModulatorType(BERtoEbN0::setModulatorType46,1242
+    double calcEbN0(BERtoEbN0::calcEbN053,1384
+  class Rand01{Rand0170,1779
+    Rand01(Rand01::Rand0175,1843
+    void setRate(Rand01::setRate79,1906
+    itpp::bin get(Rand01::get84,2011
+    double getRate(Rand01::getRate96,2245
+  class RandomArrange1vec103,2453
+    RandomArrange1vec(RandomArrange1vec::RandomArrange1vec111,2596
+    RandomArrange1vec(RandomArrange1vec::RandomArrange1vec112,2642
+    void set(RandomArrange1vec::set117,2729
+    itpp::bvec get(RandomArrange1vec::get124,2878
+  class BinCounter148,3479
+    BinCounter(BinCounter::BinCounter155,3588
+    void reset(BinCounter::reset163,3702
+    void update(BinCounter::update169,3785
+    void update(BinCounter::update177,3931
+    double GetRate(BinCounter::GetRate184,4098
+
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mycontainer_mlc.h,759
+#define MYCONTAINER_MLC_H2,26
+  class BvecStack26,820
+    BvecStack(BvecStack::BvecStack34,960
+    explicit BvecStack(BvecStack::BvecStack37,1019
+    virtual ~BvecStack(BvecStack::~BvecStack42,1105
+    void Init(BvecStack::Init47,1207
+    bool Add(BvecStack::Add75,1766
+    itpp::bvec Get(BvecStack::Get88,2100
+    std::vector< int > Sizes(BvecStack::Sizes93,2159
+  class BvecStack_MLC106,2522
+    BvecStack_MLC(BvecStack_MLC::BvecStack_MLC113,2646
+    virtual ~BvecStack_MLC(BvecStack_MLC::~BvecStack_MLC118,2755
+    void Init(BvecStack_MLC::Init121,2793
+    bool Add(BvecStack_MLC::Add134,3190
+    std::vector< itpp::bvec > Get(BvecStack_MLC::Get159,3874
+    std::vector< std::vector< int > > Sizes(BvecStack_MLC::Sizes170,4109
 
 /Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mydct.h,509
 #define MYDCT_H2,16
@@ -906,17 +924,6 @@ namespace mylib{mylib14,411
   itpp::Vec< int > EntropyDecoder::DecodeAc(mylib::EntropyDecoder::DecodeAc499,13373
   itpp::Vec< int > EntropyDecoder::DecodeAll(mylib::EntropyDecoder::DecodeAll506,13642
   int EntropyDecoder::DecodeAll(mylib::EntropyDecoder::DecodeAll514,13871
-
-/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/myentropy_flymake (yoshito's iMac の競合コピー 2013-09-23).cpp,693
-namespace mylib{mylib14,411
-  itpp::bvec EntropyEncoder::EncodeDc(mylib::EntropyEncoder::EncodeDc18,539
-  itpp::bvec EntropyEncoder::EncodeAc(mylib::EntropyEncoder::EncodeAc27,785
-  bool EntropyDecoder::AcDecode_(mylib::EntropyDecoder::AcDecode_57,1552
-  itpp::Vec< int > EntropyDecoder::DecodeDc(mylib::EntropyDecoder::DecodeDc133,3497
-  itpp::Vec< int > EntropyDecoder::DecodeDc(mylib::EntropyDecoder::DecodeDc152,4013
-  itpp::Vec< int > EntropyDecoder::DecodeAc(mylib::EntropyDecoder::DecodeAc172,4578
-  itpp::Vec< int > EntropyDecoder::DecodeAc(mylib::EntropyDecoder::DecodeAc180,4859
-  itpp::Vec< int > EntropyDecoder::DecodeAll(mylib::EntropyDecoder::DecodeAll188,5191
 
 /Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/myjpeg.cpp,250
 namespace mylib{mylib14,359

@@ -14,6 +14,7 @@
 #include "mybinvec.h"
 #include "mybinmat.h"
 #include "length_adjuster.h"
+#include "mycontainer_mlc.h"
 
 enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK, TYPE_16QAM};
 
