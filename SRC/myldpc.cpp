@@ -16,7 +16,9 @@ namespace mylib{
 
     // 列数が行重みの倍数でなかったら失敗
     if(hColSize_%hRowWeight_ != 0 || hColSize_ < hRowSize_){
-      std::cout << "You must choose correct code length.\n";
+      std::cerr << "You must choose correct code length.\n";
+      std::cerr << "Code length = " << n << std::endl;
+      std::cerr << "Row weight = " << rowWeight << std::endl;
       exit(1);
     }
 
