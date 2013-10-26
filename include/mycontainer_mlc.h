@@ -12,7 +12,7 @@
  * Contents:
  *   FunctionName of ClassName
  *
- * Last Updated: <2013/10/26 21:37:59 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2013/10/26 22:34:23 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 
@@ -108,8 +108,10 @@ namespace mylib{
   private:
     std::vector< BvecStack > stacks_;
     std::vector< double > rates_;
+    std::vector< int > numBitsEachLevel_;
+    std::vector< int > storedBitsEachLevel_;
     int totalSize_;
-    int storedSize_;
+    
     
   public:
     BvecStack_MLC(const std::vector< int >& sizes, int init = 0)
@@ -124,10 +126,12 @@ namespace mylib{
     {
       stacks_.resize(sizes.size());
       rates_.resize(sizes.size());
-      
+
+      numBitsEachLevel_ = sizes;
       totalSize_ = mylib::Sum(sizes);
-      storedSize_ = 0;
-      
+
+      storedBitsEachLevel_ = std::vector< int >(sizes.size(), 0); // initialize
+
       for (u_int i = 0; i < sizes.size(); ++i){
         stacks_[i].Init(sizes[i], init);
         rates_[i] = static_cast< double >(sizes[i])/ static_cast< double >(totalSize_);
@@ -136,10 +140,6 @@ namespace mylib{
     
     bool Add(const itpp::bvec& input)
     {
-      if (storedSize_ + input.size() > totalSize_){
-        return false;
-      } // if totalSize_
-      
       std::vector< itpp::bvec > subvecs(rates_.size());
       double sumRates = 0;
       int previousIndex = 0;
@@ -151,6 +151,9 @@ namespace mylib{
         } // if
 
         subvecs[level] = input.get(previousIndex, lastIndex-1); // 実際に入る数を考慮して-1してある
+        if(subvecs[level].size() > numBitsEachLevel_[level] - storedBitsEachLevel_[level]){ // ここでチェックする
+          return false;
+        }
         
         previousIndex = lastIndex;
       } // for i
@@ -158,10 +161,9 @@ namespace mylib{
       for (u_int level = 0; level < rates_.size(); ++level){
         if (!(stacks_[level].Add(subvecs[level]))){
           return false;
-        } // if i
+        } // if
+        storedBitsEachLevel_[level] += subvecs[level].size();
       } // for i
-
-      storedSize_ += input.size();
       
       return true;
     }
