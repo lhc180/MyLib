@@ -12,7 +12,7 @@
  * Contents:
  *   FunctionName of ClassName
  *
- * Last Updated: <2013/10/25 23:30:30 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2013/10/26 21:37:59 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 
@@ -109,7 +109,7 @@ namespace mylib{
     std::vector< BvecStack > stacks_;
     std::vector< double > rates_;
     int totalSize_;
-    int storedSize;
+    int storedSize_;
     
   public:
     BvecStack_MLC(const std::vector< int >& sizes, int init = 0)
@@ -126,18 +126,17 @@ namespace mylib{
       rates_.resize(sizes.size());
       
       totalSize_ = mylib::Sum(sizes);
-      storedSize = 0;
+      storedSize_ = 0;
       
       for (u_int i = 0; i < sizes.size(); ++i){
         stacks_[i].Init(sizes[i], init);
         rates_[i] = static_cast< double >(sizes[i])/ static_cast< double >(totalSize_);
-        std::cout << "## rates_ = " << rates_[i] << std::endl;
       } // for i
     }
     
     bool Add(const itpp::bvec& input)
     {
-      if (storedSize + input.size() > totalSize_){
+      if (storedSize_ + input.size() > totalSize_){
         return false;
       } // if totalSize_
       
@@ -151,7 +150,7 @@ namespace mylib{
           lastIndex = 0;
         } // if
 
-        subvecs[level] = input.get(previousIndex, lastIndex-1);
+        subvecs[level] = input.get(previousIndex, lastIndex-1); // 実際に入る数を考慮して-1してある
         
         previousIndex = lastIndex;
       } // for i
@@ -162,7 +161,7 @@ namespace mylib{
         } // if i
       } // for i
 
-      storedSize += input.size();
+      storedSize_ += input.size();
       
       return true;
     }
