@@ -383,7 +383,8 @@ namespace mylib{
                      itpp::ivec &vecRowWeight,
                      itpp::ivec &vecColWeight)
   {
-
+    std::cout << "## codeLength = " << codeLength_ << std::endl;
+    
     double sumCodeRate = 0.0;
     for(int i = 0; i < static_cast<int>(vecLDPC_.size()); i++){
       vecLDPC_[i].Set(codeLength_, vecRowWeight[i], vecColWeight[i]);
