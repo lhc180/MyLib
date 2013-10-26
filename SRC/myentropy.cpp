@@ -6,7 +6,7 @@
  * Contents:
  *   EntropyEncoderとEntropyDecoderクラスの実装
  *
- * Last Updated: <2013/10/11 18:23:58 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2013/10/26 23:25:51 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 #include "../include/myentropy.h"
@@ -201,7 +201,7 @@ namespace mylib{
     itpp::bvec t_output(0);
     int category = dcHuffman_(input, &t_output); // 差分値のビット数
     int diff = 0;      // DC成分の差分値
-    if (category > 0){
+    if (category > 0 && t_output.size() >= category ){
       itpp::bvec temp = t_output.mid(0, category);
       if (temp[0] == 0){      // 差分が負の場合はビット反転してある
         temp += itpp::bin(1);
@@ -254,7 +254,7 @@ namespace mylib{
       category &= 0x0f;
 
       int acValue = 0;
-      if (category){
+      if (category && t_output.size() >= category){
         // std::cout << "## category = " << category << std::endl;
         itpp::bvec temp = t_output.mid(0, category); // ## ここでエラー
         // categoryがt_outputの要素数超えていたらダメ
