@@ -231,6 +231,27 @@ namespace mylib{
   };
 
 
+  class BlockPartitioningQAM: public itpp::QAM
+  {
+  protected:
+    virtual void Init()
+    {
+      assert(M == 16);          // まだ16QAMにしか対応していない
+      itpp::cvec newSymbols = symbols;
+      itpp::ivec newBits2Symbol = "0 1 4 5 2 3 6 7 8 9 12 13 10 11 14 15";
+
+      set(newSymbols, newBits2Symbol);
+      
+    }
+    
+  public:
+    explicit BlockPartitioningQAM(int m): itpp::QAM(m)
+    {
+      Init();
+    }
+    virtual ~BlockPartitioningQAM();
+  };
+  
   // Proposals for MLC and MSD below.
   // These adjust lengths of info bits such that higher level info bits move to
   // lower level.
