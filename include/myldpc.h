@@ -21,11 +21,12 @@
 /************************************************/
 
 #include <iostream>
+#include <cassert>
 #include <itpp/base/gf2mat.h>
 #include <itpp/base/vec.h>
 #include <itpp/base/specmat.h>
 #include <itpp/comm/modulator.h>
-#include <mymatrix.h>
+// #include <mymatrix.h>
 #include <vector>
 #include <cstdlib>
 

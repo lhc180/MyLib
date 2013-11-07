@@ -1,7 +1,7 @@
 // LDPCの本体ファイル
 
 #include "../include/mycomm.h"
-#include <mymatrix_utl.h>
+// #include <mymatrix_utl.h>
 #include <ctime>
 #include <cmath>
 #include <cassert>
@@ -26,7 +26,21 @@ namespace mylib{
     setDone_ = true;
   }
   
+  inline std::vector<std::vector < int > > CompressGF2matToVectorVector(const itpp::GF2mat& input)
+  {
+    std::vector< std::vector < int > > mat(input.rows());
 
+    for(int row = 0; row < input.rows(); ++row){
+      for(int col = 0; col < input.cols(); ++col){
+	if(input(row,col) == 1){
+	  mat[row].push_back(col);
+	}
+      }
+    }
+
+    return mat;
+  }
+  
   inline void Ldpc::SetupMatrix()
   {
     itpp::GF2mat t_hMat, t_gMat;
@@ -39,11 +53,11 @@ namespace mylib{
   
     infoLength_ = t_gMat.rows();
 
-    hMat_ = mylib::compressGF2matToVector_2D(t_hMat);
-    hMatTrans_ = mylib::compressGF2matToVector_2D(t_hMat.transpose());
+    hMat_ = CompressGF2matToVectorVector(t_hMat);
+    hMatTrans_ = CompressGF2matToVectorVector(t_hMat.transpose());
   
-    gMat_ = mylib::compressGF2matToVector_2D(t_gMat);
-    gMatTrans_ = mylib::compressGF2matToVector_2D(t_gMat.transpose());
+    gMat_ = CompressGF2matToVectorVector(t_gMat);
+    gMatTrans_ = CompressGF2matToVectorVector(t_gMat.transpose());
   
 
     setDone_ = true;
@@ -188,6 +202,31 @@ namespace mylib{
     }
 
   }
+
+  // itpp::bvecと1である要素番号が格納されたstd::vector<std::vector< int > >の掛け算
+  // ただし、vector<vector <int > >の方は転置した形で格納されていなければならない
+  // つまり、bvec * Mat の場合は、bvec * Mat_transposeを入れる
+  // 同様に、bvec * Mat_transposeは bvec * Matとする
+  inline itpp::bvec Times(const itpp::bvec &in_bvec, const std::vector<std::vector< int > >& in_mat)
+  {
+    itpp::bvec out(in_mat.size());
+    out.zeros();
+
+    int row = 0;
+    for(std::vector< std::vector< int > >::const_iterator itRow = in_mat.begin();
+        itRow != in_mat.end(); ++itRow, ++row){
+      itpp::bin sum = 0;
+      for(std::vector< int >::const_iterator itCol = (*itRow).begin(); itCol != (*itRow).end(); ++itCol){
+	int nElem = *itCol; // 1である要素番号
+	// assert(nElem < in_bvec.size()); // ##
+	sum += in_bvec[nElem] * itpp::bin(1);
+      }	// for col
+      out[row] = sum;
+    } // for row
+
+    return out;
+  }
+
   
   // 符号化
   // inputの長さはinfolengthと同じでなければならない
@@ -195,7 +234,7 @@ namespace mylib{
   {
     assert(setDone_);
 
-    coded = mylib::times(input, gMatTrans_); // input * Gmat
+    coded = Times(input, gMatTrans_); // input * Gmat
   
   }
 
@@ -222,22 +261,22 @@ namespace mylib{
   }
 
   // 要素番号だけ格納されたelemMatに対応するように値が格納されているmatを転置する
-  inline mylib::vec_2D TransposeCompressedVector_2D(const mylib::vec_2D &mat,
-                                                    const mylib::ivec_2D &elemMat,
-                                                    const mylib::ivec_2D &elemMat_trans)
-  {
-    mylib::vec_2D mat_trans(elemMat_trans.size_rows());
+  // inline mylib::vec_2D TransposeCompressedVector_2D(const mylib::vec_2D &mat,
+  //                                                   const mylib::ivec_2D &elemMat,
+  //                                                   const mylib::ivec_2D &elemMat_trans)
+  // {
+  //   mylib::vec_2D mat_trans(elemMat_trans.size_rows());
   
-    for(int row = 0; row < elemMat.size_rows(); row++){
-      for(int col = 0; col < elemMat.size_cols(row); col++){
-        int nElem = elemMat(row,col);
-        double value = mat(row,col);
-        mat_trans.add_cols(nElem, value);
-      }
-    }
+  //   for(int row = 0; row < elemMat.size_rows(); row++){
+  //     for(int col = 0; col < elemMat.size_cols(row); col++){
+  //       int nElem = elemMat(row,col);
+  //       double value = mat(row,col);
+  //       mat_trans.add_cols(nElem, value);
+  //     }
+  //   }
 
-    return mat_trans;
-  }
+  //   return mat_trans;
+  // }
 
 
   // 行処理
@@ -246,24 +285,27 @@ namespace mylib{
   {
     std::vector< int > colsIndex(alphaTrans->rows(), 0);
     
-    for(int m = 0; m < hMat_.size_rows(); m++){
+    for(int m = 0; m < static_cast< int >(hMat_.size()); ++m){
       //    std::cout << "## m = " << m << "\n";
-      for(int n = 0; n < hMat_.size_cols(m); n++){
+      for(int n = 0; n < static_cast< int >(hMat_[m].size()); ++n){
         //      std::cout << "  ## n = " << n << "\n";
         int product = 1;
         double sum = 0.0;
-      
-        for(int i = 0; i < hMat_.size_cols(m); i++){
+
+        for (int i = 0; i < n; ++i){
+          product *= itpp::sign(llrVec[hMat_[m][i]] + beta(m,i));
+          sum += Ffunction(fabs(llrVec[hMat_[m][i]] + beta(m,i)));
+        } // for i
+        
+        for(int i = n+1; i < static_cast< int >(hMat_[m].size()); i++){
           // std::cout << "    ## i = " << i << "\n";
-          if(n != i){
-            product *= itpp::sign(llrVec[hMat_(m,i)] + beta(m,i));
-            sum += Ffunction(fabs(llrVec[hMat_(m,i)] + beta(m,i)));
-          }
+          product *= itpp::sign(llrVec[hMat_[m][i]] + beta(m,i));
+          sum += Ffunction(fabs(llrVec[hMat_[m][i]] + beta(m,i)));
         }
       
         // std::cout << "## sum = " << sum << "\n";
-        (*alphaTrans)(hMat_(m,n),colsIndex[hMat_(m,n)]) = product * Ffunction(sum); // hMat_(m,n)は列番号
-        ++colsIndex[hMat_(m,n)];
+        (*alphaTrans)(hMat_[m][n],colsIndex[hMat_[m][n]]) = product * Ffunction(sum); // hMat_[m][n]は列番号
+        ++colsIndex[hMat_[m][n]];
       } // for n
     }   // for m
   }
@@ -276,16 +318,18 @@ namespace mylib{
   {
     std::vector< int > rowsIndex(beta->rows(), 0);
     
-    for(int n = 0; n < hMatTrans_.size_rows(); n++){
-      for(int m = 0; m < hMatTrans_.size_cols(n); m++){
+    for(int n = 0; n < static_cast< int >(hMatTrans_.size()); ++n){
+      for(int m = 0; m < static_cast< int >(hMatTrans_[n].size()); ++m){
         double sum = 0.0;
-        for(int i = 0; i < hMatTrans_.size_cols(n); i++){
-          if(i != m){
-            sum += alphaTrans(n,i);
-          }
-        }
-        (*beta)(hMatTrans_(n,m), rowsIndex[hMatTrans_(n,m)]) = sum; // hMatTrans_(n,m)は行番号
-        ++rowsIndex[hMatTrans_(n,m)];
+        for (int i = 0; i < m; ++i){
+          sum += alphaTrans(n,i);
+        } // for i
+        
+        for(int i = m+1; i < static_cast< int >(hMatTrans_[n].size()); ++i){
+          sum += alphaTrans(n,i);
+        } // for i
+        (*beta)(hMatTrans_[n][m], rowsIndex[hMatTrans_[n][m]]) = sum; // hMatTrans_(n,m)は行番号
+        ++rowsIndex[hMatTrans_[n][m]];
       } // for m
     }   // for n
   }
@@ -297,9 +341,9 @@ namespace mylib{
   {
     std::vector<double> sum(decoded->size());
 
-    for(int n = 0; n < decoded->size(); n++){
+    for(int n = 0; n < decoded->size(); ++n){
       double sum = 0.0;
-      for(int m = 0; m < hMatTrans_.size_cols(n); m++){
+      for(int m = 0; m < static_cast< int >(hMatTrans_[n].size()); ++m){
         sum += alphaTrans(n,m);
       } // for m
     
@@ -322,10 +366,10 @@ namespace mylib{
     // これの高速化版
     /**********************************************************/
     bool result = true;
-    for(int row = 0; row < hMat_.size_rows(); row++){
+    for(int row = 0; row < static_cast< int >(hMat_.size()); ++row){
       itpp::bin sum = 0;
-      for(int col = 0; col < hMat_.size_cols(row); col++){
-        int nElem = hMat_(row,col); // 1である要素番号
+      for(int col = 0; col < static_cast< int >(hMat_[row].size()); ++col){
+        int nElem = hMat_[row][col]; // 1である要素番号
         assert(nElem < decoded.size()); // ##
         sum += decoded[nElem] * itpp::bin(1);
       } // for col
@@ -351,17 +395,15 @@ namespace mylib{
     assert(setDone_);
 
     itpp::bvec estimatedCodes = mod.demodulate_bits(symbol);		// sum-product復号法によって得られる推定語
-
-    assert(hMat_.is_rectangular() && hMatTrans_.is_rectangular());
   
-    itpp::mat beta(hMat_.size_rows(), hMat_.size_cols());
+    itpp::mat beta(hMat_.size(), hRowWeight_);
 
     beta.zeros();			// betaを全て0にする
 
     // std::cout << "rowsIndex.indexVec.size = " << rowsIndex[0].indexVec.size() << "\n";
     // std::cout << "colsIndex.indexVec.size = " << colsIndex[0].indexVec.size() << "\";
   
-    itpp::mat alphaTrans(hMatTrans_.size_rows(), hMatTrans_.size_cols()); // alphaだけ転置行列も用意しとく
+    itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
 
     int loop = 0;
     if (mod.bits_per_symbol() == 1){ // BPSK専用
@@ -420,17 +462,14 @@ namespace mylib{
     for (int i = 0; i < numPads; ++i){
       estimatedCodes[infoLength_-1-i] = 0;
     } // for i
-    
-    assert(hMat_.is_rectangular() && hMatTrans_.is_rectangular());
-  
-    itpp::mat beta(hMat_.size_rows(), hMat_.size_cols());
+
+    itpp::mat beta(hMat_.size(), hRowWeight_);
     
     beta.zeros();			// betaを全て0にする
 
     // std::cout << "rowsIndex.indexVec.size = " << rowsIndex[0].indexVec.size() << "\n";
     // std::cout << "colsIndex.indexVec.size = " << colsIndex[0].indexVec.size() << "\";
-  
-    itpp::mat alphaTrans(hMatTrans_.size_rows(), hMatTrans_.size_cols()); // alphaだけ転置行列も用意しとく
+    itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
     
     int loop = 0;
     if (mod.bits_per_symbol() == 1){ // BPSK専用
@@ -661,14 +700,13 @@ namespace mylib{
     assert(setDone_);
     
     itpp::bvec estimatedCodes(symbol.size()); // sum-product復号法によって得られる推定語
-  
-    assert(hMat_.is_rectangular() && hMatTrans_.is_rectangular());
 
-    itpp::mat beta(hMat_.size_rows(), hMat_.size_cols());
+    itpp::mat beta(hMat_.size(), hRowWeight_);
 
     beta.zeros();			// betaを全て0にする  
 
-    itpp::mat alphaTrans(hMatTrans_.size_rows(), hMatTrans_.size_cols()); // alphaだけ転置行列も用意しとく
+    itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
+    
     itpp::vec llrVec = CalcLLR(vecMod, symbol, N0);    
   
     int loop;
@@ -720,11 +758,11 @@ namespace mylib{
     
     // assert(hMat_.is_rectangular() && hMatTrans_.is_rectangular());
 
-    itpp::mat beta(hMat_.size_rows(), hMat_.size_cols());
+    itpp::mat beta(hMat_.size(), hRowWeight_);
 
-    beta.zeros();			// betaを全て0にする  
-
-    itpp::mat alphaTrans(hMatTrans_.size_rows(), hMatTrans_.size_cols()); // alphaだけ転置行列も用意しとく
+    beta.zeros();			// betaを全て0にする
+    itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
+    
     
     itpp::vec llrVec = CalcLLRAtLevel(mod, symbol, N0, level);
 
