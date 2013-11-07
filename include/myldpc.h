@@ -131,7 +131,13 @@ namespace mylib{
 
     
     void Encode(const itpp::bvec &input, itpp::bvec &coded); // 符号化
-    itpp::bvec Encode(const itpp::bvec& input);
+    itpp::bvec Encode(const itpp::bvec& input)
+    {
+      itpp::bvec code;
+      Encode(input, code);
+      return code;
+    }
+  
     
     // iteration回数を返す
 

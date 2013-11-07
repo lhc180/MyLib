@@ -7,7 +7,7 @@
 #include <cassert>
 
 namespace mylib{
-  inline void Ldpc::Set(unsigned n, unsigned rowWeight, unsigned colWeight)
+  void Ldpc::Set(unsigned n, unsigned rowWeight, unsigned colWeight)
   {
     hRowSize_ = n/rowWeight*colWeight;
     hColSize_ = n;
@@ -230,19 +230,12 @@ namespace mylib{
   
   // 符号化
   // inputの長さはinfolengthと同じでなければならない
-  inline void Ldpc::Encode(const itpp::bvec &input, itpp::bvec &coded)
+  void Ldpc::Encode(const itpp::bvec &input, itpp::bvec &coded)
   {
     assert(setDone_);
 
     coded = Times(input, gMatTrans_); // input * Gmat
   
-  }
-
-  inline itpp::bvec Ldpc::Encode(const itpp::bvec& input)
-  {
-    itpp::bvec code;
-    Encode(input, code);
-    return code;
   }
   
   // Gallagerのf関数
@@ -280,7 +273,7 @@ namespace mylib{
 
 
   // 行処理
-  void Ldpc::RowsProcessing(itpp::mat* alphaTrans, const itpp::mat &beta, 
+  inline void Ldpc::RowsProcessing(itpp::mat* alphaTrans, const itpp::mat &beta, 
                             const itpp::vec &llrVec)
   {
     std::vector< int > colsIndex(alphaTrans->rows(), 0);
