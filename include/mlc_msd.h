@@ -249,7 +249,8 @@ namespace mylib{
     {
       Init();
     }
-    virtual ~BlockPartitioningQAM();
+    virtual ~BlockPartitioningQAM()
+    { }
   };
   
   // Proposals for MLC and MSD below.

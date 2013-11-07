@@ -108,7 +108,7 @@ namespace mylib{mylib7,97
     NaturalAdjuster_MLC(NaturalAdjuster_MLC::NaturalAdjuster_MLC141,4727
     NaturalAdjuster_MLC(NaturalAdjuster_MLC::NaturalAdjuster_MLC143,4761
 
-/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mlc_msd.h,1310
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mlc_msd.h,1604
 #define MLC_MSD_H2,18
   class MlcMsd{MlcMsd29,889
     MlcMsd(MlcMsd::MlcMsd41,1256
@@ -132,6 +132,10 @@ namespace mylib{mylib7,97
   class BlockPartitioningPSK:BlockPartitioningPSK224,6814
     BlockPartitioningPSK(BlockPartitioningPSK::BlockPartitioningPSK227,6875
     virtual ~BlockPartitioningPSK(BlockPartitioningPSK::~BlockPartitioningPSK229,6929
+  class BlockPartitioningQAM:BlockPartitioningQAM234,6980
+    virtual void Init(BlockPartitioningQAM::Init237,7044
+    explicit BlockPartitioningQAM(BlockPartitioningQAM::BlockPartitioningQAM248,7333
+    virtual ~BlockPartitioningQAM(BlockPartitioningQAM::~BlockPartitioningQAM252,7414
 
 /Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mpeg.h,1094
 #define MPEG_H2,16
@@ -310,12 +314,12 @@ enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK, TYPE_16QAM}TYP
     itpp::bvec Get(BvecStack::Get88,2100
     std::vector< int > Sizes(BvecStack::Sizes93,2159
   class BvecStack_MLC106,2522
-    BvecStack_MLC(BvecStack_MLC::BvecStack_MLC113,2646
-    virtual ~BvecStack_MLC(BvecStack_MLC::~BvecStack_MLC118,2755
-    void Init(BvecStack_MLC::Init121,2793
-    bool Add(BvecStack_MLC::Add134,3190
-    std::vector< itpp::bvec > Get(BvecStack_MLC::Get159,3874
-    std::vector< std::vector< int > > Sizes(BvecStack_MLC::Sizes170,4109
+    BvecStack_MLC(BvecStack_MLC::BvecStack_MLC117,2758
+    virtual ~BvecStack_MLC(BvecStack_MLC::~BvecStack_MLC122,2867
+    void Init(BvecStack_MLC::Init125,2905
+    bool Add(BvecStack_MLC::Add141,3402
+    std::vector< itpp::bvec > Get(BvecStack_MLC::Get171,4395
+    std::vector< std::vector< int > > Sizes(BvecStack_MLC::Sizes182,4630
 
 /Users/yoshito/Dropbox/Programming/lib/myLibrary//include/mydct.h,509
 #define MYDCT_H2,16
@@ -913,17 +917,17 @@ namespace mylib{mylib14,411
   itpp::bvec JpegEntropyEncoder::DcEncode_(mylib::JpegEntropyEncoder::DcEncode_137,3614
   itpp::bvec JpegEntropyEncoder::AcEncode_(mylib::JpegEntropyEncoder::AcEncode_163,4263
   bool JpegEntropyDecoder::DcDecode_(mylib::JpegEntropyDecoder::DcDecode_199,5267
-  bool JpegEntropyDecoder::AcDecode_(mylib::JpegEntropyDecoder::AcDecode_230,6186
-  itpp::bvec EntropyEncoder::EncodeDc(mylib::EntropyEncoder::EncodeDc304,8274
-  itpp::bvec EntropyEncoder::EncodeAc(mylib::EntropyEncoder::EncodeAc313,8520
-  itpp::bvec EntropyEncoder::EncodePart(mylib::EntropyEncoder::EncodePart340,9182
-  int EntropyDecoder::AcDecode_(mylib::EntropyDecoder::AcDecode_360,9696
-  itpp::Vec< int > EntropyDecoder::DecodeDc(mylib::EntropyDecoder::DecodeDc453,12074
-  itpp::Vec< int > EntropyDecoder::DecodeDc(mylib::EntropyDecoder::DecodeDc472,12590
-  itpp::Vec< int > EntropyDecoder::DecodeAc(mylib::EntropyDecoder::DecodeAc491,13092
-  itpp::Vec< int > EntropyDecoder::DecodeAc(mylib::EntropyDecoder::DecodeAc499,13373
-  itpp::Vec< int > EntropyDecoder::DecodeAll(mylib::EntropyDecoder::DecodeAll506,13642
-  int EntropyDecoder::DecodeAll(mylib::EntropyDecoder::DecodeAll514,13871
+  bool JpegEntropyDecoder::AcDecode_(mylib::JpegEntropyDecoder::AcDecode_230,6218
+  itpp::bvec EntropyEncoder::EncodeDc(mylib::EntropyEncoder::EncodeDc304,8337
+  itpp::bvec EntropyEncoder::EncodeAc(mylib::EntropyEncoder::EncodeAc313,8583
+  itpp::bvec EntropyEncoder::EncodePart(mylib::EntropyEncoder::EncodePart340,9245
+  int EntropyDecoder::AcDecode_(mylib::EntropyDecoder::AcDecode_360,9759
+  itpp::Vec< int > EntropyDecoder::DecodeDc(mylib::EntropyDecoder::DecodeDc453,12137
+  itpp::Vec< int > EntropyDecoder::DecodeDc(mylib::EntropyDecoder::DecodeDc472,12653
+  itpp::Vec< int > EntropyDecoder::DecodeAc(mylib::EntropyDecoder::DecodeAc491,13155
+  itpp::Vec< int > EntropyDecoder::DecodeAc(mylib::EntropyDecoder::DecodeAc499,13436
+  itpp::Vec< int > EntropyDecoder::DecodeAll(mylib::EntropyDecoder::DecodeAll506,13705
+  int EntropyDecoder::DecodeAll(mylib::EntropyDecoder::DecodeAll514,13934
 
 /Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/myjpeg.cpp,250
 namespace mylib{mylib14,359
@@ -932,29 +936,29 @@ namespace mylib{mylib14,359
   void Dct2Jpeg::Init(mylib::Dct2Jpeg::Init259,9032
   void Dct2Jpeg::Make(mylib::Dct2Jpeg::Make284,9877
 
-/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/myldpc.cpp,1450
+/Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/myldpc.cpp,1451
 namespace mylib{mylib9,141
   inline void Ldpc::Set(mylib::Ldpc::Set10,158
-  inline void Ldpc::SetupMatrix(mylib::Ldpc::SetupMatrix28,605
-  inline void Ldpc::MakeParityCheckMatrix(mylib::Ldpc::MakeParityCheckMatrix51,1154
-  inline void Ldpc::MakeGeneratorMatrix(mylib::Ldpc::MakeGeneratorMatrix88,2500
-  inline void Ldpc::CheckParityCondition(mylib::Ldpc::CheckParityCondition176,5127
-  inline void Ldpc::Encode(mylib::Ldpc::Encode192,5546
-  inline itpp::bvec Ldpc::Encode(mylib::Ldpc::Encode200,5713
-  inline double Ldpc::Ffunction(mylib::Ldpc::Ffunction208,5869
-  inline mylib::vec_2D TkransposeCompressedVector_2D(mylib::TkransposeCompressedVector_2D223,6175
-  void Ldpc::RowsProcessing(mylib::Ldpc::RowsProcessing242,6781
-  inline void Ldpc::ColsProcessing(mylib::Ldpc::ColsProcessing272,7791
-  inline void Ldpc::EstimateCode(mylib::Ldpc::EstimateCode292,8449
-  inline bool Ldpc::CheckParity(mylib::Ldpc::CheckParity314,9011
-  int Ldpc::Decode(mylib::Ldpc::Decode343,9926
-  int Ldpc::DecodeWithPadding0(mylib::Ldpc::DecodeWithPadding0406,11738
-  itpp::vec Ldpc::CalcLLR(mylib::Ldpc::CalcLLR477,13842
-  itpp::vec Ldpc::CalcLLRWithPads(mylib::Ldpc::CalcLLRWithPads524,15588
-  itpp::vec Ldpc::CalcLLR(mylib::Ldpc::CalcLLR573,17293
-  itpp::vec Ldpc::CalcLLR(mylib::Ldpc::CalcLLR606,18406
-  int Ldpc::Decode(mylib::Ldpc::Decode652,19904
-  DecoderParas Ldpc::DecodeAtLevel(mylib::Ldpc::DecodeAtLevel706,21460
+  inline void Ldpc::SetupMatrix(mylib::Ldpc::SetupMatrix30,722
+  inline void Ldpc::MakeParityCheckMatrix(mylib::Ldpc::MakeParityCheckMatrix53,1271
+  inline void Ldpc::MakeGeneratorMatrix(mylib::Ldpc::MakeGeneratorMatrix90,2617
+  inline void Ldpc::CheckParityCondition(mylib::Ldpc::CheckParityCondition178,5244
+  inline void Ldpc::Encode(mylib::Ldpc::Encode194,5663
+  inline itpp::bvec Ldpc::Encode(mylib::Ldpc::Encode202,5830
+  inline double Ldpc::Ffunction(mylib::Ldpc::Ffunction210,5986
+  inline mylib::vec_2D TkransposeCompressedVector_2D(mylib::TkransposeCompressedVector_2D225,6292
+  void Ldpc::RowsProcessing(mylib::Ldpc::RowsProcessing244,6898
+  inline void Ldpc::ColsProcessing(mylib::Ldpc::ColsProcessing274,7908
+  inline void Ldpc::EstimateCode(mylib::Ldpc::EstimateCode294,8566
+  inline bool Ldpc::CheckParity(mylib::Ldpc::CheckParity316,9128
+  int Ldpc::Decode(mylib::Ldpc::Decode345,10043
+  int Ldpc::DecodeWithPadding0(mylib::Ldpc::DecodeWithPadding0408,11855
+  itpp::vec Ldpc::CalcLLR(mylib::Ldpc::CalcLLR479,13959
+  itpp::vec Ldpc::CalcLLRWithPads(mylib::Ldpc::CalcLLRWithPads526,15705
+  itpp::vec Ldpc::CalcLLR(mylib::Ldpc::CalcLLR575,17410
+  itpp::vec Ldpc::CalcLLR(mylib::Ldpc::CalcLLR608,18523
+  int Ldpc::Decode(mylib::Ldpc::Decode654,20021
+  DecoderParas Ldpc::DecodeAtLevel(mylib::Ldpc::DecodeAtLevel708,21577
 
 /Users/yoshito/Dropbox/Programming/lib/myLibrary//SRC/mytiff.cpp,193
 namespace mylib{mylib3,32
