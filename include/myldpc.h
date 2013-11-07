@@ -82,12 +82,12 @@ namespace mylib{
     int hRowWeight_;		// 検査行列の行重み
     int hColWeight_;		// 検査行列の列重み
     int infoLength_;
-    mylib::ivec_2D hMat_;	// Gallager法による検査行列
+    std::vector< std::vector< int > > hMat_;	// Gallager法による検査行列
 				// 1である要素の番号だけを格納する
-    mylib::ivec_2D hMatTrans_; // Hmatの転置行列
-    mylib::ivec_2D gMat_;	// 生成行列
+    std::vector< std::vector< int > > hMatTrans_; // Hmatの転置行列
+    std::vector< std::vector< int > > gMat_;	// 生成行列
 				// 同様に1である要素の番号だけを格納する
-    mylib::ivec_2D gMatTrans_; // Gmatのtranspose
+    std::vector< std::vector< int > > gMatTrans_; // Gmatのtranspose
     itpp::ivec perm_;		// Hmatの列入れ替え情報を保持
     bool setDone_;
 
