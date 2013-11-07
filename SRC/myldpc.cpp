@@ -222,7 +222,7 @@ namespace mylib{
   }
 
   // 要素番号だけ格納されたelemMatに対応するように値が格納されているmatを転置する
-  inline mylib::vec_2D TkransposeCompressedVector_2D(const mylib::vec_2D &mat,
+  inline mylib::vec_2D TransposeCompressedVector_2D(const mylib::vec_2D &mat,
                                                     const mylib::ivec_2D &elemMat,
                                                     const mylib::ivec_2D &elemMat_trans)
   {
@@ -404,7 +404,8 @@ namespace mylib{
   
     return loop;
   }
-  
+
+  // 受信器側でpadding bitsの数が分かっているとき
   int Ldpc::DecodeWithPadding0(const itpp::Modulator_2D& mod,
                          const itpp::cvec& symbol,
                          itpp::bvec& decodedBits,
@@ -572,7 +573,7 @@ namespace mylib{
   }
   
   // this is for MLC and MSD.
-  itpp::vec Ldpc::CalcLLR(const std::vector< itpp::Modulator_2D> &vecMod,
+  itpp::vec LdpcForMlcMsd::CalcLLR(const std::vector< itpp::Modulator_2D> &vecMod,
                           const itpp::cvec &receivedVec,
                           double N0)
   {
@@ -605,7 +606,7 @@ namespace mylib{
   }
 
   // This is for multithread MSD.
-  itpp::vec Ldpc::CalcLLR(const itpp::Modulator_2D &mod,
+  itpp::vec LdpcForMlcMsd::CalcLLRAtLevel(const itpp::Modulator_2D &mod,
                           const itpp::cvec &receivedVec,
                           double N0,
                           int level)
@@ -651,7 +652,7 @@ namespace mylib{
 
   
   // this is for MLC and MSD.
-  int Ldpc::Decode(const std::vector< itpp::Modulator_2D > &vecMod,
+  int LdpcForMlcMsd::Decode(const std::vector< itpp::Modulator_2D > &vecMod,
                    const itpp::cvec &symbol,
                    itpp::bvec &decodedCodes, 
                    const double N0,
@@ -705,7 +706,7 @@ namespace mylib{
   }
 
   // This is for multithread MSD.
-  DecoderParas Ldpc::DecodeAtLevel(const itpp::Modulator_2D& mod,
+  DecoderParas LdpcForMlcMsd::DecodeAtLevel(const itpp::Modulator_2D& mod,
                                    const itpp::cvec &symbol,
                                    // itpp::bvec &decodedCodes,
                                    double N0,
@@ -725,7 +726,7 @@ namespace mylib{
 
     itpp::mat alphaTrans(hMatTrans_.size_rows(), hMatTrans_.size_cols()); // alphaだけ転置行列も用意しとく
     
-    itpp::vec llrVec = CalcLLR(mod, symbol, N0, level);
+    itpp::vec llrVec = CalcLLRAtLevel(mod, symbol, N0, level);
 
     // std::cout << "## DecodeAtLevel " << level << " is called." << std::endl;
     int loop;

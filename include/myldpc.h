@@ -66,16 +66,8 @@ namespace mylib{
                                       int numPads,
                                       double n0);
     
-    // This is for MLC and MSD.
-    virtual itpp::vec CalcLLR(const std::vector< itpp::Modulator_2D > &vecMod,
-                              const itpp::cvec &receivedVec,
-                              double N0);
 
-    virtual itpp::vec CalcLLR(const itpp::Modulator_2D &mod,
-                              const itpp::cvec &receivedVec,
-                              double N0,
-                              int level);
-
+    
     
     virtual void EstimateCode(const itpp::mat &alpha, 
                               itpp::bvec* decoded,
@@ -108,47 +100,47 @@ namespace mylib{
       Set(codeLength, rowWeight, colWeight);
     } // コンストラクタ
 
-    // ~ldpc() --- デフォルトデストラクタ
+    virtual ~Ldpc() { } // --- デフォルトデストラクタ
 
     //   void initialize(unsigned k, unsigned n, unsigned rowWeight = 6, unsigned colWeight = 3);
-    virtual void Set(unsigned n, unsigned rowWeight = 6, unsigned colWeight =3);
+    void Set(unsigned n, unsigned rowWeight = 6, unsigned colWeight =3);
   
     //  virtual void printParityCheckMatrix(); // パリティ検査行列を出力
 
   
-    virtual unsigned CodeLength()	// 符号長(Hの列数)を返す
+    unsigned CodeLength()	// 符号長(Hの列数)を返す
     {
       return hColSize_;
     }
 
-    virtual unsigned SymbolLength() // 検査記号数(Hの行数)を返す
+    unsigned SymbolLength() // 検査記号数(Hの行数)を返す
     {
       return hRowSize_;
     }
 
-    virtual unsigned InfoLength()	// 符号化される情報ベクトルの長さ
+    unsigned InfoLength()	// 符号化される情報ベクトルの長さ
     {
       return infoLength_;
     }
 
-    virtual double CodeRate()		// 符号化率
+    double CodeRate()		// 符号化率
     {
       return static_cast<double>(infoLength_)/static_cast<double>(hColSize_);
     }
 
     
-    virtual void Encode(const itpp::bvec &input, itpp::bvec &coded); // 符号化
-    virtual itpp::bvec Encode(const itpp::bvec& input);
+    void Encode(const itpp::bvec &input, itpp::bvec &coded); // 符号化
+    itpp::bvec Encode(const itpp::bvec& input);
     
     // iteration回数を返す
 
-    virtual int Decode(const itpp::Modulator_2D &mod,
+    int Decode(const itpp::Modulator_2D &mod,
                        const itpp::cvec &symbol,
                        itpp::bvec &decodedBits, 
                        double n0,
                        int loopMax = 100); // 対数領域sum-product復号法
     // loopMaxは最大反復回数
-    virtual itpp::bvec Decode(const itpp::Modulator_2D& mod,
+    itpp::bvec Decode(const itpp::Modulator_2D& mod,
                               const itpp::cvec& symbol,
                               double n0, int loopMax = 100)
     {
@@ -157,8 +149,8 @@ namespace mylib{
       return decoded;
     }
 
-    
-    virtual int DecodeWithPadding0(const itpp::Modulator_2D& mod,
+    // 受信器側でpadding bitsの数が分かっているとき
+    int DecodeWithPadding0(const itpp::Modulator_2D& mod,
                                    const itpp::cvec& symbol,
                                    itpp::bvec& decodedBits,
                                    double N0,
@@ -166,15 +158,42 @@ namespace mylib{
                                    int loopMax = 100);
 
     
-    // これはMLC、MSD用
-    virtual int Decode(const std::vector< itpp::Modulator_2D > &vecMod,
+    
+    
+  };
+
+  class LdpcForMlcMsd: public Ldpc
+  {
+  protected:
+        // This is for MLC and MSD.
+    virtual itpp::vec CalcLLR(const std::vector< itpp::Modulator_2D > &vecMod,
+                              const itpp::cvec &receivedVec,
+                              double N0);
+
+    // This is for multithread MSD.
+    virtual itpp::vec CalcLLRAtLevel(const itpp::Modulator_2D &mod,
+                              const itpp::cvec &receivedVec,
+                              double N0,
+                              int level);
+
+    
+  public:
+    LdpcForMlcMsd() { }
+    LdpcForMlcMsd(unsigned codeLength, unsigned rowWeight = 6, unsigned colWeight = 3):
+      Ldpc(codeLength, rowWeight, colWeight)
+    { }
+    
+    virtual ~LdpcForMlcMsd() { }
+
+        // これはMLC、MSD用
+    int Decode(const std::vector< itpp::Modulator_2D > &vecMod,
                        const itpp::cvec &symbol,
                        itpp::bvec &decodedCodes, // 符号語であり、情報ビットではない
                        const double N0,
                        const int loopMax = 100);
     
     // 並列処理するMSD用
-    virtual DecoderParas DecodeAtLevel(const itpp::Modulator_2D& vecMod,
+    DecoderParas DecodeAtLevel(const itpp::Modulator_2D& vecMod,
                                      const itpp::cvec &symbol,
                                      // itpp::bvec &decodedCodes,
                                      double N0,
@@ -184,8 +203,7 @@ namespace mylib{
                                        // int *loop,
                                      int loopMax = 100);
 
-    
-    
+
   };
   
 }
