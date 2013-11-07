@@ -2,8 +2,9 @@
 #define MLC_MSD_H
 
 #include <vector>
-#include "../include/myldpc.h"
-#include "../include/myutl.h"
+#include "myldpc.h"
+#include "myutl.h"
+#include "mymatrix.h"
 #include <itpp/itbase.h>
 #include <itpp/itcomm.h>
 /*************************************************/
@@ -28,7 +29,7 @@
 namespace mylib{
   class MlcMsd{
   protected:
-    std::vector<Ldpc> vecLDPC_;
+    std::vector<LdpcForMlcMsd> vecLDPC_;
     itpp::Modulator_2D modulator_;
     int numLevels_;			// bitsPerSymbolと一緒
     unsigned codeLength_;
@@ -40,14 +41,14 @@ namespace mylib{
   public:
     MlcMsd() : numLevels_(0), codeLength_(0), avrCodeRate_(0), setDone_(false)
     { }
-    MlcMsd(std::vector<Ldpc> &vLDPC, itpp::Modulator_2D &Mod);
+    MlcMsd(std::vector<LdpcForMlcMsd> &vLDPC, itpp::Modulator_2D &Mod);
 
     virtual ~MlcMsd()
     {
       vecLDPC_.clear();
     }
     
-    void Set(std::vector<Ldpc> &vLDPC, itpp::Modulator_2D &Mod)
+    void Set(std::vector<LdpcForMlcMsd> &vLDPC, itpp::Modulator_2D &Mod)
     {
       // vecLDPC.resize(vLDPC.size());
       //   for(int i = 0; i < vLDPC.size(); i++){
@@ -145,7 +146,7 @@ namespace mylib{
   public:
     // constructor
     MlcMsdWith8pskBp(): MlcMsd() { }
-    MlcMsdWith8pskBp(std::vector<Ldpc> &vLDPC, itpp::Modulator_2D &Mod)
+    MlcMsdWith8pskBp(std::vector<LdpcForMlcMsd> &vLDPC, itpp::Modulator_2D &Mod)
     {
       this->Set(vLDPC, Mod);
     }
@@ -153,7 +154,7 @@ namespace mylib{
     // destructor
     virtual ~MlcMsdWith8pskBp() { }
 
-    void Set(std::vector<Ldpc>& vLDPC, itpp::Modulator_2D &Mod)
+    void Set(std::vector<LdpcForMlcMsd>& vLDPC, itpp::Modulator_2D &Mod)
     {
       if (Mod.bits_per_symbol() != 3){
         std::cerr << "Error: Mod.bits_per_symbol() != 3 in MlcMsdFor8pskBp." << std::endl;
@@ -173,7 +174,7 @@ namespace mylib{
   
   // MLC用にLDPCをセットする
   // 平均符号化率を返す
-  double SetLdpcForMlc(std::vector< Ldpc > &vecLDPC_,
+  double SetLdpcForMlc(std::vector< LdpcForMlcMsd > &vecLDPC_,
                      unsigned codeLength_,
                      itpp::ivec &vecRowWeight,
                      itpp::ivec &vecColWeight);
@@ -282,7 +283,7 @@ namespace mylib{
 
     mylib::Vector_2D< kind > output(numSamples.size());
     int inputIndex = 0;
-    for(int level = 0; level < numSamples.size(); level++)
+    for(int level = 0; level < static_cast< int >(numSamples.size()); level++)
       {
         output(level).resize(numSamples[level]);
         for(int i = 0; i < numSamples[level]; i++)

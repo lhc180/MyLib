@@ -5,7 +5,7 @@
 
 /******************* class MlcMsd *************************/
 namespace mylib{
-  MlcMsd::MlcMsd(std::vector<Ldpc> &vLDPC, itpp::Modulator_2D &Mod)
+  MlcMsd::MlcMsd(std::vector<LdpcForMlcMsd> &vLDPC, itpp::Modulator_2D &Mod)
   {
     Set(vLDPC, Mod);
   }
@@ -378,7 +378,7 @@ namespace mylib{
   }
   
   
-  double SetLdpcForMlc(std::vector< Ldpc > &vecLDPC_,
+  double SetLdpcForMlc(std::vector< LdpcForMlcMsd > &vecLDPC_,
                      unsigned codeLength_,
                      itpp::ivec &vecRowWeight,
                      itpp::ivec &vecColWeight)
