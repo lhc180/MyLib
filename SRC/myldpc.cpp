@@ -26,11 +26,12 @@ namespace mylib{
     setDone_ = true;
   }
   
-  inline std::vector<std::vector < int > > CompressGF2matToVectorVector(const itpp::GF2mat& input)
+  inline std::vector<std::vector < int > > CompressGF2matToVectorVector(const itpp::GF2mat& input, int capa)
   {
     std::vector< std::vector < int > > mat(input.rows());
-
+    
     for(int row = 0; row < input.rows(); ++row){
+      mat[row].reserve(capa);
       for(int col = 0; col < input.cols(); ++col){
 	if(input(row,col) == 1){
 	  mat[row].push_back(col);
@@ -53,12 +54,11 @@ namespace mylib{
   
     infoLength_ = t_gMat.rows();
 
-    hMat_ = CompressGF2matToVectorVector(t_hMat);
-    hMatTrans_ = CompressGF2matToVectorVector(t_hMat.transpose());
+    hMat_ = CompressGF2matToVectorVector(t_hMat, hRowWeight_);
+    hMatTrans_ = CompressGF2matToVectorVector(t_hMat.transpose(), hColWeight_);
   
-    gMat_ = CompressGF2matToVectorVector(t_gMat);
-    gMatTrans_ = CompressGF2matToVectorVector(t_gMat.transpose());
-  
+    gMat_ = CompressGF2matToVectorVector(t_gMat, t_gMat.cols()/2);
+    gMatTrans_ = CompressGF2matToVectorVector(t_gMat.transpose(), t_gMat.rows()/2);
 
     setDone_ = true;
   }
