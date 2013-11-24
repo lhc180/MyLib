@@ -76,7 +76,8 @@ namespace mylib{
 
     virtual bool CheckParity(const itpp::bvec &decoded); // パリティ検査
 
-  
+    virtual void InitBetaForPads(itpp::mat* beta, int numPads);
+    
   protected:
     int hRowSize_;		// 検査行列の行数
     int hColSize_;		// 検査行列の列数(符号長)

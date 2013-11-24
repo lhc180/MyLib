@@ -392,7 +392,7 @@ namespace mylib{
     itpp::mat beta(hMat_.size(), hRowWeight_);
 
     beta.zeros();			// betaを全て0にする
-
+    
     // std::cout << "rowsIndex.indexVec.size = " << rowsIndex[0].indexVec.size() << "\n";
     // std::cout << "colsIndex.indexVec.size = " << colsIndex[0].indexVec.size() << "\";
   
@@ -440,6 +440,30 @@ namespace mylib{
     return loop;
   }
 
+  /************************************************************************************
+   * InitBetaForPads -- DecodeWithPadding0の中のBetaをpaddingbiに相当する部分を10に設定する
+   * 
+   * Arguments:
+   *   beta -- beta
+   *
+   * Return Value:
+   *   void -- void
+   ************************************************************************************/
+  inline void Ldpc::InitBetaForPads(itpp::mat* beta, int numPads) // ##ここ作る
+  // paddingbitの部分だけ10に設定する
+  {
+    int numEffectiveBits = infoLength_ - numPads;
+    
+    for(int n = 0; n < static_cast< int >(hMat_.size()); ++n){
+      for(int m = 0; m < hRowWeight_; ++m){
+        if (hMat_[n][m] >= numEffectiveBits && hMat_[n][m] < infoLength_){
+          (*beta)(n,m) = 10;
+        } // hMatTrans_[n][m]
+      } // for m
+    }   // for n
+  }
+    
+  
   // 受信器側でpadding bitsの数が分かっているとき
   int Ldpc::DecodeWithPadding0(const itpp::Modulator_2D& mod,
                          const itpp::cvec& symbol,
@@ -459,7 +483,8 @@ namespace mylib{
     itpp::mat beta(hMat_.size(), hRowWeight_);
     
     beta.zeros();			// betaを全て0にする
-
+    InitBetaForPads(&beta, numPads);
+    
     // std::cout << "rowsIndex.indexVec.size = " << rowsIndex[0].indexVec.size() << "\n";
     // std::cout << "colsIndex.indexVec.size = " << colsIndex[0].indexVec.size() << "\";
     itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
@@ -578,7 +603,7 @@ namespace mylib{
       for(int k = 0; k < bitsPerSymbol; ++k, ++n){
         
         if(n >= numEffectiveBits && n < infoLength_){
-          llrVec[i*bitsPerSymbol + k] = 100;
+          llrVec[i*bitsPerSymbol + k] = 10;
         }
         else{
           // tempBitsのkビット目が0と1のものを作る
