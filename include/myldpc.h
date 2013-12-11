@@ -76,7 +76,9 @@ namespace mylib{
 
     virtual bool CheckParity(const itpp::bvec &decoded); // パリティ検査
 
-    virtual void InitBetaForPads(itpp::mat* beta, int numPads);
+    virtual void InitBetaForZeroPads(itpp::mat* beta, int numPads);
+
+    virtual void ModifyLLRForCyclePads(itpp::vec* llr, int numPads);
     
   protected:
     int hRowSize_;		// 検査行列の行数
@@ -165,9 +167,14 @@ namespace mylib{
                                    int numPad = 0,
                                    int loopMax = 100);
 
-    
-    
-    
+    // Padding Bitとして情報ビットの最後の部分を繰り返したとき
+    int DecodeWithPaddingCycle(const itpp::Modulator_2D& mod,
+                               const itpp::cvec& symbol,
+                               itpp::bvec& decodedBits,
+                               double n0,
+                               int numPad = 0,
+                               int loopMax = 100);
+
   };
 
   class LdpcForMlcMsd: public Ldpc
