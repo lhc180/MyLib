@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/01/23 22:03:10 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/01/28 22:29:48 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -480,6 +480,68 @@ namespace mylib{
       
   }
 
+  void TurboCode::ModifyLLRForCyclicSuffix(itpp::vec *llr, int numPads) const
+  {
+    int infoLength = llr->size();
+    int numEffectiveBits = infoLength - numPads;
+    
+    for (int i = 0; i < numPads; ++i){
+      (*llr)[numEffectiveBits - numPads + i] += (*llr)[numEffectiveBits + i];
+      (*llr)[numEffectiveBits + i] = (*llr)[numEffectiveBits - numPads + i];
+    } // for i
+
+  }
+
+  void TurboCode::DecodeWithCyclicSuffix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                      double n0, int numPads, int iteration) const
+  {
+    assert(receivedSignal.size() % codeRate_.denominator() == 0);
+    
+    int block = receivedSignal.size() * codeRate_.numerator() / codeRate_.denominator();
+    
+    itpp::cvec r(block), parity1(block), parity2(block);
+
+    for (int i = 0; i < block; ++i){
+      r[i]       = receivedSignal[3*i];
+      parity1[i] = receivedSignal[3*i + 1];
+      parity2[i] = receivedSignal[3*i + 2];
+    } // for i
+
+    itpp::cvec interleaved_r = Interleave(r, interleaver_);
+
+    itpp::cvec in1(2*block), in2(2*block);
+    for (int i = 0; i < block; ++i){
+      in1[2*i]     = r[i];
+      in1[2*i + 1] = parity1[i];
+
+      in2[2*i]     = interleaved_r[i];
+      in2[2*i + 1] = parity2[i];
+    } // for i
+    
+    itpp::vec llrToRsc1(block);
+    llrToRsc1.zeros();
+        
+    for (int ite = 0; ite < iteration; ++ite){
+      
+      itpp::vec llrFromRsc1;
+      rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
+
+      ModifyLLRForCyclicSuffix(&llrFromRsc1, numPads); // ## いらないかも
+      
+      itpp::vec llrToRsc2 = Interleave(llrFromRsc1, interleaver_);
+
+      itpp::vec llrFromRsc2;
+      rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
+      
+      llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
+
+      ModifyLLRForCyclicSuffix(&llrToRsc1, numPads); // ## いらないかも
+    } // for ite
+
+    itpp::bvec interleaved_output = rsc2_.HardDecision();
+    (*output) = Deinterleave(interleaved_output, interleaver_);
+
+  }
   
 }
 

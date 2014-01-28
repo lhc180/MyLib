@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/01/23 18:32:19 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/01/28 22:03:52 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -91,6 +91,8 @@ namespace mylib{
 
   protected:
     virtual void ModifyLLRForZeroPadding(itpp::vec* llr, int numPads) const;
+
+    virtual void ModifyLLRForCyclicSuffix(itpp::vec* llr, int numPads) const;
     
   public:
     explicit TurboCode(itpp::ivec interleaver, int constraint = 3, int feedforward = 05, int feedback = 07):
@@ -126,7 +128,16 @@ namespace mylib{
       DecodeWithZeroPadding(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }
-    
+
+    void DecodeWithCyclicSuffix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                double n0, int numPads = 0, int iteration = 10) const;
+    itpp::bvec DecodeWithCyclicSuffix(const itpp::cvec& receivedSignal,
+                                      double n0, int numPads = 0, int iteration = 10) const
+    {
+      itpp::bvec output;
+      DecodeWithCyclicSuffix(receivedSignal, &output, n0, numPads, iteration);
+      return output;
+    }
     
     static boost::rational< int > CodeRate()
     {
