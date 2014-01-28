@@ -23,7 +23,7 @@ typedef unsigned int  u_int;
 
 namespace mylib
 {
-  const double INFTY = 1E200;
+  const double INFTY = 1e30;
 
   // itppとstdの相互変換
   template < typename kind >

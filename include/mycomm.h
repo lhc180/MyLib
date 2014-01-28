@@ -15,12 +15,13 @@
 #include "mybinmat.h"
 #include "length_adjuster.h"
 #include "mycontainer_mlc.h"
+#include "turbo_code.h"
 
 enum MODULATOR_TYPE{TYPE_BPSK, TYPE_QPSK, TYPE_8PSK, TYPE_16PSK, TYPE_16QAM};
 
 namespace mylib{
   double erfc_inv(double x);      // 逆誤差補関数
-  void makeInterleaver(itpp::ivec &interleaver);
+
   itpp::bvec GenErrors(const itpp::bvec &input, double errorRate);
 
   itpp::bvec std_ivec2bvec(int length, const std::vector<int> &input);
@@ -197,21 +198,28 @@ namespace mylib{
   };
 
   // インターリーバを作る関数
-  inline void makeInterleaver(itpp::ivec &interleaver)
+  inline itpp::ivec RandomInterleaver(int length)
   {
-    itpp::ivec temp(interleaver.size());
-
-    for(int i = 0; i < temp.size(); i++){
-      temp[i] = i;
-    }
-  
-  
-    for(int i = 0; i < interleaver.size(); i++){
-      int num = rand()%temp.size();
-      interleaver[i] = temp[num];
-      temp.del(num);
-    }
+    itpp::ivec interleaver = itpp::sort_index(itpp::randu(length));
+    
+    return interleaver;
   }
+  
+  // inline void makeInterleaver(itpp::ivec &interleaver)
+  // {
+  //   itpp::ivec temp(interleaver.size());
+
+  //   for(int i = 0; i < temp.size(); i++){
+  //     temp[i] = i;
+  //   }
+  
+  
+  //   for(int i = 0; i < interleaver.size(); i++){
+  //     int num = rand()%temp.size();
+  //     interleaver[i] = temp[num];
+  //     temp.del(num);
+  //   }
+  // }
 
   inline double erfc_inv(double x) 
   { 

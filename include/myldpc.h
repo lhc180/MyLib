@@ -61,7 +61,7 @@ namespace mylib{
                               const itpp::bvec &estimatedVec,
                               double N0);   
 
-    virtual itpp::vec CalcLLRWithPads(const itpp::Modulator_2D& mod,
+    virtual itpp::vec CalcLLRWithZeroPadding(const itpp::Modulator_2D& mod,
                                       const itpp::cvec& receivedVec,
                                       const itpp::bvec& estimatedVec,
                                       int numPads,
@@ -76,9 +76,11 @@ namespace mylib{
 
     virtual bool CheckParity(const itpp::bvec &decoded); // パリティ検査
 
-    virtual void InitBetaForZeroPads(itpp::mat* beta, int numPads);
+    virtual void InitBetaForZeroPadding(itpp::mat* beta, int numPads);
 
-    virtual void ModifyLLRForCyclePads(itpp::vec* llr, int numPads);
+    virtual void ModifyLLRForCyclicSuffix(itpp::vec* llr, int numPads);
+
+    virtual void ModifyLLRForCyclicPrefix(itpp::vec* llr, int numPads);
     
   protected:
     int hRowSize_;		// 検査行列の行数
@@ -160,7 +162,7 @@ namespace mylib{
     }
 
     // 受信器側でpadding bitsの数が分かっているとき
-    int DecodeWithPadding0(const itpp::Modulator_2D& mod,
+    int DecodeWithZeroPadding(const itpp::Modulator_2D& mod,
                                    const itpp::cvec& symbol,
                                    itpp::bvec& decodedBits,
                                    double N0,
@@ -168,7 +170,15 @@ namespace mylib{
                                    int loopMax = 100);
 
     // Padding Bitとして情報ビットの最後の部分を繰り返したとき
-    int DecodeWithPaddingCycle(const itpp::Modulator_2D& mod,
+    int DecodeWithCyclicSuffix(const itpp::Modulator_2D& mod,
+                               const itpp::cvec& symbol,
+                               itpp::bvec& decodedBits,
+                               double n0,
+                               int numPad = 0,
+                               int loopMax = 100);
+
+    // Padding Bitとして情報ビットの最初の部分を繰り返したとき
+    int DecodeWithCyclicPrefix(const itpp::Modulator_2D& mod,
                                const itpp::cvec& symbol,
                                itpp::bvec& decodedBits,
                                double n0,

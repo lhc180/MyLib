@@ -6,15 +6,15 @@
  * Contents:
  *   EntropyEncoderとEntropyDecoderクラスの実装
  *
- * Last Updated: <2013/10/26 23:25:51 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2013/12/20 16:41:18 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 #include "../include/myentropy.h"
 
 namespace mylib{
 
-      // ++++++++++++++++++++ JpegHuffmanEncoder ++++++++++++++++++++
-
+  // ++++++++++++++++++++ JpegHuffmanEncoder ++++++++++++++++++++
+  
   void JpegHuffmanEncoder::Set(const JHUFF_TBL& jhuff_tbl)
   {
     assert(&jhuff_tbl != NULL);

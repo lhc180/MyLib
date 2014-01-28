@@ -77,10 +77,10 @@ namespace mylib{
 
     // 列重み分のsubmatrixを作る
     // インターリーバを作る
-    itpp::Sequence_Interleaver<int> sequence_interleaver(hColSize_); // intはダミー
+
     for(int submatrixNum = 1; submatrixNum < hColWeight_; submatrixNum++){
-      sequence_interleaver.randomize_interleaver_sequence();
-      itpp::ivec interleaver = sequence_interleaver.get_interleaver_sequence();
+
+      itpp::ivec interleaver = RandomInterleaver(hColSize_);
             
       for(int i = 0; i < static_cast<int>(hColSize_/hRowWeight_); i++){
         int rowNum = i + submatrixNum*hColSize_/hRowWeight_;
@@ -449,7 +449,7 @@ namespace mylib{
    * Return Value:
    *   void -- void
    ************************************************************************************/
-  inline void Ldpc::InitBetaForZeroPads(itpp::mat* beta, int numPads) // ##ここ作る
+  inline void Ldpc::InitBetaForZeroPadding(itpp::mat* beta, int numPads) // ##ここ作る
   // paddingbitの部分だけ10に設定する
   {
     int numEffectiveBits = infoLength_ - numPads;
@@ -465,7 +465,7 @@ namespace mylib{
 
     
   // 受信器側でpadding bitsの数が分かっているとき
-  int Ldpc::DecodeWithPadding0(const itpp::Modulator_2D& mod,
+  int Ldpc::DecodeWithZeroPadding(const itpp::Modulator_2D& mod,
                          const itpp::cvec& symbol,
                          itpp::bvec& decodedBits,
                          double N0,
@@ -484,7 +484,7 @@ namespace mylib{
     itpp::mat beta(hMat_.size(), hRowWeight_);
     
     beta.zeros();			// betaを全て0にする
-    InitBetaForZeroPads(&beta, numPads);
+    // InitBetaForZeroPadding(&beta, numPads);
     
     // std::cout << "rowsIndex.indexVec.size = " << rowsIndex[0].indexVec.size() << "\n";
     // std::cout << "colsIndex.indexVec.size = " << colsIndex[0].indexVec.size() << "\";
@@ -492,7 +492,7 @@ namespace mylib{
     
     int loop = 0;
     if (mod.bits_per_symbol() == 1){ // BPSK専用
-      itpp::vec llrVec = CalcLLRWithPads(mod, symbol, estimatedCodes, numPads, N0);
+      itpp::vec llrVec = CalcLLRWithZeroPadding(mod, symbol, estimatedCodes, numPads, N0);
     
       for(loop = 0; loop < loopMax; loop++){
         // std::cout << "## loop = " << loop << "\n" << std::flush;
@@ -514,7 +514,7 @@ namespace mylib{
 
       for(loop = 0; loop < loopMax; loop++){
     
-        llrVec = CalcLLRWithPads(mod, symbol, estimatedCodes, numPads, N0);    
+        llrVec = CalcLLRWithZeroPadding(mod, symbol, estimatedCodes, numPads, N0);    
 
         RowsProcessing(&alphaTrans, beta, llrVec);
         
@@ -537,7 +537,7 @@ namespace mylib{
   }
 
   /************************************************************************************
-   * ModifyLLRForCyclePads -- LLRの最後の情報ビットのnumPads分を和にする
+   * ModifyLLRForCyclicSuffix -- LLRの最後の情報ビットのnumPads分を和にする
    * 
    * Arguments:
    *   llr -- LLR
@@ -546,7 +546,7 @@ namespace mylib{
    * Return Value:
    *   void -- void
    ************************************************************************************/
-  void Ldpc::ModifyLLRForCyclePads(itpp::vec *llr, int numPads)
+  void Ldpc::ModifyLLRForCyclicSuffix(itpp::vec *llr, int numPads)
   {
     int numEffectiveBits = infoLength_ - numPads;
     
@@ -556,7 +556,7 @@ namespace mylib{
     } // for i
   }
   
-  int Ldpc::DecodeWithPaddingCycle(const itpp::Modulator_2D& mod,
+  int Ldpc::DecodeWithCyclicSuffix(const itpp::Modulator_2D& mod,
                              const itpp::cvec& symbol,
                              itpp::bvec& decodedBits,
                              double n0,
@@ -567,16 +567,11 @@ namespace mylib{
     assert(numPads <= infoLength_);
     
     itpp::bvec estimatedCodes = mod.demodulate_bits(symbol);		// sum-product復号法によって得られる推定語
-
-    for (int i = 0; i < numPads; ++i){
-      estimatedCodes[infoLength_-1-i] = 0;
-    } // for i
-
+    
     itpp::mat beta(hMat_.size(), hRowWeight_);
     
     beta.zeros();			// betaを全て0にする
-    InitBetaForZeroPads(&beta, numPads);
-
+    
     // std::cout << "rowsIndex.indexVec.size = " << rowsIndex[0].indexVec.size() << "\n";
     // std::cout << "colsIndex.indexVec.size = " << colsIndex[0].indexVec.size() << "\";
     itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
@@ -584,7 +579,7 @@ namespace mylib{
     int loop = 0;
     if (mod.bits_per_symbol() == 1){ // BPSK専用
       itpp::vec llrVec = CalcLLR(mod, symbol, estimatedCodes, n0);
-      ModifyLLRForCyclePads(&llrVec, numPads);
+      ModifyLLRForCyclicSuffix(&llrVec, numPads);
       
       for(loop = 0; loop < loopMax; loop++){
         // std::cout << "## loop = " << loop << "\n" << std::flush;
@@ -608,7 +603,96 @@ namespace mylib{
     
         llrVec = CalcLLR(mod, symbol, estimatedCodes, n0);
 
-        ModifyLLRForCyclePads(&llrVec, numPads);
+        ModifyLLRForCyclicSuffix(&llrVec, numPads);
+        
+        RowsProcessing(&alphaTrans, beta, llrVec);
+        
+        ColsProcessing(alphaTrans, &beta);
+
+        // InitBetaForPads(&beta, numPads);
+
+        EstimateCode(alphaTrans, &estimatedCodes, llrVec);
+
+        if(CheckParity(estimatedCodes)){
+          break;
+        }
+
+      }
+    }
+  
+    decodedBits = estimatedCodes.left(infoLength_); // 復号語の最初のベクトルが元情報
+  
+    return loop;
+  }
+
+  /************************************************************************************
+   * ModifyLLRForCyclicPrefix -- LLRの最後の情報ビットのnumPads分を和にする
+   * 
+   * Arguments:
+   *   llr -- LLR
+   *   numPads -- Padding Bitsの数
+   *
+   * Return Value:
+   *   void -- void
+   ************************************************************************************/
+  void Ldpc::ModifyLLRForCyclicPrefix(itpp::vec *llr, int numPads)
+  {
+    int numEffectiveBits = infoLength_ - numPads;
+    
+    for (int i = 0; i < numPads; ++i){
+      (*llr)[i] += (*llr)[numEffectiveBits + i];
+      (*llr)[numEffectiveBits + i] = (*llr)[i];
+    } // for i
+  }
+  
+  int Ldpc::DecodeWithCyclicPrefix(const itpp::Modulator_2D& mod,
+                             const itpp::cvec& symbol,
+                             itpp::bvec& decodedBits,
+                             double n0,
+                             int numPads,
+                             int loopMax)
+  {
+    assert(setDone_);
+    assert(numPads <= infoLength_);
+    
+    itpp::bvec estimatedCodes = mod.demodulate_bits(symbol);		// sum-product復号法によって得られる推定語
+    
+    itpp::mat beta(hMat_.size(), hRowWeight_);
+    
+    beta.zeros();			// betaを全て0にする
+    
+    // std::cout << "rowsIndex.indexVec.size = " << rowsIndex[0].indexVec.size() << "\n";
+    // std::cout << "colsIndex.indexVec.size = " << colsIndex[0].indexVec.size() << "\";
+    itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
+    
+    int loop = 0;
+    if (mod.bits_per_symbol() == 1){ // BPSK専用
+      itpp::vec llrVec = CalcLLR(mod, symbol, estimatedCodes, n0);
+      ModifyLLRForCyclicPrefix(&llrVec, numPads);
+      
+      for(loop = 0; loop < loopMax; loop++){
+        // std::cout << "## loop = " << loop << "\n" << std::flush;
+        RowsProcessing(&alphaTrans, beta, llrVec);
+        
+        ColsProcessing(alphaTrans, &beta);
+
+        // InitBetaForPads(&beta, numPads);
+        
+        EstimateCode(alphaTrans, &estimatedCodes, llrVec);
+
+        if(CheckParity(estimatedCodes)){
+          break;
+        }
+      }
+    }
+    else{
+      itpp::vec llrVec;
+
+      for(loop = 0; loop < loopMax; loop++){
+    
+        llrVec = CalcLLR(mod, symbol, estimatedCodes, n0);
+
+        ModifyLLRForCyclicPrefix(&llrVec, numPads);
         
         RowsProcessing(&alphaTrans, beta, llrVec);
         
@@ -678,7 +762,8 @@ namespace mylib{
   }
 
   // numPadsは最後のパディングビットの数
-  itpp::vec Ldpc::CalcLLRWithPads(const itpp::Modulator_2D &mod, const itpp::cvec &receivedVec, const itpp::bvec &estimatedVec, int numPads, double N0)
+  itpp::vec Ldpc::CalcLLRWithZeroPadding(const itpp::Modulator_2D &mod, const itpp::cvec &receivedVec,
+                                         const itpp::bvec &estimatedVec, int numPads, double N0)
   {
     int bitsPerSymbol = mod.bits_per_symbol();
 

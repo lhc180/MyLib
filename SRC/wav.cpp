@@ -176,7 +176,7 @@ int cWavRead::getWave(std::vector<int> &output, const int samples)
   }
 
   assert(samples > 0);
-
+  
   output.clear();
   unsigned bits_per_sample =  WrSWaveFileHeader.WaveFormatPcm.bitsPerSample;
   unsigned i;
