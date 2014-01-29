@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/01/28 22:03:52 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/01/29 17:33:15 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -31,8 +31,8 @@ namespace mylib{
     const int constraint_;
     const int memory_;
     const int stateNum_;
-    const int feedforward_;    // Octal Form
-    const int feedback_;       // Octal Form
+    const unsigned int feedforward_;    // Octal Form
+    const unsigned int feedback_;       // Octal Form
     std::vector< std::vector< encodeTable > > encodeTable_;
     mutable itpp::vec lambda_;
     mutable int lastState_;
@@ -44,7 +44,7 @@ namespace mylib{
     // feedforwardとfeedbackは8進表示なので0..で格納しておく
     // feedforward:g_1, feedback:g_0
     // constraint=5, feedforward=021, feedback=037
-    Rsc(int constraint = 3, int feedforward = 05, int feedback = 07);
+    Rsc(int constraint = 3, unsigned int feedforward = 05, unsigned int feedback = 07);
     
     virtual ~Rsc()                     // 継承はしない前提
     { }
@@ -93,6 +93,8 @@ namespace mylib{
     virtual void ModifyLLRForZeroPadding(itpp::vec* llr, int numPads) const;
 
     virtual void ModifyLLRForCyclicSuffix(itpp::vec* llr, int numPads) const;
+
+    virtual void ModifyLLRForCyclicPrefix(itpp::vec* llr, int numPads) const;
     
   public:
     explicit TurboCode(itpp::ivec interleaver, int constraint = 3, int feedforward = 05, int feedback = 07):
@@ -138,6 +140,17 @@ namespace mylib{
       DecodeWithCyclicSuffix(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }
+
+    void DecodeWithCyclicPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                double n0, int numPads = 0, int iteration = 10) const;
+    itpp::bvec DecodeWithCyclicPrefix(const itpp::cvec& receivedSignal,
+                                      double n0, int numPads = 0, int iteration = 10) const
+    {
+      itpp::bvec output;
+      DecodeWithCyclicPrefix(receivedSignal, &output, n0, numPads, iteration);
+      return output;
+    }
+    
     
     static boost::rational< int > CodeRate()
     {

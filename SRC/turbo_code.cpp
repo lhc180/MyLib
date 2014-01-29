@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/01/28 22:29:48 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/01/29 18:07:05 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -16,7 +16,7 @@ namespace mylib{
 
   const boost::rational< int > Rsc::codeRate_(1, 2);
   
-  Rsc::Rsc(int constraint, int feedforward, int feedback):
+  Rsc::Rsc(int constraint, unsigned int feedforward, unsigned int feedback):
     constraint_(constraint), memory_(constraint-1), stateNum_(static_cast< int >(itpp::pow2(memory_))),
     feedforward_(feedforward), feedback_(feedback),
     encodeTable_(static_cast< int >(itpp::pow2(memory_)), std::vector< encodeTable >(2)),
@@ -35,13 +35,13 @@ namespace mylib{
     // std::cout << "state\tinput\toutput" << std::endl;
     for (int state = 0; state < stateNum_; ++state){ // 
       for (int bit = 0; bit < 2; ++bit){
-        int t = ((state << 1) | bit) & feedback_; // メモリ内のフィードッバックで使うものの和
+        unsigned int t = ((state << 1) | bit) & feedback_; // メモリ内のフィードッバックで使うものの和
         itpp::bin t_bit(0);                      // tの各ビットのxor
         for (int i = 0; i < constraint_; ++i){
           t_bit += (t >> i) & 1;
         } // for i
           
-        int out = ((state << 1) | static_cast< int >(t_bit)) & feedforward_;
+        unsigned int out = ((state << 1) | static_cast< int >(t_bit)) & feedforward_;
 
         // outの各ビットのxor
         encodeTable_[state][bit].output_ = 0;
@@ -542,6 +542,70 @@ namespace mylib{
     (*output) = Deinterleave(interleaved_output, interleaver_);
 
   }
+
+  void TurboCode::ModifyLLRForCyclicPrefix(itpp::vec *llr, int numPads) const
+  {
+    int infoLength = llr->size();
+    int numEffectiveBits = infoLength - numPads;
+    
+    for (int i = 0; i < numPads; ++i){
+      (*llr)[i] += (*llr)[numEffectiveBits + i];
+      (*llr)[numEffectiveBits + i] = (*llr)[i];
+    } // for i
+
+  }
+
+  void TurboCode::DecodeWithCyclicPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                      double n0, int numPads, int iteration) const
+  {
+    assert(receivedSignal.size() % codeRate_.denominator() == 0);
+    
+    int block = receivedSignal.size() * codeRate_.numerator() / codeRate_.denominator();
+    
+    itpp::cvec r(block), parity1(block), parity2(block);
+
+    for (int i = 0; i < block; ++i){
+      r[i]       = receivedSignal[3*i];
+      parity1[i] = receivedSignal[3*i + 1];
+      parity2[i] = receivedSignal[3*i + 2];
+    } // for i
+
+    itpp::cvec interleaved_r = Interleave(r, interleaver_);
+
+    itpp::cvec in1(2*block), in2(2*block);
+    for (int i = 0; i < block; ++i){
+      in1[2*i]     = r[i];
+      in1[2*i + 1] = parity1[i];
+
+      in2[2*i]     = interleaved_r[i];
+      in2[2*i + 1] = parity2[i];
+    } // for i
+    
+    itpp::vec llrToRsc1(block);
+    llrToRsc1.zeros();
+        
+    for (int ite = 0; ite < iteration; ++ite){
+      
+      itpp::vec llrFromRsc1;
+      rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
+
+      ModifyLLRForCyclicPrefix(&llrFromRsc1, numPads); // ## いらないかも
+      
+      itpp::vec llrToRsc2 = Interleave(llrFromRsc1, interleaver_);
+
+      itpp::vec llrFromRsc2;
+      rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
+      
+      llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
+
+      ModifyLLRForCyclicPrefix(&llrToRsc1, numPads); // ## いらないかも
+    } // for ite
+
+    itpp::bvec interleaved_output = rsc2_.HardDecision();
+    (*output) = Deinterleave(interleaved_output, interleaver_);
+
+  }
+
   
 }
 
