@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/02/05 16:44:41 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/02/05 17:45:33 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -435,23 +435,23 @@ namespace mylib{
     } // for i
     
     itpp::cvec interleaved_r = Interleave(r);
-
+    
     in1->set_size(2*block);
     in2->set_size(2*block);
     for (int i = 0; i < block; ++i){
-      in1[2*i]     = r[i];
-      in1[2*i + 1] = parity1[i];
+      (*in1)[2*i]     = r[i];
+      (*in1)[2*i + 1] = parity1[i];
 
-      in2[2*i]     = interleaved_r[i];
-      in2[2*i + 1] = parity2[i];
+      (*in2)[2*i]     = interleaved_r[i];
+      (*in2)[2*i + 1] = parity2[i];
     } // for i
-
+    
   }
   
   void TurboCode::DoDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0, int iteration) const
   {
     assert(receivedSignal.size() % codeRate_.denominator() == 0);
-
+    
     itpp::cvec in1, in2;
     SeparateReceivedSignal(receivedSignal, &in1, &in2);
     
@@ -459,7 +459,6 @@ namespace mylib{
     llrToRsc1.zeros();               // ## ここで提案法入れられるかも
     
     for (int ite = 0; ite < iteration; ++ite){
-      
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
       
@@ -470,6 +469,8 @@ namespace mylib{
       
       llrToRsc1 = Deinterleave(llrFromRsc2);
     } // for ite
+    
+
 
     itpp::bvec interleaved_output = rsc2_.HardDecision();
     (*output) = Deinterleave(interleaved_output);
