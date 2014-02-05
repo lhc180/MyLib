@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/02/05 16:44:41 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/02/05 16:43:57 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -678,7 +678,8 @@ namespace mylib{
     } // for ite
 
     itpp::bvec interleaved_output = rsc2_.HardDecision();
-    (*output) = Deinterleave(interleaved_output.left(interleaver_.size()));
+    (*output) = Deinterleave(interleaved_output.left(interleaver_.size()))
+    
   }
 
   
