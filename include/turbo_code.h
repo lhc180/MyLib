@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/02/05 16:00:08 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/02/05 21:00:50 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -235,7 +235,7 @@ namespace mylib{
 
     static boost::rational< int > CodeRateWithTerm(int infoLength, int constraint)
     {
-      int memory = constraint;
+      int memory = constraint - 1;
       return boost::rational< int >(infoLength,
                                     codeRate_.denominator()*(infoLength + memory) + memory);
     }

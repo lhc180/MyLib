@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/02/05 17:45:33 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/02/05 21:34:43 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -641,7 +641,7 @@ namespace mylib{
     itpp::bvec codeTail2(2*tailbits2.size());
     for (int i = 0; i < tailbits2.size(); ++i){
       codeTail2[2*i] = tailbits2[i];
-      codeTail2[2*i] = tailParity2[i];
+      codeTail2[2*i + 1] = tailParity2[i];
     } // for i
     *output = itpp::concat(*output, codeTail2);
   }
@@ -649,33 +649,39 @@ namespace mylib{
   void TurboCode::DoDecodeWithTerm(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                    double n0, int iteration) const
   {
+    int memory = rsc1_.Constraint() - 1;
+    
     itpp::cvec in1, in2;
     SeparateReceivedSignal(receivedSignal, &in1, &in2);
 
-    itpp::cvec tail1 = receivedSignal.mid(3*interleaver_.size(), 2*(rsc1_.Constraint()-1));
-    itpp::cvec tail2 = receivedSignal.right(2*(rsc2_.Constraint()-1));
+    itpp::cvec tail1 = receivedSignal.mid(3*interleaver_.size(), 2*memory);
+    itpp::cvec tail2 = receivedSignal.right(2*memory);
 
     in1 = itpp::concat(in1, tail1);
     in2 = itpp::concat(in2, tail2);
 
-    itpp::vec llrToRsc1(interleaver_.size() + rsc1_.Constraint() - 1);
+    itpp::vec llrToRsc1(interleaver_.size() + memory);
     llrToRsc1.zeros();
-    itpp::vec llrFromRsc1_tail(rsc1_.Constraint()-1), llrFromRsc2_tail(rsc2_.Constraint()-1);
+    // itpp::vec llrFromRsc1_tail(rsc1_.Constraint()-1), llrFromRsc2_tail(rsc2_.Constraint()-1);
+    itpp::vec llrZeros(memory);
+    llrZeros.zeros();
     
     for (int ite = 0; ite < iteration; ++ite){
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
 
-      llrFromRsc1_tail = llrFromRsc1.right(rsc1_.Constraint()-1);
+      // llrFromRsc1_tail = llrFromRsc1.right(memory);
       itpp::vec llrToRsc2 = Interleave(llrFromRsc1.left(interleaver_.size()));
-      llrToRsc2 = itpp::concat(llrToRsc2, llrFromRsc2_tail);
+      // llrToRsc2 = itpp::concat(llrToRsc2, llrFromRsc2_tail);
+      llrToRsc2 = itpp::concat(llrToRsc2, llrZeros);
 
       itpp::vec llrFromRsc2;
       rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
       
-      llrFromRsc2_tail = llrFromRsc2.right(rsc2_.Constraint()-1);
+      // llrFromRsc2_tail = llrFromRsc2.right(memory);
       llrToRsc1 = Deinterleave(llrFromRsc2.left(interleaver_.size()));
-      llrToRsc1 = itpp::concat(llrToRsc1, llrFromRsc1_tail);
+      // llrToRsc1 = itpp::concat(llrToRsc1, llrFromRsc1_tail);
+      llrToRsc1 = itpp::concat(llrToRsc1, llrZeros);
     } // for ite
 
     itpp::bvec interleaved_output = rsc2_.HardDecision();
