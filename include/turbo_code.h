@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/02/05 21:00:50 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/02/06 16:05:16 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -115,11 +115,21 @@ namespace mylib{
     virtual void DoDecodeWithZeroPadding(const itpp::cvec& receivedSignal, itpp::bvec* ouptut,
                                          double n0, int numPads, int iteration) const;
 
+    virtual void DoDecodeWithZeroPadding_term(const itpp::cvec& receivedSignal, itpp::bvec* ouptut,
+                                              double n0, int numPads, int iteration) const;
+
     virtual void DoDecodeWithCyclicSuffix(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                           double n0, int numPads, int iteration) const;
 
+    virtual void DoDecodeWithCyclicSuffix_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                               double n0, int numPads, int iteration) const;
+
+    
     virtual void DoDecodeWithCyclicPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                           double n0, int numPads, int iteration) const;
+
+    virtual void DoDecodeWithCyclicPrefix_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                               double n0, int numPads, int iteration) const;
 
 
     
@@ -187,46 +197,55 @@ namespace mylib{
 
     void DecodeWithZeroPadding(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                double n0, int numPads = 0, int iteration = 10) const
-    { DoDecodeWithZeroPadding(receivedSignal, output, n0, numPads, iteration); }
+    {
+      if (termination_){
+        DoDecodeWithZeroPadding_term(receivedSignal, output, n0, numPads, iteration);
+      } // if
+      else{
+        DoDecodeWithZeroPadding(receivedSignal, output, n0, numPads, iteration);
+      } // else
+    }
     itpp::bvec DecodeWithZeroPadding(const itpp::cvec& receivedSignal,
                                      double n0, int numPads = 0, int iteration = 10) const
     {
       itpp::bvec output;
-      DoDecodeWithZeroPadding(receivedSignal, &output, n0, numPads, iteration);
+      DecodeWithZeroPadding(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }
 
     void DecodeWithCyclicSuffix(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                 double n0, int numPads = 0, int iteration = 10) const
-    { DoDecodeWithCyclicSuffix(receivedSignal, output, n0, numPads, iteration); }
+    {
+      if (termination_){
+        DoDecodeWithCyclicSuffix_term(receivedSignal, output, n0, numPads, iteration);
+      } // if
+      else{
+        DoDecodeWithCyclicSuffix(receivedSignal, output, n0, numPads, iteration);
+      } // else
+    }
     itpp::bvec DecodeWithCyclicSuffix(const itpp::cvec& receivedSignal,
                                       double n0, int numPads = 0, int iteration = 10) const
     {
       itpp::bvec output;
-      DoDecodeWithCyclicSuffix(receivedSignal, &output, n0, numPads, iteration);
+      DecodeWithCyclicSuffix(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }
 
     void DecodeWithCyclicPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                 double n0, int numPads = 0, int iteration = 10) const
-    { DoDecodeWithCyclicPrefix(receivedSignal, output, n0, numPads, iteration); }
-      
+    {
+      if (termination_){
+        DoDecodeWithCyclicPrefix_term(receivedSignal, output, n0, numPads, iteration);
+      } // if
+      else{
+        DoDecodeWithCyclicPrefix(receivedSignal, output, n0, numPads, iteration);
+      } // else
+    }
     itpp::bvec DecodeWithCyclicPrefix(const itpp::cvec& receivedSignal,
                                       double n0, int numPads = 0, int iteration = 10) const
     {
       itpp::bvec output;
-      DoDecodeWithCyclicPrefix(receivedSignal, &output, n0, numPads, iteration);
-      return output;
-    }
-    
-    void EncodeWithTerm(const itpp::bvec& input, itpp::bvec* output) const
-    {
-      DoEncodeWithTerm(input, output);
-    }
-    itpp::bvec EncodeWithTerm(const itpp::bvec& input) const
-    {
-      itpp::bvec output;
-      DoEncodeWithTerm(input, &output);
+      DecodeWithCyclicPrefix(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }
     
@@ -240,6 +259,10 @@ namespace mylib{
                                     codeRate_.denominator()*(infoLength + memory) + memory);
     }
 
+    boost::rational< int > CodeRateWithTerm() const
+    {
+      return CodeRateWithTerm(interleaver_.size(), rsc1_.Constraint());
+    }
     
   };
 

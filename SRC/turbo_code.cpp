@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/02/05 21:34:43 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/02/06 16:15:43 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -662,7 +662,7 @@ namespace mylib{
 
     itpp::vec llrToRsc1(interleaver_.size() + memory);
     llrToRsc1.zeros();
-    // itpp::vec llrFromRsc1_tail(rsc1_.Constraint()-1), llrFromRsc2_tail(rsc2_.Constraint()-1);
+
     itpp::vec llrZeros(memory);
     llrZeros.zeros();
     
@@ -670,18 +670,15 @@ namespace mylib{
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
 
-      // llrFromRsc1_tail = llrFromRsc1.right(memory);
       itpp::vec llrToRsc2 = Interleave(llrFromRsc1.left(interleaver_.size()));
-      // llrToRsc2 = itpp::concat(llrToRsc2, llrFromRsc2_tail);
       llrToRsc2 = itpp::concat(llrToRsc2, llrZeros);
 
       itpp::vec llrFromRsc2;
       rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
-      
-      // llrFromRsc2_tail = llrFromRsc2.right(memory);
+
       llrToRsc1 = Deinterleave(llrFromRsc2.left(interleaver_.size()));
-      // llrToRsc1 = itpp::concat(llrToRsc1, llrFromRsc1_tail);
       llrToRsc1 = itpp::concat(llrToRsc1, llrZeros);
+      
     } // for ite
 
     itpp::bvec interleaved_output = rsc2_.HardDecision();
@@ -689,17 +686,8 @@ namespace mylib{
   }
 
   
+  
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
