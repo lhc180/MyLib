@@ -25,11 +25,11 @@ namespace mylib{
     SetupMatrix();
     setDone_ = true;
   }
-  
+
   inline std::vector<std::vector < int > > CompressGF2matToVectorVector(const itpp::GF2mat& input, int capa)
   {
     std::vector< std::vector < int > > mat(input.rows());
-    
+
     for(int row = 0; row < input.rows(); ++row){
       mat[row].reserve(capa);
       for(int col = 0; col < input.cols(); ++col){
@@ -41,7 +41,7 @@ namespace mylib{
 
     return mat;
   }
-  
+
   inline void Ldpc::SetupMatrix()
   {
     itpp::GF2mat t_hMat, t_gMat;
@@ -51,12 +51,12 @@ namespace mylib{
     MakeGeneratorMatrix(t_hMat,t_gMat);
 
     CheckParityCondition(t_hMat,t_gMat);
-  
+
     infoLength_ = t_gMat.rows();
 
     hMat_ = CompressGF2matToVectorVector(t_hMat, hRowWeight_);
     hMatTrans_ = CompressGF2matToVectorVector(t_hMat.transpose(), hColWeight_);
-  
+
     gMat_ = CompressGF2matToVectorVector(t_gMat, t_gMat.cols()/2);
     gMatTrans_ = CompressGF2matToVectorVector(t_gMat.transpose(), t_gMat.rows()/2);
 
@@ -81,7 +81,7 @@ namespace mylib{
     for(int submatrixNum = 1; submatrixNum < hColWeight_; submatrixNum++){
 
       itpp::ivec interleaver = RandomInterleaver(hColSize_);
-            
+
       for(int i = 0; i < static_cast<int>(hColSize_/hRowWeight_); i++){
         int rowNum = i + submatrixNum*hColSize_/hRowWeight_;
         for(int j = 0; j < static_cast<int>(hColSize_); j++){
@@ -103,7 +103,7 @@ namespace mylib{
   // ガウスの消去法によってPmatを生成
   inline void Ldpc::MakeGeneratorMatrix(itpp::GF2mat &t_hMat, itpp::GF2mat &t_gMat)
   {
-  
+
     itpp::GF2mat obj_hMat = t_hMat;	// ガウスの消去法後のHmat
     perm_.set_size(t_hMat.cols());
     for(int i = 0; i < perm_.size(); ++i){
@@ -111,7 +111,7 @@ namespace mylib{
     }
 
     // /*********ここからは自作のガウスの消去法************/
-    
+
     // rowは行番号でもあり右側行列の対角番号でもある
     // 最右下要素から始める
     for(int index = 0; index < obj_hMat.rows(); index++){
@@ -119,7 +119,7 @@ namespace mylib{
       int col = obj_hMat.cols() - 1 - index;
       // 単位行列にしたい右側行列の対角要素(row,col)が1になるように
       // 行と列の入れ替えを行なっていく
-  
+
       int i,j;
       for(j = col; j >= 0; j--){
         for(i = row; i >= 0; i--){
@@ -130,14 +130,14 @@ namespace mylib{
       }
       i = row;
       j = col;
-    
+
     found:
       obj_hMat.swap_rows(row,i);
       obj_hMat.swap_cols(col,j);
 
       std::swap(perm_[j], perm_[col]);
-    
-    
+
+
       // ここで(row,col)が1になっている
       // (row-1,col)から(0,col)までを0にする
 
@@ -147,7 +147,7 @@ namespace mylib{
           obj_hMat.add_rows(ref,row);
         }
       }
-      // (row+1,col)から(Hmat.rows()-1,col)を0にする      
+      // (row+1,col)から(Hmat.rows()-1,col)を0にする
       for(int ref = row + 1; ref < obj_hMat.rows(); ref++){
         if(obj_hMat(ref,col) == 1){
           obj_hMat.add_rows(ref,row);
@@ -166,22 +166,22 @@ namespace mylib{
         }
       }
     }
-  
+
   cutting:
     obj_hMat = obj_hMat.get_submatrix(startRow,0,obj_hMat.rows()-1,obj_hMat.cols()-1);
 
     // std::cout << "## Matrix H.\n" << Hmat;
     //   std::cout << "## Matrix P.\n" << Pmat;
- 
+
     // 生成行列を作る
     itpp::GF2mat pMat;
 
     pMat = obj_hMat.get_submatrix(0,0,obj_hMat.rows()-1,obj_hMat.cols()-obj_hMat.rows() - 1);
 
     itpp::GF2mat pMatTrans = pMat.transpose();
-  
+
     itpp::GF2mat iMat = itpp::gf2dense_eye(pMatTrans.rows());
-  
+
     t_gMat = iMat.concatenate_horizontal(pMatTrans);
     // std::cout << "## Matrix G.\n" << Gmat;
 
@@ -192,9 +192,9 @@ namespace mylib{
   inline void Ldpc::CheckParityCondition(itpp::GF2mat &t_hMat, itpp::GF2mat &t_gMat)
   {
     itpp::GF2mat MulMat;
-  
+
     MulMat = t_gMat * t_hMat.transpose();
-  
+
     // std::cout << "Matrix MulMat.\n" << MulMat;
     if(!(MulMat.is_zero())){
       std::cerr << "Error: Generator matrix can not be made.\n";
@@ -227,7 +227,7 @@ namespace mylib{
     return out;
   }
 
-  
+
   // 符号化
   // inputの長さはinfolengthと同じでなければならない
   void Ldpc::Encode(const itpp::bvec &input, itpp::bvec &coded)
@@ -235,9 +235,9 @@ namespace mylib{
     assert(setDone_);
 
     coded = Times(input, gMatTrans_); // input * Gmat
-  
+
   }
-  
+
   // Gallagerのf関数
   inline double Ldpc::Ffunction(double x)
   {
@@ -245,11 +245,11 @@ namespace mylib{
     if(x == 0){
       x = 0.0000000001;
      }
-  
+
     double nume = exp(x)+1;
     double denom = exp(x)-1;
 
-  
+
     return log(nume/denom);
   }
 
@@ -259,7 +259,7 @@ namespace mylib{
   //                                                   const mylib::ivec_2D &elemMat_trans)
   // {
   //   mylib::vec_2D mat_trans(elemMat_trans.size_rows());
-  
+
   //   for(int row = 0; row < elemMat.size_rows(); row++){
   //     for(int col = 0; col < elemMat.size_cols(row); col++){
   //       int nElem = elemMat(row,col);
@@ -273,11 +273,11 @@ namespace mylib{
 
 
   // 行処理
-  inline void Ldpc::RowsProcessing(itpp::mat* alphaTrans, const itpp::mat &beta, 
+  inline void Ldpc::RowsProcessing(itpp::mat* alphaTrans, const itpp::mat &beta,
                             const itpp::vec &llrVec)
   {
     std::vector< int > colsIndex(alphaTrans->rows(), 0);
-    
+
     for(int m = 0; m < static_cast< int >(hMat_.size()); ++m){
       //    std::cout << "## m = " << m << "\n";
       for(int n = 0; n < static_cast< int >(hMat_[m].size()); ++n){
@@ -289,13 +289,13 @@ namespace mylib{
           product *= itpp::sign(llrVec[hMat_[m][i]] + beta(m,i));
           sum += Ffunction(fabs(llrVec[hMat_[m][i]] + beta(m,i)));
         } // for i
-        
+
         for(int i = n+1; i < static_cast< int >(hMat_[m].size()); i++){
           // std::cout << "    ## i = " << i << "\n";
           product *= itpp::sign(llrVec[hMat_[m][i]] + beta(m,i));
           sum += Ffunction(fabs(llrVec[hMat_[m][i]] + beta(m,i)));
         }
-      
+
         // std::cout << "## sum = " << sum << "\n";
         (*alphaTrans)(hMat_[m][n],colsIndex[hMat_[m][n]]) = product * Ffunction(sum); // hMat_[m][n]は列番号
         ++colsIndex[hMat_[m][n]];
@@ -310,14 +310,14 @@ namespace mylib{
                                    itpp::mat* beta)
   {
     std::vector< int > rowsIndex(beta->rows(), 0);
-    
+
     for(int n = 0; n < static_cast< int >(hMatTrans_.size()); ++n){
       for(int m = 0; m < static_cast< int >(hMatTrans_[n].size()); ++m){
         double sum = 0.0;
         for (int i = 0; i < m; ++i){
           sum += alphaTrans(n,i);
         } // for i
-        
+
         for(int i = m+1; i < static_cast< int >(hMatTrans_[n].size()); ++i){
           sum += alphaTrans(n,i);
         } // for i
@@ -328,7 +328,7 @@ namespace mylib{
   }
 
   // 一時推定語を求める
-  inline void Ldpc::EstimateCode(const itpp::mat &alphaTrans, 
+  inline void Ldpc::EstimateCode(const itpp::mat &alphaTrans,
                           itpp::bvec* decoded,
                           const itpp::vec &llrVec)
   {
@@ -339,7 +339,7 @@ namespace mylib{
       for(int m = 0; m < static_cast< int >(hMatTrans_[n].size()); ++m){
         sum += alphaTrans(n,m);
       } // for m
-    
+
       if(itpp::sign(llrVec[n] + sum) == 1){
         (*decoded)[n] = 0;
       }
@@ -366,13 +366,13 @@ namespace mylib{
         assert(nElem < decoded.size()); // ##
         sum += decoded[nElem] * itpp::bin(1);
       } // for col
-    
+
       // sumが1となった時点で終了
       if(sum != 0){
         result = false;
         break;
       }
-    
+
     } // for row
 
     return result;
@@ -381,33 +381,33 @@ namespace mylib{
   // 復号
   int Ldpc::Decode(const itpp::Modulator_2D &mod,
                    const itpp::cvec &symbol,
-                   itpp::bvec &decodedBits, 
+                   itpp::bvec &decodedBits,
                    const double N0,
                    const int loopMax)
   {
     assert(setDone_);
 
     itpp::bvec estimatedCodes = mod.demodulate_bits(symbol);		// sum-product復号法によって得られる推定語
-  
+
     itpp::mat beta(hMat_.size(), hRowWeight_);
 
     beta.zeros();			// betaを全て0にする
-    
+
     // std::cout << "rowsIndex.indexVec.size = " << rowsIndex[0].indexVec.size() << "\n";
     // std::cout << "colsIndex.indexVec.size = " << colsIndex[0].indexVec.size() << "\";
-  
+
     itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
 
     int loop = 0;
     if (mod.bits_per_symbol() == 1){ // BPSK専用
       itpp::vec llrVec = CalcLLR(mod, symbol, estimatedCodes, N0);
-    
+
       for(loop = 0; loop < loopMax; loop++){
-    
+
         RowsProcessing(&alphaTrans, beta, llrVec);
-        
+
         ColsProcessing(alphaTrans, &beta);
-    
+
         EstimateCode(alphaTrans, &estimatedCodes, llrVec);
 
         if(CheckParity(estimatedCodes)){
@@ -419,13 +419,13 @@ namespace mylib{
       itpp::vec llrVec;
 
       for(loop = 0; loop < loopMax; loop++){
-    
-        llrVec = CalcLLR(mod, symbol, estimatedCodes, N0);    
+
+        llrVec = CalcLLR(mod, symbol, estimatedCodes, N0);
 
         RowsProcessing(&alphaTrans, beta, llrVec);
-        
+
         ColsProcessing(alphaTrans, &beta);
-    
+
         EstimateCode(alphaTrans, &estimatedCodes, llrVec);
 
         if(CheckParity(estimatedCodes)){
@@ -434,15 +434,15 @@ namespace mylib{
 
       }
     }
-  
+
     decodedBits = estimatedCodes.left(infoLength_); // 復号語の最初のベクトルが元情報
-  
+
     return loop;
   }
 
   /************************************************************************************
    * InitBetaForPads -- DecodeWithPadding0の中のBetaをpaddingbitに相当する部分を10に設定する
-   * 
+   *
    * Arguments:
    *   beta -- beta
    *
@@ -453,7 +453,7 @@ namespace mylib{
   // paddingbitの部分だけ10に設定する
   {
     int numEffectiveBits = infoLength_ - numPads;
-    
+
     for(int n = 0; n < static_cast< int >(hMat_.size()); ++n){
       for(int m = 0; m < hRowWeight_; ++m){
         if (hMat_[n][m] >= numEffectiveBits && hMat_[n][m] < infoLength_){
@@ -463,7 +463,7 @@ namespace mylib{
     }   // for n
   }
 
-    
+
   // 受信器側でpadding bitsの数が分かっているとき
   int Ldpc::DecodeWithZeroPadding(const itpp::Modulator_2D& mod,
                          const itpp::cvec& symbol,
@@ -474,7 +474,7 @@ namespace mylib{
   {
     assert(setDone_);
     assert(numPads <= infoLength_);
-    
+
     itpp::bvec estimatedCodes = mod.demodulate_bits(symbol);		// sum-product復号法によって得られる推定語
 
     for (int i = 0; i < numPads; ++i){
@@ -482,26 +482,26 @@ namespace mylib{
     } // for i
 
     itpp::mat beta(hMat_.size(), hRowWeight_);
-    
+
     beta.zeros();			// betaを全て0にする
     // InitBetaForZeroPadding(&beta, numPads);
-    
+
     // std::cout << "rowsIndex.indexVec.size = " << rowsIndex[0].indexVec.size() << "\n";
     // std::cout << "colsIndex.indexVec.size = " << colsIndex[0].indexVec.size() << "\";
     itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
-    
+
     int loop = 0;
     if (mod.bits_per_symbol() == 1){ // BPSK専用
       itpp::vec llrVec = CalcLLRWithZeroPadding(mod, symbol, estimatedCodes, numPads, N0);
-    
+
       for(loop = 0; loop < loopMax; loop++){
         // std::cout << "## loop = " << loop << "\n" << std::flush;
         RowsProcessing(&alphaTrans, beta, llrVec);
-        
+
         ColsProcessing(alphaTrans, &beta);
 
         // InitBetaForPads(&beta, numPads);
-        
+
         EstimateCode(alphaTrans, &estimatedCodes, llrVec);
 
         if(CheckParity(estimatedCodes)){
@@ -513,11 +513,11 @@ namespace mylib{
       itpp::vec llrVec;
 
       for(loop = 0; loop < loopMax; loop++){
-    
-        llrVec = CalcLLRWithZeroPadding(mod, symbol, estimatedCodes, numPads, N0);    
+
+        llrVec = CalcLLRWithZeroPadding(mod, symbol, estimatedCodes, numPads, N0);
 
         RowsProcessing(&alphaTrans, beta, llrVec);
-        
+
         ColsProcessing(alphaTrans, &beta);
 
         // InitBetaForPads(&beta, numPads);
@@ -530,15 +530,15 @@ namespace mylib{
 
       }
     }
-  
+
     decodedBits = estimatedCodes.left(infoLength_); // 復号語の最初のベクトルが元情報
-  
+
     return loop;
   }
 
   /************************************************************************************
    * ModifyLLRForCyclicSuffix -- LLRの最後の情報ビットのnumPads分を和にする
-   * 
+   *
    * Arguments:
    *   llr -- LLR
    *   numPads -- Padding Bitsの数
@@ -549,13 +549,13 @@ namespace mylib{
   void Ldpc::ModifyLLRForCyclicSuffix(itpp::vec *llr, int numPads)
   {
     int numEffectiveBits = infoLength_ - numPads;
-    
+
     for (int i = 0; i < numPads; ++i){
       (*llr)[numEffectiveBits - numPads + i] += (*llr)[numEffectiveBits + i];
       (*llr)[numEffectiveBits + i] = (*llr)[numEffectiveBits - numPads + i];
     } // for i
   }
-  
+
   int Ldpc::DecodeWithCyclicSuffix(const itpp::Modulator_2D& mod,
                              const itpp::cvec& symbol,
                              itpp::bvec& decodedBits,
@@ -565,30 +565,30 @@ namespace mylib{
   {
     assert(setDone_);
     assert(numPads <= infoLength_);
-    
+
     itpp::bvec estimatedCodes = mod.demodulate_bits(symbol);		// sum-product復号法によって得られる推定語
-    
+
     itpp::mat beta(hMat_.size(), hRowWeight_);
-    
+
     beta.zeros();			// betaを全て0にする
-    
+
     // std::cout << "rowsIndex.indexVec.size = " << rowsIndex[0].indexVec.size() << "\n";
     // std::cout << "colsIndex.indexVec.size = " << colsIndex[0].indexVec.size() << "\";
     itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
-    
+
     int loop = 0;
     if (mod.bits_per_symbol() == 1){ // BPSK専用
       itpp::vec llrVec = CalcLLR(mod, symbol, estimatedCodes, n0);
       ModifyLLRForCyclicSuffix(&llrVec, numPads);
-      
+
       for(loop = 0; loop < loopMax; loop++){
         // std::cout << "## loop = " << loop << "\n" << std::flush;
         RowsProcessing(&alphaTrans, beta, llrVec);
-        
+
         ColsProcessing(alphaTrans, &beta);
 
         // InitBetaForPads(&beta, numPads);
-        
+
         EstimateCode(alphaTrans, &estimatedCodes, llrVec);
 
         if(CheckParity(estimatedCodes)){
@@ -600,13 +600,13 @@ namespace mylib{
       itpp::vec llrVec;
 
       for(loop = 0; loop < loopMax; loop++){
-    
+
         llrVec = CalcLLR(mod, symbol, estimatedCodes, n0);
 
         ModifyLLRForCyclicSuffix(&llrVec, numPads);
-        
+
         RowsProcessing(&alphaTrans, beta, llrVec);
-        
+
         ColsProcessing(alphaTrans, &beta);
 
         // InitBetaForPads(&beta, numPads);
@@ -619,15 +619,15 @@ namespace mylib{
 
       }
     }
-  
+
     decodedBits = estimatedCodes.left(infoLength_); // 復号語の最初のベクトルが元情報
-  
+
     return loop;
   }
 
   /************************************************************************************
    * ModifyLLRForCyclicPrefix -- LLRの最後の情報ビットのnumPads分を和にする
-   * 
+   *
    * Arguments:
    *   llr -- LLR
    *   numPads -- Padding Bitsの数
@@ -638,13 +638,13 @@ namespace mylib{
   void Ldpc::ModifyLLRForCyclicPrefix(itpp::vec *llr, int numPads)
   {
     int numEffectiveBits = infoLength_ - numPads;
-    
+
     for (int i = 0; i < numPads; ++i){
       (*llr)[i] += (*llr)[numEffectiveBits + i];
       (*llr)[numEffectiveBits + i] = (*llr)[i];
     } // for i
   }
-  
+
   int Ldpc::DecodeWithCyclicPrefix(const itpp::Modulator_2D& mod,
                              const itpp::cvec& symbol,
                              itpp::bvec& decodedBits,
@@ -654,30 +654,30 @@ namespace mylib{
   {
     assert(setDone_);
     assert(numPads <= infoLength_);
-    
+
     itpp::bvec estimatedCodes = mod.demodulate_bits(symbol);		// sum-product復号法によって得られる推定語
-    
+
     itpp::mat beta(hMat_.size(), hRowWeight_);
-    
+
     beta.zeros();			// betaを全て0にする
-    
+
     // std::cout << "rowsIndex.indexVec.size = " << rowsIndex[0].indexVec.size() << "\n";
     // std::cout << "colsIndex.indexVec.size = " << colsIndex[0].indexVec.size() << "\";
     itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
-    
+
     int loop = 0;
     if (mod.bits_per_symbol() == 1){ // BPSK専用
       itpp::vec llrVec = CalcLLR(mod, symbol, estimatedCodes, n0);
       ModifyLLRForCyclicPrefix(&llrVec, numPads);
-      
+
       for(loop = 0; loop < loopMax; loop++){
         // std::cout << "## loop = " << loop << "\n" << std::flush;
         RowsProcessing(&alphaTrans, beta, llrVec);
-        
+
         ColsProcessing(alphaTrans, &beta);
 
         // InitBetaForPads(&beta, numPads);
-        
+
         EstimateCode(alphaTrans, &estimatedCodes, llrVec);
 
         if(CheckParity(estimatedCodes)){
@@ -689,13 +689,13 @@ namespace mylib{
       itpp::vec llrVec;
 
       for(loop = 0; loop < loopMax; loop++){
-    
+
         llrVec = CalcLLR(mod, symbol, estimatedCodes, n0);
 
         ModifyLLRForCyclicPrefix(&llrVec, numPads);
-        
+
         RowsProcessing(&alphaTrans, beta, llrVec);
-        
+
         ColsProcessing(alphaTrans, &beta);
 
         // InitBetaForPads(&beta, numPads);
@@ -708,9 +708,9 @@ namespace mylib{
 
       }
     }
-  
+
     decodedBits = estimatedCodes.left(infoLength_); // 復号語の最初のベクトルが元情報
-  
+
     return loop;
   }
 
@@ -735,11 +735,11 @@ namespace mylib{
     }
 
     itpp::vec llrVec(estimatedVec.size());
-  
-    for(int i = 0; i < receivedVec.size(); i++){ 
+
+    for(int i = 0; i < receivedVec.size(); i++){
       // i*bitsPerSymbol目からbitsPerSymbol分取り出す
       itpp::bvec tempBits = estimatedVec.get(i*bitsPerSymbol, i*bitsPerSymbol + bitsPerSymbol -1);
-        
+
       for(int k = 0; k < bitsPerSymbol; k++){
         // tempBitsのkビット目が0と1のものを作る
         itpp::bvec bitsAtk1 = tempBits, bitsAtk0 = tempBits;
@@ -750,10 +750,10 @@ namespace mylib{
         itpp::cvec symAtk0 = mod.modulate_bits(bitsAtk0);
         itpp::cvec symAtk1 = mod.modulate_bits(bitsAtk1);
         // complex型にする
-      
+
         double nume = exp(-pow(abs(receivedVec[i]-symAtk0[0]),2)/N0);
         double denom = exp(-pow(abs(receivedVec[i]-symAtk1[0]),2)/N0);
-            
+
         llrVec[i*bitsPerSymbol + k] = log(nume/denom);
       }
     }
@@ -768,7 +768,7 @@ namespace mylib{
     int bitsPerSymbol = mod.bits_per_symbol();
 
     int numEffectiveBits = infoLength_ - numPads;
-    
+
     if(receivedVec.size()*bitsPerSymbol != estimatedVec.size()){
       std::cerr << "Error in ldpc::calcLLR.\n"
                 << "estimatedVec.size() is not correct.\n";
@@ -776,14 +776,14 @@ namespace mylib{
     }
 
     itpp::vec llrVec(estimatedVec.size());
-    
+
     int n = 0;
-    for(int i = 0; i < receivedVec.size(); ++i){ 
+    for(int i = 0; i < receivedVec.size(); ++i){
       // i*bitsPerSymbol目からbitsPerSymbol分取り出す
       itpp::bvec tempBits = estimatedVec.get(i*bitsPerSymbol, i*bitsPerSymbol + bitsPerSymbol -1);
-        
+
       for(int k = 0; k < bitsPerSymbol; ++k, ++n){
-        
+
         if(n >= numEffectiveBits && n < infoLength_){
           llrVec[i*bitsPerSymbol + k] = 10;
         }
@@ -797,26 +797,26 @@ namespace mylib{
           itpp::cvec symAtk0 = mod.modulate_bits(bitsAtk0);
           itpp::cvec symAtk1 = mod.modulate_bits(bitsAtk1);
           // complex型にする
-      
+
           double nume = exp(-pow(abs(receivedVec[i]-symAtk0[0]),2)/N0);
           double denom = exp(-pow(abs(receivedVec[i]-symAtk1[0]),2)/N0);
-            
+
           llrVec[i*bitsPerSymbol + k] = log(nume/denom);
         }
-        
+
       }
     }
 
     return llrVec;
 
   }
-  
+
   // this is for MLC and MSD.
   itpp::vec LdpcForMlcMsd::CalcLLR(const std::vector< itpp::Modulator_2D> &vecMod,
                           const itpp::cvec &receivedVec,
                           double N0)
   {
-  
+
     assert(receivedVec.size() == static_cast<int>(vecMod.size()));
 
     itpp::vec llrVec(receivedVec.size());
@@ -836,11 +836,11 @@ namespace mylib{
       for (int s = nSymbols/2; s < nSymbols; ++s){ // MSBが1
         denom += exp(-pow(abs(symbols[bits2symbols[s]] - receivedVec[i]),2)/N0);
       } // for s
-    
+
       llrVec[i] = log(nume/denom);
 
     } // for i
-    
+
     return llrVec;
   }
 
@@ -870,7 +870,7 @@ namespace mylib{
         ++j1;
       } // else
     } // for i
-    
+
     itpp::vec llrVec(receivedVec.size());
 
     for(int i = 0; i < static_cast<int>(receivedVec.size()); i++){
@@ -878,37 +878,37 @@ namespace mylib{
       double nume = 0.0;		// 分子
       double denom = 0.0;		// 分母
       // vecMod[i]の各symbolsの最下位ビットが0か1かで分母と分子の計算を分ける
-      for (int s = 0; s < nSymbols/2; ++s){ 
+      for (int s = 0; s < nSymbols/2; ++s){
         nume += exp(-pow(abs(symbols[bits2symbols[figure0[s]]] - receivedVec[i]),2)/N0);
         denom += exp(-pow(abs(symbols[bits2symbols[figure1[s]]] - receivedVec[i]),2)/N0);
       }
       llrVec[i] = log(nume/denom);
 
     } // for i
-    
+
     return llrVec;
   }
 
-  
+
   // this is for MLC and MSD.
   int LdpcForMlcMsd::Decode(const std::vector< itpp::Modulator_2D > &vecMod,
                    const itpp::cvec &symbol,
-                   itpp::bvec &decodedCodes, 
+                   itpp::bvec &decodedCodes,
                    const double N0,
                    const int loopMax)
   {
     assert(setDone_);
-    
+
     itpp::bvec estimatedCodes(symbol.size()); // sum-product復号法によって得られる推定語
 
     itpp::mat beta(hMat_.size(), hRowWeight_);
 
-    beta.zeros();			// betaを全て0にする  
+    beta.zeros();			// betaを全て0にする
 
     itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
-    
-    itpp::vec llrVec = CalcLLR(vecMod, symbol, N0);    
-  
+
+    itpp::vec llrVec = CalcLLR(vecMod, symbol, N0);
+
     int loop;
     for(loop = 0; loop < loopMax; loop++){
       // std::cout << "## loop = " << loop << "\r" << std::flush;
@@ -916,7 +916,7 @@ namespace mylib{
       // alpha.zeros();		// 一応初期化
       RowsProcessing(&alphaTrans, beta, llrVec);
       //    std::cout << "## rows process done.\n";
-    
+
       ColsProcessing(alphaTrans, &beta);
       //    std::cout << "## cols process done.\n";
 
@@ -955,15 +955,15 @@ namespace mylib{
     assert(setDone_);
 
     itpp::bvec decodedCodes(symbol.size());
-    
+
     // assert(hMat_.is_rectangular() && hMatTrans_.is_rectangular());
 
     itpp::mat beta(hMat_.size(), hRowWeight_);
 
     beta.zeros();			// betaを全て0にする
     itpp::mat alphaTrans(hMatTrans_.size(), hColWeight_); // alphaだけ転置行列も用意しとく
-    
-    
+
+
     itpp::vec llrVec = CalcLLRAtLevel(mod, symbol, N0, level);
 
     // std::cout << "## DecodeAtLevel " << level << " is called." << std::endl;
@@ -985,7 +985,7 @@ namespace mylib{
 
     return decoderParas;
     // std::cout << "## decodedCodes.size() == " << decodedCodes.size() << std::endl;
-    
+
   }
 
 }

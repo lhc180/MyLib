@@ -196,14 +196,6 @@ namespace mylib{
     }
       
   };
-
-  // インターリーバを作る関数
-  inline itpp::ivec RandomInterleaver(int length)
-  {
-    itpp::ivec interleaver = itpp::sort_index(itpp::randu(length));
-    
-    return interleaver;
-  }
   
   // inline void makeInterleaver(itpp::ivec &interleaver)
   // {
