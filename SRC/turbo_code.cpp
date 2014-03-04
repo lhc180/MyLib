@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/03/04 15:26:12 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/03/04 17:22:42 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -487,22 +487,42 @@ namespace mylib{
       
   }
 
+  // void TurboCode::ModifyLLRForCyclicSuffix(itpp::vec *llr, int numPads) const
+  // {
+  //   int infoLength = interleaver_.size();
+  //   int numEffectiveBits = infoLength - numPads;
+    
+  //   for (int i = 0; i < numPads; ++i){
+  //     double t_llr = (*llr)[numEffectiveBits - numPads + i] + (*llr)[numEffectiveBits + i];
+  //     if (std::abs(t_llr) > LLR_THRESHOLD ){
+  //       t_llr = itpp::sign(t_llr)*LLR_THRESHOLD;
+  //     } // if LLR_THRESHOLD
+  //     (*llr)[numEffectiveBits - numPads + i] = t_llr;
+  //     (*llr)[numEffectiveBits + i] = t_llr;
+  //   } // for i
+
+  // }
+
   void TurboCode::ModifyLLRForCyclicSuffix(itpp::vec *llr, int numPads) const
   {
     int infoLength = interleaver_.size();
     int numEffectiveBits = infoLength - numPads;
     
     for (int i = 0; i < numPads; ++i){
-      double t_llr = (*llr)[numEffectiveBits - numPads + i] + (*llr)[numEffectiveBits + i];
-      if (std::abs(t_llr) > LLR_THRESHOLD ){
-        t_llr = itpp::sign(t_llr)*LLR_THRESHOLD;
-      } // if LLR_THRESHOLD
+      double t_llr;
+      if (std::abs((*llr)[numEffectiveBits - numPads + i]) >
+          std::abs((*llr)[numEffectiveBits + i])){
+        t_llr = (*llr)[numEffectiveBits - numPads + i];
+      } // if
+      else{
+        t_llr = (*llr)[numEffectiveBits + i];
+      } // else 
       (*llr)[numEffectiveBits - numPads + i] = t_llr;
       (*llr)[numEffectiveBits + i] = t_llr;
     } // for i
-
   }
 
+  
   void TurboCode::doDecodeWithCyclicSuffix(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                            double n0, int numPads, int iteration) const
   {
@@ -606,20 +626,41 @@ namespace mylib{
 
   }
 
+  // void TurboCode::ModifyLLRForCyclicInfix(itpp::vec *llr, int start, int numPads) const
+  // {
+
+  //   int infoLength = interleaver_.size();
+  //   int padsStartPoint = infoLength - numPads;
+  //   assert(start + numPads <= infoLength);
+    
+  //   for (int i = 0; i < numPads; ++i){
+  //     (*llr)[start + i] += (*llr)[padsStartPoint + i];
+  //     (*llr)[padsStartPoint + i] = (*llr)[start + i];
+  //   } // for i
+
+  // }
+
   void TurboCode::ModifyLLRForCyclicInfix(itpp::vec *llr, int start, int numPads) const
   {
-
     int infoLength = interleaver_.size();
     int padsStartPoint = infoLength - numPads;
+    
     assert(start + numPads <= infoLength);
     
     for (int i = 0; i < numPads; ++i){
-      (*llr)[start + i] += (*llr)[padsStartPoint + i];
-      (*llr)[padsStartPoint + i] = (*llr)[start + i];
+      double t_llr;
+      if (std::abs((*llr)[start + i]) > std::abs((*llr)[padsStartPoint + i])){
+        t_llr = (*llr)[i];
+      } // if
+      else{
+        t_llr = (*llr)[padsStartPoint + i];
+      } // else 
+      (*llr)[start + i] = t_llr;
+      (*llr)[padsStartPoint + i] = t_llr;
     } // for i
-
   }
 
+  
   void TurboCode::doDecodeWithCyclicInfix(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                           double n0, int start, int numPads, int iteration) const
   {
