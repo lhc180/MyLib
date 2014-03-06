@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/03/03 23:08:33 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/03/06 17:34:10 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -34,6 +34,7 @@ namespace mylib{
     const unsigned int feedforward_;    // Octal Form
     const unsigned int feedback_;       // Octal Form
     std::vector< std::vector< encodeTable > > encodeTable_;
+    std::vector< std::vector < int > > revEncodeTable_;
     mutable itpp::vec lambda_;
     mutable int lastState_;
     mutable itpp::bvec tailbitTable_;
@@ -144,7 +145,13 @@ namespace mylib{
 
     virtual void doDecodeWithCyclicPrefix_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                                double n0, int numPads, int iteration) const;
+    
+    virtual void doDecodeWithInversedPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                            double n0, int numPads, int iteration) const;
 
+    virtual void doDecodeWithInversedPrefix_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                                 double n0, int numPads, int iteration) const;
+    
     virtual void doDecodeWithCyclicInfix(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                          double n0, int start, int numPads, int iteration) const;
     
@@ -160,6 +167,8 @@ namespace mylib{
     virtual void ModifyLLRForCyclicSuffix(itpp::vec* llr, int numPads) const;
 
     virtual void ModifyLLRForCyclicPrefix(itpp::vec* llr, int numPads) const;
+
+    virtual void ModifyLLRForInversedPrefix(itpp::vec* llr, int numPads) const;
 
     virtual void ModifyLLRForCyclicInfix(itpp::vec* llr, int start, int numPads) const;
 
@@ -265,6 +274,25 @@ namespace mylib{
       return output;
     }
 
+    void DecodeWithInversedPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                  double n0, int numPads = 0, int iteration = 10) const
+    {
+      if (termination_){
+        doDecodeWithInversedPrefix_term(receivedSignal, output, n0, numPads, iteration);
+      } // if
+      else{
+        doDecodeWithInversedPrefix(receivedSignal, output, n0, numPads, iteration);
+      } // else
+    }
+
+    itpp::bvec DecodeWithInversedPrefix(const itpp::cvec& receivedSignal,
+                                        double n0, int numPads = 0, int iteration = 10) const
+    {
+      itpp::bvec output;
+      DecodeWithInversedPrefix(receivedSignal, &output, n0, numPads, iteration);
+      return output;
+    }
+    
     void DecodeWithCyclicInfix(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                double n0, int start = 0, int numPads = 0, int iteration = 10) const
     {

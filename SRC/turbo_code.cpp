@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/03/04 17:22:42 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/03/06 18:04:41 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -22,6 +22,7 @@ namespace mylib{
     constraint_(constraint), memory_(constraint-1), stateNum_(static_cast< int >(itpp::pow2(memory_))),
     feedforward_(feedforward), feedback_(feedback),
     encodeTable_(static_cast< int >(itpp::pow2(memory_)), std::vector< encodeTable >(2)),
+    revEncodeTable_(static_cast< int >(itpp::pow2(memory_)), std::vector< int >(2) ),
     lastState_(-1)
   {
     assert(constraint_ > 0);
@@ -57,8 +58,9 @@ namespace mylib{
         for (int i = 0; i < constraint_; ++i){
           encodeTable_[state][bit].output_ += (out >> i) & 1;
         } // for i
-        encodeTable_[state][bit].nextState_ = ((state << 1) | static_cast< int >(t_bit)) & mask;
-          
+        int nextState = ((state << 1) | static_cast< int >(t_bit)) & mask;
+        encodeTable_[state][bit].nextState_ = nextState;
+        revEncodeTable_[nextState][bit] = state;
       } // for bit
     } // for state
 
@@ -168,12 +170,12 @@ namespace mylib{
     alpha.zeros();
     beta.zeros();
     
-    for (int i = 0; i < nodeNum; ++i){
-      for (int state = 0; state < stateNum_; ++state){
-        alpha(i, state) = -mylib::INFTY; // ##
-        beta(i, state) = -mylib::INFTY;  // ##
-      } // for state
-    } // for i
+    // for (int i = 0; i < nodeNum; ++i){
+    for (int state = 0; state < stateNum_; ++state){
+      alpha(0, state) = -mylib::INFTY;
+      beta(nodeNum - 1, state) = -mylib::INFTY;
+    } // for state
+    // } // for i
     alpha(0,0) = 0;
 
     if (knowLastState){                  
@@ -208,23 +210,25 @@ namespace mylib{
     // alpha
     for (int i = 1; i < nodeNum; ++i){
       for (int state = 0; state < stateNum_; ++state){
-        for (int bit = 0; bit < 2; ++bit){
-          int nextState = encodeTable_[state][bit].nextState_;
-          alpha(i, nextState) = Jacobian(alpha(i, nextState),
-                                         alpha(i-1, state) + gamma[i-1](state, bit));
-        } // for bit
+        // for (int bit = 0; bit < 2; ++bit){
+        int primState0 = revEncodeTable_[state][0];
+        int primState1 = revEncodeTable_[state][1];
+        alpha(i, state) = Jacobian(alpha(i-1, primState0) + gamma[i-1](primState0, 0),
+                                   alpha(i-1, primState1) + gamma[i-1](primState1, 1));
+        // } // for bit
       } // for state
     } // for i
     
     // beta
     for (int i = nodeNum - 2; i >= 0; --i){
       for (int state = 0; state < stateNum_; ++state){
-        for (int bit = 0; bit < 2; ++bit){
-          int nextState = encodeTable_[state][bit].nextState_;
-          beta(i, state) = Jacobian(beta(i, state),
-                                    beta(i+1, nextState) + gamma[i](state, bit));
+        // for (int bit = 0; bit < 2; ++bit){
+        int nextState0 = encodeTable_[state][0].nextState_;
+        int nextState1 = encodeTable_[state][1].nextState_;
+        beta(i, state) = Jacobian(beta(i+1, nextState0) + gamma[i](state, 0),
+                                  beta(i+1, nextState1) + gamma[i](state, 1));
           
-        } // for bit
+        // } // for bit
       } // for state
     } // for i
 
@@ -623,9 +627,60 @@ namespace mylib{
 
     itpp::bvec interleaved_output = rsc2_.HardDecision();
     (*output) = Deinterleave(interleaved_output, interleaver_);
-
+ 
   }
 
+  void TurboCode::ModifyLLRForInversedPrefix(itpp::vec *llr, int numPads) const
+  {
+    int infoLength = interleaver_.size();
+    
+    for (int i = 0; i < numPads; ++i){
+      double t_llr;
+      if (std::abs((*llr)[i]) > std::abs((*llr)[infoLength - 1 - i])){
+        t_llr = (*llr)[i];
+      } // if
+      else{
+        t_llr = (*llr)[infoLength - 1 - i];
+      } // else 
+      (*llr)[i] = t_llr;
+      (*llr)[infoLength - 1 - i] = t_llr;
+    } // for i
+  }
+  
+  void TurboCode::doDecodeWithInversedPrefix(const itpp::cvec &receivedSignal,
+                                             itpp::bvec *output, double n0,
+                                             int numPads, int iteration) const
+  {
+      assert(receivedSignal.size() % codeRate_.denominator() == 0);
+    
+    itpp::cvec in1, in2;
+    SeparateReceivedSignal(receivedSignal, &in1, &in2);
+        
+    itpp::vec llrToRsc1(interleaver_.size());
+    llrToRsc1.zeros();
+        
+    for (int ite = 0; ite < iteration; ++ite){
+      
+      itpp::vec llrFromRsc1;
+      rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
+
+      ModifyLLRForInversedPrefix(&llrFromRsc1, numPads); // ## いらないかも
+      
+      itpp::vec llrToRsc2 = Interleave(llrFromRsc1, interleaver_);
+
+      itpp::vec llrFromRsc2;
+      rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
+      
+      llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
+
+      ModifyLLRForInversedPrefix(&llrToRsc1, numPads); // ## いらないかも
+    } // for ite
+
+    itpp::bvec interleaved_output = rsc2_.HardDecision();
+    (*output) = Deinterleave(interleaved_output, interleaver_);
+
+  }
+  
   // void TurboCode::ModifyLLRForCyclicInfix(itpp::vec *llr, int start, int numPads) const
   // {
 
@@ -650,7 +705,7 @@ namespace mylib{
     for (int i = 0; i < numPads; ++i){
       double t_llr;
       if (std::abs((*llr)[start + i]) > std::abs((*llr)[padsStartPoint + i])){
-        t_llr = (*llr)[i];
+        t_llr = (*llr)[start + i];
       } // if
       else{
         t_llr = (*llr)[padsStartPoint + i];
@@ -659,7 +714,6 @@ namespace mylib{
       (*llr)[padsStartPoint + i] = t_llr;
     } // for i
   }
-
   
   void TurboCode::doDecodeWithCyclicInfix(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                           double n0, int start, int numPads, int iteration) const
@@ -695,6 +749,8 @@ namespace mylib{
   }
 
   
+  
+  
   void TurboCode::doEncodeWithTerm(const itpp::bvec &input, itpp::bvec *output) const
   {
     itpp::bvec parity1, tailbits1, tailParity1;
@@ -728,6 +784,7 @@ namespace mylib{
     *output = itpp::concat(*output, codeTail2);
   }
 
+  // ++++++++++++++++++ テキストのやり方 ++++++++++++++++++++++++
   // void TurboCode::doEncodeWithTerm(const itpp::bvec &input, itpp::bvec *output) const
   // {
   //   assert(input.size() == interleaver_.size() - rsc1_.Constraint() + 1);
@@ -791,6 +848,7 @@ namespace mylib{
     (*output) = Deinterleave(interleaved_output.left(interleaver_.size()), interleaver_);
   }
 
+  // ++++++++++++++++++++++ テキストのやり方 ++++++++++++++++++++++++++++
   // void TurboCode::doDecodeWithTerm(const itpp::cvec& receivedSignal, itpp::bvec* output,
   //                                  double n0, int iteration) const
   // {
@@ -952,6 +1010,51 @@ namespace mylib{
 
   }
 
+  void TurboCode::doDecodeWithInversedPrefix_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
+                                                double n0, int numPads, int iteration) const
+  {
+    int memory = rsc1_.Constraint() - 1;
+    
+    itpp::cvec in1, in2;
+    SeparateReceivedSignal(receivedSignal, &in1, &in2);
+
+    itpp::cvec tail1 = receivedSignal.mid(3*interleaver_.size(), 2*memory);
+    itpp::cvec tail2 = receivedSignal.right(2*memory);
+
+    in1 = itpp::concat(in1, tail1);
+    in2 = itpp::concat(in2, tail2);
+
+    itpp::vec llrToRsc1(interleaver_.size() + memory);
+    llrToRsc1.zeros();
+        
+    itpp::vec llrZeros(memory);
+    llrZeros.zeros();
+    
+    for (int ite = 0; ite < iteration; ++ite){
+      itpp::vec llrFromRsc1;
+      rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
+
+      ModifyLLRForInversedPrefix(&llrFromRsc1, numPads); // Proposed
+
+      itpp::vec llrToRsc2 = Interleave(llrFromRsc1.left(interleaver_.size()), interleaver_);
+      llrToRsc2 = itpp::concat(llrToRsc2, llrZeros);
+
+      itpp::vec llrFromRsc2;
+      rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
+
+      llrToRsc1 = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
+      llrToRsc1 = itpp::concat(llrToRsc1, llrZeros);
+
+      ModifyLLRForInversedPrefix(&llrToRsc1, numPads); // Proposed
+      
+    } // for ite
+
+    itpp::bvec interleaved_output = rsc2_.HardDecision();
+    (*output) = Deinterleave(interleaved_output.left(interleaver_.size()), interleaver_);
+
+  }
+
+  
   void TurboCode::doDecodeWithCyclicInfix_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
                                                 double n0, int start, int numPads, int iteration) const
    {
