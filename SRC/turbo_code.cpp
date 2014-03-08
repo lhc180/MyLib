@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/03/06 18:04:41 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/03/08 17:06:11 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -162,8 +162,9 @@ namespace mylib{
     itpp::mat logPrioriProb(branchNum, 2);
     // p.162の下部
     for (int i = 0; i < branchNum; ++i){
-      double t_exp = std::exp(logLikelihood_in[i]);
-      logPrioriProb(i, 0) = -std::log(1.0 + t_exp);
+      // double t_exp = std::exp(logLikelihood_in[i]);
+      logPrioriProb(i, 0) = -Jacobian(0, logLikelihood_in[i]); // ## Jacobianに変えた
+      // std::log(1.0 + t_exp);
       logPrioriProb(i, 1) = logLikelihood_in[i] + logPrioriProb(i, 0);
     } // for i
     
