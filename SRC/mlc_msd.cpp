@@ -347,37 +347,6 @@ namespace mylib{
   
   // -------------------- MlcMsdWith8pskBp --------------------
   
-  /****************** class NaturalPSK ************************/
-  void SetPartitioningPSK::Init()
-  {
-    itpp::ivec newBitmap(M);
-    
-    for (int i = 0; i < M; ++i){
-      // std::cout << "## i = " << i << std::endl;
-      // std::cout << "## i_reversed = " << i_reversed << std::endl;      
-      newBitmap[i] = itpp::reverse_int(k, i);
-    } // for i
-
-    itpp::cvec newSymbols = symbols;
-
-    set(newSymbols, newBitmap);
-  }
-  /******************* end of NaturalPSK **************************/
-
-  void ReverseSpPSK::Init()
-  {
-    itpp::ivec newBitmap(M);
-
-    for (int i = 0; i < M; ++i){
-      newBitmap[i] = i;
-    } // for i
-
-    itpp::cvec newSymbols = symbols;
-
-    set(newSymbols, newBitmap);
-  }
-  
-  
   double SetLdpcForMlc(std::vector< LdpcForMlcMsd > &vecLDPC_,
                      unsigned codeLength_,
                      itpp::ivec &vecRowWeight,
