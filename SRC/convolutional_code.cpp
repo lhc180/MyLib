@@ -163,7 +163,7 @@ void cConvolutionalCode::encode(const itpp::bvec &input, itpp::bvec &output)
   for(int n = 0; n < input.size(); n++){
 
     // ■-□-□-...-□ (■は入力ビット、□がレジスタ)という状態
-    unsigned tempRegister = (input[n] << registerSize) | en_shiftRegister;
+    unsigned tempRegister = (static_cast< int >(input[n]) << registerSize) | en_shiftRegister;
     for(int i = 0; i < inverseRate; i++){
       unsigned tempOutput = 0;
       // レジスタと生成多項式のandが出力の計算に使われる

@@ -6,10 +6,9 @@
  * Contents:
  *   HybridPartitioningPSK
  *
- * Last Updated: <2014/03/26 00:14:22 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/03/28 22:32:31 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
-#include <cassert>
 #include "../include/mymodulation.h"
 
 namespace mylib {

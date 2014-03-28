@@ -3,7 +3,7 @@ CFLAGS=-g -Wall -fPIC -O3
 LIB=-litpp -lgsl -ljpeg -ltiff
 DSPOBJS=distortion.o quantizer.o
 AUOBJS=pqmf.o wav.o mpeg_binary.o mpeg_decoder.o mpeg_file.o mpeg_frame.o bit_stream.o
-COMMOBJS=myldpc.o capacity.o mlc_msd.o convolutional_code.o length_adjuster.o turbo_code.o mymodulation.o
+COMMOBJS=myldpc.o capacity.o mlc_msd.o convolutional_code.o length_adjuster.o turbo_code.o mymodulation.o path_loss_model.o
 IMGOBJS=stbi_load.o stbi_write.o mybmp.o mytiff.o myentropy.o myjpeg.o
 # UTL=myutl.o
 INCLUDEPATH=./include/
@@ -38,6 +38,9 @@ mlc_msd.o: $(INCLUDEPATH)mlc_msd.h $(SRCPATH)mlc_msd.cpp
 
 mymodulation.o: $(INCLUDEPATH)mymodulation.h $(SRCPATH)mymodulation.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)mymodulation.cpp -litpp
+
+path_loss_model.o: $(INCLUDEPATH)path_loss_model.h $(SRCPATH)path_loss_model.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)path_loss_model.cpp -litpp
 
 length_adjuster.o: $(INCLUDEPATH)length_adjuster.h $(SRCPATH)length_adjuster.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)length_adjuster.cpp -litpp
