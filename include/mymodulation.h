@@ -63,23 +63,15 @@ namespace mylib {
   };
 
 
-  class BlockPartitioningQAM: public itpp::QAM
+  class BlockPartitioningQAM: public itpp::Modulator_2D
   {
   protected:
-    virtual void Init()
-    {
-      assert(M == 16);          // まだ16QAMにしか対応していない
-      itpp::cvec newSymbols = symbols;
-      itpp::ivec newBits2Symbol = "0 1 4 5 2 3 6 7 8 9 12 13 10 11 14 15";
-
-      set(newSymbols, newBits2Symbol);
-      
-    }
+    virtual void Init(int m, double dRatio);
     
   public:
-    explicit BlockPartitioningQAM(int m): itpp::QAM(m)
+    explicit BlockPartitioningQAM(int m, double dRatio = 3.0)
     {
-      Init();
+      Init(m, dRatio);
     }
     virtual ~BlockPartitioningQAM()
     { }
@@ -112,6 +104,19 @@ namespace mylib {
     virtual ~HybridPartitioningPSK_2() { }
   };
 
+  class SemiBlockPartitioningQAM:public itpp::Modulator_2D
+  {
+  protected:
+    virtual void Init(int m, double dRatio);
+    
+  public:
+    explicit SemiBlockPartitioningQAM(int m, double dRatio = 3) // dRatio: 内側の点と外側の点の比率
+    { Init(m, dRatio); }
+    virtual ~SemiBlockPartitioningQAM()
+    { }
+  };
+
+  
   // class BlockPartitioning16APSK:public itpp::Modulator_2D
   // {
   // protected:
