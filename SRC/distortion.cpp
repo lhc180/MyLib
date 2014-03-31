@@ -352,7 +352,6 @@ namespace mylib{
     double psnr = 10 * log10( peak * peak / mse);
     return psnr;
   }
-
   
 }
 

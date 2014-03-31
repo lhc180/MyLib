@@ -230,6 +230,11 @@ namespace mylib{
 
 
   };
+
+  inline double CodeRateLDPC(int rowWeight, int colWeight)
+  {
+    return 1.0 - static_cast< double >(colWeight)/static_cast< double >(rowWeight);
+  }
   
 }
 

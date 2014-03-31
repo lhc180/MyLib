@@ -7,13 +7,15 @@
  * Contents:
  *   ReceivedPower
  *
- * Last Updated: <2014/03/28 22:37:14 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/03/29 18:26:03 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 #ifndef PATH_LOSS_MODEL_H
 #define PATH_LOSS_MODEL_H
 
 namespace mylib {
+
+  // 送信電力を1として計算
   class SimplifiedPathLossModel
   {
   private:

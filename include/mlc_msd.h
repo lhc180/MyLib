@@ -221,6 +221,18 @@ namespace mylib{
 
     return output;
   }
+
+  inline itpp::vec CodeRateOfMLC(const itpp::ivec& rw, const itpp::ivec& cw)
+  {
+    assert(rw.size() == cw.size());
+    itpp::vec rates(rw.size());
+    
+    for (int i = 0; i < rw.size(); ++i){
+      rates[i] = CodeRateLDPC(rw[i], cw[i]);
+    } // for i
+
+    return rates;
+  }
 } // end of namespace mylib
 
 #endif

@@ -13,7 +13,7 @@
  * Contents:
  *   cSNR, calcMSE
  *
- * Last Updated: <2013/10/18 18:17:56 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/03/29 22:23:08 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 namespace mylib{
@@ -76,6 +76,14 @@ namespace mylib{
   double CalcPSNR(const itpp::Mat< u_char > &original, const itpp::Mat< u_char > &object,
                   double peak);
 
+  double PSNRfromMSE(double mse, double peak)
+  {
+    if (mse <= 0.0){
+      mse = 1e-30;
+    } // if mse
+    
+    return 10 * log10( peak * peak / mse);
+  }
   
   
 } // namespace mylib

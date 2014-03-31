@@ -6,8 +6,9 @@
  * Contents:
  *   
  *
- * Last Updated: <2014/03/28 19:45:28 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/03/30 02:27:53 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
+#include <iostream>
 #include <cmath>
 #include "../include/path_loss_model.h"
 

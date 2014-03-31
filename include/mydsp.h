@@ -10,10 +10,11 @@
  *   quantizer
  *   distortion
  *
- * Last Updated: <2013/03/29 17:31:09 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/03/29 16:18:46 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 #include "quantizer.h"
 #include "distortion.h"
+#include "inv_func.h"
 
 #endif
