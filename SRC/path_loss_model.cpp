@@ -6,7 +6,7 @@
  * Contents:
  *   
  *
- * Last Updated: <2014/03/30 02:27:53 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/03/31 13:30:05 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 #include <iostream>
 #include <cmath>
@@ -16,8 +16,9 @@ namespace mylib {
 
   static const double LIGHT_SPEED = 3e8;
   
-  void SimplifiedPathLossModel::Set(double d0, double gamma, double frequency)
+  void SimplifiedPathLossModel::Set(double transPoewr, double d0, double gamma, double frequency)
   {
+    transPoewr_ = transPoewr;
     d0_ = d0;
     gamma_ = gamma;
     double lambda = LIGHT_SPEED / frequency;
@@ -27,11 +28,11 @@ namespace mylib {
 
   double SimplifiedPathLossModel::ReceivedPowerFromDistance(double distance) const
   {
-    return gain_*pow(d0_/distance,gamma_);
+    return transPoewr_*gain_*pow(d0_/distance,gamma_);
   }
 
   double SimplifiedPathLossModel::DistanceFromReceivedPower(double pr) const
   {
-    return d0_*pow(gain_/pr, 1/gamma_);
+    return d0_*pow(transPoewr_ * gain_/pr, 1/gamma_);
   }
 }

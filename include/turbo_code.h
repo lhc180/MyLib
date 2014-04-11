@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/03/11 12:21:40 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/04/10 19:32:35 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -133,6 +133,13 @@ namespace mylib{
     virtual void doDecodeWithZeroPadding_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                               double n0, int numPads, int iteration) const;
 
+    virtual void doDecodeWithZeroPaddingHDinMAP1(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                                 double n0, int numPads, int iteration) const;
+
+    virtual void doDecodeWithZeroPaddingHDinMAP1_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                                      double n0, int numPads, int iteration) const;
+
+    
     // MAP1に入力される外部値のみ補正
     virtual void doDecodeWithZP1(const itpp::cvec& received, itpp::bvec* output,
                                  double n0, int numPads, int iteration) const;
@@ -269,7 +276,7 @@ namespace mylib{
       } // if
       else{
         doDecodeWithZeroPadding(receivedSignal, output, n0, numPads, iteration);
-      } // else
+      } // else 
     }
     itpp::bvec DecodeWithZeroPadding(const itpp::cvec& receivedSignal,
                                      double n0, int numPads = 0, int iteration = 10) const
@@ -279,6 +286,26 @@ namespace mylib{
       return output;
     }
 
+    // Hard DecisionをMAP Decoder 1で行う
+    void DecodeWithZeroPaddingHDinMAP1(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                       double n0, int numPads = 0, int iteration = 10) const
+    {
+      if (termination_){
+        doDecodeWithZeroPaddingHDinMAP1_term(receivedSignal, output, n0, numPads, iteration);
+      } // if
+      else{
+        doDecodeWithZeroPaddingHDinMAP1(receivedSignal, output, n0, numPads, iteration);
+      } // else 
+    }
+
+    itpp::bvec DecodeWithZeroPaddingHDinMAP1(const itpp::cvec& receivedSignal,
+                                             double n0, int numPads = 0, int iteration = 10) const
+    {
+      itpp::bvec output;
+      DecodeWithZeroPaddingHDinMAP1(receivedSignal, &output, n0, numPads, iteration);
+      return output;
+    }
+    
     // MAP1に入る外部値だけ補正する
     void DecodeWithZP1(const itpp::cvec& receivedSignal, itpp::bvec* output,
                        double n0, int numPads = 0, int iteration = 10) const
@@ -510,7 +537,54 @@ namespace mylib{
     
     return interleaver;
   }
+  
+  bool S_RandomInterleaver(itpp::ivec* output, int size, int spread, int maxTrial = 500)
+  {
+    bool success = false;
+    itpp::ivec interleaver = RandomInterleaver(size);
 
+    for (int reverse = 0; reverse < maxTrial; ++reverse){
+      std::cout << "reverse = " << reverse << '\r' << std::flush;
+      int pivot;
+      for (pivot = 0; pivot < size; ++pivot){
+        int start_i = pivot - spread;
+        if (start_i < 0){
+          start_i = 0;
+        } // if
+        int swap_i;
+        for (swap_i = pivot; swap_i < size; ++swap_i){
+          int criteria = interleaver[swap_i];
+          int i;
+          for (i = start_i; i < pivot; ++i){
+            if (std::abs(interleaver[i] - criteria) < spread){ // スプレッド値より下回ったら次のswap候補を探す
+              // ここの判定に=付けるかどうかで若干特性変わる
+              break;
+            } // if 
+          } // for i
+          if (i == pivot){      // もしpivotの値まで比較が成功していたら
+            std::swap(interleaver[pivot], interleaver[swap_i]);
+            break;
+          } // if i
+        } // for swap_i
+        if (swap_i == size){      // もしpivot以降にswapできる要素が無ければ
+          break;
+        } // if 
+      } // for pivot
+      if (pivot == size){
+        success = true;
+        break;
+      } // if
+      else{
+        interleaver = itpp::reverse(interleaver);
+      } // else
+    } // for reverse
+    std::cout << std::endl;   // ##
+  
+    *output = interleaver;
+    return success;
+  }
+
+  
   template < typename kind >
   itpp::Vec< kind > Interleave(const itpp::Vec< kind >& input, const itpp::ivec& interleaver)
   {

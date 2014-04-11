@@ -12,7 +12,7 @@
  * Contents:
  *   FunctionName of ClassName
  *
- * Last Updated: <2013/10/26 22:34:23 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/03/31 14:02:04 from Yoshitos-iMac.local by yoshito>
  ************************************************************************************/
 
 
@@ -145,7 +145,7 @@ namespace mylib{
       int previousIndex = 0;
       for (u_int level = 0; level < rates_.size(); ++level){
         sumRates += rates_[level];
-        int lastIndex = std::floor(input.size() * sumRates);
+        int lastIndex = std::ceil(input.size() * sumRates);
         if (level == rates_.size()-1){
           lastIndex = 0;
         } // if

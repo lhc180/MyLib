@@ -348,9 +348,9 @@ namespace mylib{
   // -------------------- MlcMsdWith8pskBp --------------------
   
   double SetLdpcForMlc(std::vector< LdpcForMlcMsd > &vecLDPC_,
-                     unsigned codeLength_,
-                     itpp::ivec &vecRowWeight,
-                     itpp::ivec &vecColWeight)
+                       unsigned codeLength_,
+                       const itpp::ivec &vecRowWeight,
+                       const itpp::ivec &vecColWeight)
   {
     double sumCodeRate = 0.0;
     for(int i = 0; i < static_cast<int>(vecLDPC_.size()); i++){

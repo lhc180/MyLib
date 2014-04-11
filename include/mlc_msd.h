@@ -176,8 +176,8 @@ namespace mylib{
   // 平均符号化率を返す
   double SetLdpcForMlc(std::vector< LdpcForMlcMsd > &vecLDPC_,
                      unsigned codeLength_,
-                     itpp::ivec &vecRowWeight,
-                     itpp::ivec &vecColWeight);
+                     const itpp::ivec &vecRowWeight,
+                     const itpp::ivec &vecColWeight);
 
 
   // Proposals for MLC and MSD below.
