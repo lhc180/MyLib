@@ -16,16 +16,16 @@ libmylib.so: $(AUOBJS) $(IMGOBJS) $(COMMOBJS) $(DSPOBJS)
 	$(CC) $(CFLAGS) -shared -o libmylib.so $(DSPOBJS) $(AUOBJS) $(IMGOBJS) $(COMMOBJS) $(LIB)
 
 pqmf.o: $(INCLUDEPATH)pqmf.h $(SRCPATH)pqmf.cpp
-	$(CC) $(CFLAGS) -c $(SRCPATH)pqmf.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)pqmf.cpp -litpp
 
 quantizer.o: $(INCLUDEPATH)quantizer.h $(SRCPATH)quantizer.cpp
-	$(CC) $(CFLAGS) -c $(SRCPATH)quantizer.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)quantizer.cpp -litpp
 
 distortion.o: $(INCLUDEPATH)distortion.h $(SRCPATH)distortion.cpp
-	$(CC) $(CFLAGS) -c $(SRCPATH)distortion.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)distortion.cpp -litpp
 
 turbo_code.o: $(INCLUDEPATH)turbo_code.h $(SRCPATH)turbo_code.cpp $(INCLUDEPATH)mycomm.h
-	$(CC) $(CFLAGS) -c $(SRCPATH)turbo_code.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)turbo_code.cpp -litpp
 
 myldpc.o: $(INCLUDEPATH)myldpc.h $(SRCPATH)myldpc.cpp $(INCLUDEPATH)mycomm.h
 	$(CC) $(CFLAGS) -c $(SRCPATH)myldpc.cpp -litpp

@@ -51,9 +51,13 @@ namespace mylib{
       }
       setDone_ = true;
     }
-  
-    itpp::Mat< u_char > GetGray();  
-    std::vector < itpp::Mat< u_char > > Get();
+
+    // intかu_char
+    template < typename kind >
+    itpp::Mat< kind > GetGray();
+    
+    template < typename kind >
+    std::vector < itpp::Mat< kind > > Get();
   
     void Close()
     {
@@ -73,27 +77,37 @@ namespace mylib{
   // For making BMP files, we do not define a class, but functions.
 
   // for grey scale
+  template < typename kind >
   bool MakeBmp(const char* filename,
-               const itpp::Mat< u_char > &pixelVec);
+               const itpp::Mat< kind > &pixelVec);
 
   // for color scale
+  template < typename kind >
   bool MakeBmp(const char* filename,
-               const std::vector< itpp::Mat< u_char > > &pixelVec);
+               const std::vector< itpp::Mat< kind > > &pixelVec);
 
   // 2次元配列にRGBRGB...の順に入れてある必要がある
+  template < typename kind >
   bool MakeBmpRGB(const char* filename,
-                  const itpp::Mat< u_char > &pixelVec);
+                  const itpp::Mat< kind > &pixelVec);
 
-  std::vector< u_char > Rgb2Ycc(const std::vector< u_char >& rgb);
-  std::vector< u_char > Ycc2Rgb(const std::vector< u_char >& ycc);
-  itpp::Vec< u_char > Rgb2Ycc(const itpp::Vec< u_char >& rgb);
-  itpp::Vec< u_char > Ycc2Rgb(const itpp::Vec< u_char >& ycc);
+  template < typename kind >
+  std::vector< kind > Rgb2Ycc(const std::vector< kind >& rgb);
+  template < typename kind >
+  std::vector< kind > Ycc2Rgb(const std::vector< kind >& ycc);
+  template < typename kind >
+  itpp::Vec< kind > Rgb2Ycc(const itpp::Vec< kind >& rgb);
+  template < typename kind >
+  itpp::Vec< kind > Ycc2Rgb(const itpp::Vec< kind >& ycc);
 
-  std::vector< Vector_2D< u_char > > Rgb2Ycc(const std::vector< Vector_2D< u_char > >& rgb);
-  std::vector< Vector_2D< u_char > > Ycc2Rgb(const std::vector< Vector_2D< u_char > >& ycc);
-  std::vector< itpp::Mat< u_char > > Rgb2Ycc(const std::vector< itpp::Mat< u_char > >& rgb);
-  std::vector< itpp::Mat< u_char > > Ycc2Rgb(const std::vector< itpp::Mat< u_char > >& ycc);
-  
+  template < typename kind >
+  std::vector< Vector_2D< kind > > Rgb2Ycc(const std::vector< Vector_2D< kind > >& rgb);
+  template < typename kind >
+  std::vector< Vector_2D< kind > > Ycc2Rgb(const std::vector< Vector_2D< kind > >& ycc);
+  template < typename kind >
+  std::vector< itpp::Mat< kind > > Rgb2Ycc(const std::vector< itpp::Mat< kind > >& rgb);
+  template < typename kind >
+  std::vector< itpp::Mat< kind > > Ycc2Rgb(const std::vector< itpp::Mat< kind > >& ycc);
 } // end of mylib
 
 #endif

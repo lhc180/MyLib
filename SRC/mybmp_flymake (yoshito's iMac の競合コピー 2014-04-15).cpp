@@ -3,9 +3,6 @@
 
 namespace mylib{
   // numComp_の値によってYUV変換したほうがいいかも
-  template itpp::imat BmpReader::GetGray();
-  template itpp::Mat< u_char > BmpReader::GetGray();
-
   template < typename kind >
   itpp::Mat< kind > BmpReader::GetGray()
   {
@@ -23,11 +20,6 @@ namespace mylib{
 
     return output;
   }
-
-  template
-  std::vector< itpp::Mat< int > > BmpReader::Get();
-  template
-  std::vector< itpp::Mat< u_char > > BmpReader::Get();
 
   template < typename kind >
   std::vector< itpp::Mat< kind > > BmpReader::Get()
@@ -54,14 +46,6 @@ namespace mylib{
     return output;
   }
 
-
-  template
-  bool MakeBmp(const char* filename, 
-               const itpp::Mat< int > &pixelVec);
-  template
-  bool MakeBmp(const char* filename, 
-               const itpp::Mat< u_char > &pixelVec);
-    
   // for grey scale
   template < typename kind >
   bool MakeBmp(const char* filename, 
@@ -91,13 +75,6 @@ namespace mylib{
       return true;
     }
   }
-
-  template
-  bool MakeBmp(const char* filename,
-               const std::vector< itpp::Mat< int > > &pixelVec);
-  template
-  bool MakeBmp(const char* filename,
-               const std::vector< itpp::Mat< u_char > > &pixelVec);
   
   // for color scale
   template < typename kind >
@@ -133,13 +110,6 @@ namespace mylib{
     }
   }
 
-  template
-  bool MakeBmpRGB(const char* filename,
-                  const itpp::Mat< int > &pixelVec);
-  template
-  bool MakeBmpRGB(const char* filename,
-                  const itpp::Mat< u_char > &pixelVec);
-
   template < typename kind >
   bool MakeBmpRGB(const char* filename,
                   const itpp::Mat< kind > &pixelVec)
@@ -172,10 +142,10 @@ namespace mylib{
       return true;
     }
   }
-  
+
   // 入力値を0~255に補正する
   template < typename kind >
-  inline kind ColorCompensation(double input)
+  inline u_ ColorCompensation(double input)
   {
     if(input >= 255){
       return 255;
@@ -184,15 +154,10 @@ namespace mylib{
       return 0;
     }
     else{
-      return static_cast< kind >(input);
+      return static_cast< u_char >(input);
     }
   }
 
-  template
-  std::vector< int > Rgb2Ycc(const std::vector< int >& rgb);
-  template
-  std::vector< u_char > Rgb2Ycc(const std::vector< u_char >& rgb);
-    
   template < typename kind >
   std::vector< kind > Rgb2Ycc(const std::vector< kind >& rgb)
   {
@@ -200,92 +165,69 @@ namespace mylib{
     std::vector< kind > ycc(3);
     double r = rgb[0], g = rgb[1], b = rgb[2];
     
-    ycc[0] = ColorCompensation< kind >(0.2990*r + 0.5870*g + 0.1140*b);
-    ycc[1] = ColorCompensation< kind >(-0.1687*r - 0.3313*g + 0.5000*b + 128);
-    ycc[2] = ColorCompensation< kind >(0.5000*r - 0.4187*g - 0.0813*b + 128);
+    ycc[0] = ColorCompensation(0.2990*r + 0.5870*g + 0.1140*b);
+    ycc[1] = ColorCompensation(-0.1687*r - 0.3313*g + 0.5000*b + 128);
+    ycc[2] = ColorCompensation(0.5000*r - 0.4187*g - 0.0813*b + 128);
 
     return ycc;
   }
 
-  template
-  itpp::Vec< int > Rgb2Ycc(const itpp::Vec< int >& rgb);
-  template
-  itpp::Vec< u_char > Rgb2Ycc(const itpp::Vec< u_char >& rgb);
-    
-  template < typename kind >
-  itpp::Vec< kind > Rgb2Ycc(const itpp::Vec< kind >& rgb)
+  itpp::Vec< u_char > Rgb2Ycc(const itpp::Vec< u_char >& rgb)
   {
     assert(rgb.size() == 3);
-    itpp::Vec< kind > ycc(3);
+    itpp::Vec< u_char > ycc(3);
     double r = rgb[0], g = rgb[1], b = rgb[2];
     
-    ycc[0] = ColorCompensation< kind >(0.2990*r + 0.5870*g + 0.1140*b);
-    ycc[1] = ColorCompensation< kind >(-0.1687*r - 0.3313*g + 0.5000*b + 128);
-    ycc[2] = ColorCompensation< kind >(0.5000*r - 0.4187*g - 0.0813*b + 128);
+    ycc[0] = ColorCompensation(0.2990*r + 0.5870*g + 0.1140*b);
+    ycc[1] = ColorCompensation(-0.1687*r - 0.3313*g + 0.5000*b + 128);
+    ycc[2] = ColorCompensation(0.5000*r - 0.4187*g - 0.0813*b + 128);
 
     return ycc;
   }
 
-  template
-  std::vector< int > Ycc2Rgb(const std::vector< int >& ycc);
-  template
-  std::vector< u_char > Ycc2Rgb(const std::vector< u_char >& ycc);
-    
-  template < typename kind >
-  std::vector< kind > Ycc2Rgb(const std::vector< kind >& ycc)
+  std::vector< u_char > Ycc2Rgb(const std::vector< u_char >& ycc)
   {
     assert(ycc.size() == 3);
-    std::vector< kind > rgb(3);
+    std::vector< u_char > rgb(3);
     double y = ycc[0], cb = ycc[1], cr = ycc[2];
 
-    rgb[0] = ColorCompensation< kind >(y + 1.40200*(cr - 128));
-    rgb[1] = ColorCompensation< kind >(y - 0.34414*(cb - 128) - 0.71414*(cr - 128));
-    rgb[2] = ColorCompensation< kind >(y + 1.77200*(cb - 128));
+    rgb[0] = ColorCompensation(y + 1.40200*(cr - 128));
+    rgb[1] = ColorCompensation(y - 0.34414*(cb - 128) - 0.71414*(cr - 128));
+    rgb[2] = ColorCompensation(y + 1.77200*(cb - 128));
 
     return rgb;
   }
 
-  template
-  itpp::Vec< int > Ycc2Rgb(const itpp::Vec< int >& ycc);
-  template
-  itpp::Vec< u_char > Ycc2Rgb(const itpp::Vec< u_char >& ycc);
-
-  template < typename kind >
-  itpp::Vec< kind > Ycc2Rgb(const itpp::Vec< kind >& ycc)
+  itpp::Vec< u_char > Ycc2Rgb(const itpp::Vec< u_char >& ycc)
   {
     assert(ycc.size() == 3);
-    itpp::Vec< kind > rgb(3);
+    itpp::Vec< u_char > rgb(3);
     double y = ycc[0], cb = ycc[1], cr = ycc[2];
 
-    rgb[0] = ColorCompensation< kind >(y + 1.40200*(cr - 128));
-    rgb[1] = ColorCompensation< kind >(y - 0.34414*(cb - 128) - 0.71414*(cr - 128));
-    rgb[2] = ColorCompensation< kind >(y + 1.77200*(cb - 128));
+    rgb[0] = ColorCompensation(y + 1.40200*(cr - 128));
+    rgb[1] = ColorCompensation(y - 0.34414*(cb - 128) - 0.71414*(cr - 128));
+    rgb[2] = ColorCompensation(y + 1.77200*(cb - 128));
 
     return rgb;
   }
 
-  template
-  std::vector< Vector_2D< int > > Rgb2Ycc(const std::vector< Vector_2D< int > >& rgb);
-  template
-  std::vector< Vector_2D< u_char > > Rgb2Ycc(const std::vector< Vector_2D< u_char > >& rgb);
-    
-  template < typename kind >
-  std::vector< Vector_2D< kind > > Rgb2Ycc(const std::vector< Vector_2D< kind > >& rgb)
+  
+  std::vector< Vector_2D< u_char > > Rgb2Ycc(const std::vector< Vector_2D< u_char > >& rgb)
   {
     assert(rgb.size() == 3);
     // 各要素のサイズが同じかどうかのチェックはめんどくさいのでやらない
     int height = rgb[0].Height();
     int width = rgb[0].Width();
 
-    std::vector< Vector_2D< kind > > ycc(3, Vector_2D< kind >(height, width));
+    std::vector< Vector_2D< u_char > > ycc(3, Vector_2D< u_char >(height, width));
     
     for (int row = 0; row < height; ++row){
       for (int col = 0; col < width; ++col){
-        std::vector< kind > components(3);
+        std::vector< u_char > components(3);
         for (int i = 0; i < 3; ++i){
           components[i] = rgb[i](row, col);
         } // for i
-        std::vector< kind > transformed = Rgb2Ycc(components);
+        std::vector< u_char > transformed = Rgb2Ycc(components);
         for (int i = 0; i < 3; ++i){
           ycc[i](row, col) = transformed[i];
         } // for i
@@ -295,29 +237,22 @@ namespace mylib{
     return ycc;
   }
 
-
-  template
-  std::vector< itpp::Mat< int > > Rgb2Ycc(const std::vector< itpp::Mat< int > >& rgb);
-  template
-  std::vector< itpp::Mat< u_char > > Rgb2Ycc(const std::vector< itpp::Mat< u_char > >& rgb);
-    
-  template < typename kind >
-  std::vector< itpp::Mat< kind > > Rgb2Ycc(const std::vector< itpp::Mat< kind > >& rgb)
+  std::vector< itpp::Mat< u_char > > Rgb2Ycc(const std::vector< itpp::Mat< u_char > >& rgb)
   {
     assert(rgb.size() == 3);
     // 各要素のサイズが同じかどうかのチェックはめんどくさいのでやらない
     int height = rgb[0].rows();
     int width = rgb[0].cols();
 
-    std::vector< itpp::Mat< kind > > ycc(3, itpp::Mat< kind >(height, width));
+    std::vector< itpp::Mat< u_char > > ycc(3, itpp::Mat< u_char >(height, width));
     
     for (int row = 0; row < height; ++row){
       for (int col = 0; col < width; ++col){
-        std::vector< kind > components(3);
+        std::vector< u_char > components(3);
         for (int i = 0; i < 3; ++i){
           components[i] = rgb[i](row, col);
         } // for i
-        std::vector< kind > transformed = Rgb2Ycc(components);
+        std::vector< u_char > transformed = Rgb2Ycc(components);
         for (int i = 0; i < 3; ++i){
           ycc[i](row, col) = transformed[i];
         } // for i
@@ -327,28 +262,23 @@ namespace mylib{
     return ycc;
   }
 
-  template
-  std::vector< Vector_2D< int > > Ycc2Rgb(const std::vector< Vector_2D< int > >& ycc);
-  template
-  std::vector< Vector_2D< u_char > > Ycc2Rgb(const std::vector< Vector_2D< u_char > >& ycc);
-    
-  template < typename kind >
-  std::vector< Vector_2D< kind > > Ycc2Rgb(const std::vector< Vector_2D< kind > >& ycc)
+  
+  std::vector< Vector_2D< u_char > > Ycc2Rgb(const std::vector< Vector_2D< u_char > >& ycc)
   {
     assert(ycc.size() == 3);
     // 各要素のサイズが同じかどうかのチェックはめんどくさいのでやらない
     int height = ycc[0].Height();
     int width = ycc[0].Width();
 
-    std::vector< Vector_2D< kind > > rgb(3, Vector_2D< kind >(height, width));
+    std::vector< Vector_2D< u_char > > rgb(3, Vector_2D< u_char >(height, width));
     
     for (int row = 0; row < height; ++row){
       for (int col = 0; col < width; ++col){
-        std::vector< kind > components(3);
+        std::vector< u_char > components(3);
         for (int i = 0; i < 3; ++i){
           components[i] = ycc[i](row, col);
         } // for i
-        std::vector< kind > transformed = Ycc2Rgb(components);
+        std::vector< u_char > transformed = Ycc2Rgb(components);
         for (int i = 0; i < 3; ++i){
           rgb[i](row, col) = transformed[i];
         } // for i
@@ -358,28 +288,22 @@ namespace mylib{
     return rgb;
   }
 
-  template
-  std::vector< itpp::Mat< int > > Ycc2Rgb(const std::vector< itpp::Mat< int > >& ycc);
-  template
-  std::vector< itpp::Mat< u_char > > Ycc2Rgb(const std::vector< itpp::Mat< u_char > >& ycc);
-    
-  template<typename kind>
-  std::vector< itpp::Mat< kind > > Ycc2Rgb(const std::vector< itpp::Mat< kind > >& ycc)
+  std::vector< itpp::Mat< u_char > > Ycc2Rgb(const std::vector< itpp::Mat< u_char > >& ycc)
   {
     assert(ycc.size() == 3);
     // 各要素のサイズが同じかどうかのチェックはめんどくさいのでやらない
     int height = ycc[0].rows();
     int width = ycc[0].cols();
 
-    std::vector< itpp::Mat< kind > > rgb(3, itpp::Mat< kind >(height, width));
+    std::vector< itpp::Mat< u_char > > rgb(3, itpp::Mat< u_char >(height, width));
     
     for (int row = 0; row < height; ++row){
       for (int col = 0; col < width; ++col){
-        std::vector< kind > components(3);
+        std::vector< u_char > components(3);
         for (int i = 0; i < 3; ++i){
           components[i] = ycc[i](row, col);
         } // for i
-        std::vector< kind > transformed = Ycc2Rgb(components);
+        std::vector< u_char > transformed = Ycc2Rgb(components);
         for (int i = 0; i < 3; ++i){
           rgb[i](row, col) = transformed[i];
         } // for i

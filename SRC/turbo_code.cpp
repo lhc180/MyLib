@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/10 19:46:00 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/04/12 16:20:27 from Okauchi.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -1122,7 +1122,7 @@ namespace mylib{
       ModifyLLRForZeroPadding(&llrToRsc1, numPads);
       
     } // for ite
-
+    
     itpp::bvec hd = rsc1_.HardDecision();
     *output = hd.left(interleaver_.size());
   }

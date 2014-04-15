@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/10 19:32:35 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/04/12 15:17:46 from Okauchi.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -295,7 +295,7 @@ namespace mylib{
       } // if
       else{
         doDecodeWithZeroPaddingHDinMAP1(receivedSignal, output, n0, numPads, iteration);
-      } // else 
+      } // else
     }
 
     itpp::bvec DecodeWithZeroPaddingHDinMAP1(const itpp::cvec& receivedSignal,
