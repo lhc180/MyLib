@@ -4,7 +4,7 @@
  * SPIHTクラスの実装
  *
  *
- * Last Updated: <2014/04/15 21:43:50 from Okauchi.local by yoshito>
+ * Last Updated: <2014/04/16 17:07:31 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 
@@ -38,7 +38,7 @@ namespace mylib {
     lsp_.clear();
     lis_.clear();
     bout->set_size(0);
-    int max = std::numeric_limits<int>::min();
+    int max = 0;
     for (int y = 0; y < image.rows(); y++){
       for (int x = 0; x < image.cols(); x++){
         if (std::abs(image(x,y)) > max) {
@@ -54,7 +54,7 @@ namespace mylib {
     for (int y = 0; y < (image.rows()) / (1 << numStages_); y++) {
       for (int x = 0; x < (image.cols()) / (1 << numStages_); x++) {
         lip_.push_back(PixItem(x, y));
-        if ((x % 2 != 0) || (y % 2 != 0))
+        if ((x % 2 != 0) || (y % 2 != 0)) // ## 多分ここ違う
           lis_.push_back(SetItem(x, y, LIS_A));
       } // for x
     }   // for y
@@ -173,7 +173,7 @@ namespace mylib {
         } // if sig
       }   // for i
       /* now process LIS */
-      for (int i = 0; i < static_cast< double >(lis_.size()); i++) {
+      for (int i = 0; i < static_cast< int >(lis_.size()); i++) {
         if (lis_[i].type == LIS_A) {
           bool sig = IsSignificant_SetA(image, lis_[i].x, lis_[i].y);
           *bout = itpp::concat(*bout, static_cast< itpp::bin >(sig));
@@ -184,7 +184,8 @@ namespace mylib {
             /* process the four offsprings */
             sig = IsSignificantPixel(image, sx, sy);
             *bout = itpp::concat(*bout, static_cast< itpp::bin >(sig));
-            
+
+            // for (sx, sy)
             if (++bit_cnt > bits) return;
             if (sig) {
               lsp_.push_back(PixItem(sx, sy));
@@ -196,7 +197,8 @@ namespace mylib {
             }
             sig = IsSignificantPixel(image, sx + 1, sy);
             *bout = itpp::concat(*bout, static_cast< itpp::bin >(sig));
-            
+
+            // for (sx+1, sy)
             if (++bit_cnt > bits) return;
             if (sig) {
               lsp_.push_back(PixItem(sx + 1, sy));
@@ -209,6 +211,7 @@ namespace mylib {
             sig = IsSignificantPixel(image, sx, sy + 1);
             *bout = itpp::concat(*bout, static_cast< itpp::bin >(sig));
             
+            // for (sx, sy+1)
             if (++bit_cnt > bits) return;
             if (sig) {
               lsp_.push_back(PixItem(sx, sy + 1));
@@ -220,6 +223,8 @@ namespace mylib {
             }
             sig = IsSignificantPixel(image, sx + 1, sy + 1);
             *bout = itpp::concat(*bout, static_cast< itpp::bin >(sig));
+
+            // for (sx+1, sy+1)
             if (++bit_cnt > bits) return;
             if (sig) {
               lsp_.push_back(PixItem(sx + 1, sy + 1));
@@ -255,7 +260,7 @@ namespace mylib {
       }
       /* Refinement pass */
       for (int i = 0; i < static_cast< int >(lsp_.size()); i++) {
-        if (std::abs((int) image(lsp_[i].x, lsp_[i].y)) >= (1 << (step_ + 1))) {
+        if (std::abs(image(lsp_[i].x, lsp_[i].y)) >= (1 << (step_ + 1))) {
           itpp::bin refinement = (std::abs(static_cast< int >(image(lsp_[i].x, lsp_[i].y))) >> step_) & 1;
           *bout = itpp::concat(*bout, refinement);
           if (++bit_cnt > bits) return;
@@ -343,7 +348,6 @@ namespace mylib {
           (*imageOut)(lip_[i].x, lip_[i].y) = s * (1 << step_);
           if (++bit_cnt > bits) return;
           lip_.erase(lip_.begin() + i);
-
           i--;
         }
       }
@@ -356,6 +360,7 @@ namespace mylib {
             int sx, sy;
             GetSuccessor(lis_[i].x, lis_[i].y, &sx, &sy);
             /* process the four offsprings */
+            // for (sx, sy)
             sig = static_cast< bool >(bin[bit_cnt]);
             if (++bit_cnt > bits) return;
             if (sig) {
@@ -366,6 +371,8 @@ namespace mylib {
             } else {
               lip_.push_back(PixItem(sx, sy));
             }
+            
+            // for (sx+1, sy)
             sig = static_cast< bool >(bin[bit_cnt]);
             if (++bit_cnt > bits) return;
             if (sig) {
@@ -376,6 +383,8 @@ namespace mylib {
             } else {
               lip_.push_back(PixItem(sx + 1, sy));
             }
+
+            // for (sx, sy+1)
             sig = static_cast< bool >(bin[bit_cnt]);
             if (++bit_cnt > bits) return;
             if (sig) {
@@ -386,6 +395,8 @@ namespace mylib {
             } else {
               lip_.push_back(PixItem(sx, sy + 1));
             }
+
+            // for (sx+1, sy+1)
             sig = static_cast< bool >(bin[bit_cnt]);
             if (++bit_cnt > bits) return;
             if (sig) {
@@ -425,14 +436,14 @@ namespace mylib {
             if ((*imageOut)(lsp_[i].x, lsp_[i].y) >= 0)
               (*imageOut)(lsp_[i].x, lsp_[i].y) = static_cast< int >((*imageOut)(lsp_[i].x, lsp_[i].y)) | (1 << step_);
             else
-              (*imageOut)(lsp_[i].x, lsp_[i].y) = static_cast< int >(-(std::abs((*imageOut)(lsp_[i].x, lsp_[i].y)))) | (1 << step_);
+              (*imageOut)(lsp_[i].x, lsp_[i].y) = static_cast< int >(-(std::abs((*imageOut)(lsp_[i].x, lsp_[i].y)) | (1 << step_)));
           }
           else {
             (*imageOut)(lsp_[i].x, lsp_[i].y) =  static_cast< int >((*imageOut)(lsp_[i].x, lsp_[i].y)) & (~(1 << step_));
           }
           if (++bit_cnt > bits) return;
-        }
-      }
+        } // if abs
+      } // for i
       /* Quantization step update */
       step_--;
     }
