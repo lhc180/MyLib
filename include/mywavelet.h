@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <gsl/gsl_wavelet2d.h>
+#include <itpp/itbase.h>
 #include "myutl.h"
 #include "mymatrix.h"
 
@@ -17,7 +18,7 @@
  *   To1D_forWVT
  *   To2D_forWVT
  *
- * Last Updated: <2013/03/11 21:10:12 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/04/15 22:36:16 from Okauchi.local by yoshito>
  ************************************************************************************/
 
 // =============== To Do List ===============
@@ -39,9 +40,43 @@ namespace mylib{
   {
   private:
     gsl_wavelet *wavelet_;
-    
-    void Alloc(int k, WaveletType waveletType);
-    void Free();
+
+    void Alloc(int k, WaveletType waveletType)
+    {
+      switch (waveletType){
+      case WAVELET_DAUBECHIES:
+        wavelet_ = gsl_wavelet_alloc(gsl_wavelet_daubechies, k);
+        break;
+
+      case WAVELET_DAUBECHIES_CENTERED:
+        wavelet_ = gsl_wavelet_alloc(gsl_wavelet_daubechies_centered, k);
+        break;
+
+      case WAVELET_HAAR:
+        wavelet_ = gsl_wavelet_alloc(gsl_wavelet_haar, k);
+        break;
+
+      case WAVELET_HAAR_CENTERED:
+        wavelet_ = gsl_wavelet_alloc(gsl_wavelet_haar_centered, k);
+        break;
+
+      case WAVELET_BSPLINE:
+        wavelet_ = gsl_wavelet_alloc(gsl_wavelet_bspline, k);
+        break;
+
+      case WAVELET_BSPLINE_CENTERED:
+        wavelet_ = gsl_wavelet_alloc(gsl_wavelet_bspline_centered, k);
+        break;
+
+      default:
+        std::cout << "Error: Undefined wavelet is used in \"Wavelet2D\"." << std::endl;
+        exit(1);
+      }
+    }
+    void Free()
+    {
+      gsl_wavelet_free(wavelet_);
+    }
 
   public:
     explicit Wavelet2D(int k = 2, WaveletType waveletType = WAVELET_HAAR_CENTERED)
@@ -55,132 +90,14 @@ namespace mylib{
     }
 
     // virtual void Clear();
-
-    virtual mylib::vec_2D Forward(const mylib::vec_2D &input);
-    virtual mylib::vec_2D Inverse(const mylib::vec_2D &input);
+    itpp::mat Forward(const itpp::mat &input);
+    itpp::mat Inverse(const itpp::mat &input);
     gsl_wavelet GslWavelet() const
     {
       return *wavelet_;
     }
   
   };
-
-  inline void Wavelet2D::Alloc(int k, WaveletType waveletType)
-  {
-
-
-    switch (waveletType){
-    case WAVELET_DAUBECHIES:
-      wavelet_ = gsl_wavelet_alloc(gsl_wavelet_daubechies, k);
-      break;
-
-    case WAVELET_DAUBECHIES_CENTERED:
-      wavelet_ = gsl_wavelet_alloc(gsl_wavelet_daubechies_centered, k);
-      break;
-
-    case WAVELET_HAAR:
-      wavelet_ = gsl_wavelet_alloc(gsl_wavelet_haar, k);
-      break;
-
-    case WAVELET_HAAR_CENTERED:
-      wavelet_ = gsl_wavelet_alloc(gsl_wavelet_haar_centered, k);
-      break;
-
-    case WAVELET_BSPLINE:
-      wavelet_ = gsl_wavelet_alloc(gsl_wavelet_bspline, k);
-      break;
-
-    case WAVELET_BSPLINE_CENTERED:
-      wavelet_ = gsl_wavelet_alloc(gsl_wavelet_bspline_centered, k);
-      break;
-
-    default:
-      std::cout << "Error: Undefined wavelet is used in \"Wavelet2D\"." << std::endl;
-      exit(1);
-    }
-
-
-  }
-
-  inline void Wavelet2D::Free()
-  {
-    gsl_wavelet_free(wavelet_);
-  }
-
-  inline mylib::vec_2D Wavelet2D::Forward(const mylib::vec_2D &input)
-  {
-    int height = input.size_rows();
-    int width = input.size_cols();
-    assert(mylib::Radix2(height) && mylib::Radix2(width));
-  
-    int workspaceSize = mylib::maxOf(width, height);
-    gsl_wavelet_workspace *workspace = gsl_wavelet_workspace_alloc(workspaceSize);
-
-    // gsl_matrixにinputを格納
-    gsl_matrix *inputGslMatrix = gsl_matrix_alloc(height, width);
-    for (int row = 0; row < height; ++row){
-      for (int col = 0; col < width; ++col){
-        gsl_matrix_set(inputGslMatrix, row, col, input(row,col));
-      } // for col
-    } // for row
-
-    int status = gsl_wavelet2d_nstransform_matrix_forward(wavelet_, inputGslMatrix, workspace);
-    if (status != GSL_SUCCESS){
-      std::cout << "Error in Wavelete2D::Forward." << std::endl;
-      std::cout << "Height and width of matrix are not equal or insufficient workspace is provided." << std::endl;
-      exit(1);
-    }
-
-    mylib::vec_2D output(height, width);
-    for (int row = 0; row < height; ++row){
-      for (int col = 0; col < width; ++col){
-        output(row, col) = gsl_matrix_get(inputGslMatrix, row, col);
-      } // for col
-    } // for row
-
-    gsl_matrix_free(inputGslMatrix);
-    gsl_wavelet_workspace_free(workspace);
-
-    return output;
-  }
-
-  inline mylib::vec_2D Wavelet2D::Inverse(const mylib::vec_2D &input)
-  {
-    int height = input.size_rows();
-    int width = input.size_cols();
-    assert(mylib::Radix2(height) && mylib::Radix2(width));
-  
-    int workspaceSize = mylib::maxOf(width, height);
-    gsl_wavelet_workspace *workspace = gsl_wavelet_workspace_alloc(workspaceSize);
-
-    // gsl_matrixにinputを格納
-    gsl_matrix *inputGslMatrix = gsl_matrix_alloc(height, width);
-    for (int row = 0; row < height; ++row){
-      for (int col = 0; col < width; ++col){
-        gsl_matrix_set(inputGslMatrix, row, col, input(row,col));
-      } // for col
-    } // for row
-
-    int status = gsl_wavelet2d_nstransform_matrix_inverse(wavelet_, inputGslMatrix, workspace);
-    if (status != GSL_SUCCESS){
-      std::cout << "Error in Wavelete2D::Forward." << std::endl;
-      std::cout << "Height and width of matrix are not equal or insufficient workspace is provided." << std::endl;
-      exit(1);
-    }
-
-    mylib::vec_2D output(height, width);
-    for (int row = 0; row < height; ++row){
-      for (int col = 0; col < width; ++col){
-        output(row, col) = gsl_matrix_get(inputGslMatrix, row, col);
-      } // for col
-    } // for row
-
-    gsl_matrix_free(inputGslMatrix);
-    gsl_wavelet_workspace_free(workspace);
-
-    return output;
-  }
-
   
   /************************************************************************************
    * To1D_forWVT -- ウェーブレット変換用に左上から2の累乗サイズのブロックずつとっていく

@@ -7,7 +7,7 @@
  * 画像処理用の関数群
  *
  *
- * Last Updated: <2013/06/11 00:44:26 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/04/15 21:43:23 from Okauchi.local by yoshito>
  ************************************************************************************/
 
 #include "mybmp.h"
@@ -17,4 +17,6 @@
 #include "myprogjpeg.h"
 #include "mywavelet.h"
 #include "myentropy.h"
+#include "spiht.h"
+
 #endif

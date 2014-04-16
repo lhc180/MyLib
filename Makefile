@@ -4,7 +4,7 @@ LIB=-litpp -lgsl -ljpeg -ltiff
 DSPOBJS=distortion.o quantizer.o
 AUOBJS=pqmf.o wav.o mpeg_binary.o mpeg_decoder.o mpeg_file.o mpeg_frame.o bit_stream.o
 COMMOBJS=myldpc.o capacity.o mlc_msd.o convolutional_code.o length_adjuster.o turbo_code.o mymodulation.o path_loss_model.o
-IMGOBJS=stbi_load.o stbi_write.o mybmp.o mytiff.o myentropy.o myjpeg.o
+IMGOBJS=stbi_load.o stbi_write.o mybmp.o mytiff.o myentropy.o myjpeg.o spiht.o mywavelet.o
 # UTL=myutl.o
 INCLUDEPATH=./include/
 SRCPATH=./SRC/
@@ -83,6 +83,12 @@ myjpeg.o: $(INCLUDEPATH)myjpeg.h $(SRCPATH)myjpeg.cpp
 
 myentropy.o: $(INCLUDEPATH)myentropy.h $(SRCPATH)myentropy.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)myentropy.cpp -litpp
+
+spiht.o: $(INCLUDEPATH)spiht.h $(SRCPATH)spiht.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)spiht.cpp -litpp
+
+mywavelet.o: $(INCLUDEPATH)mywavelet.h $(SRCPATH)mywavelet.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)mywavelet.cpp -litpp
 
 clean:
 	rm $(AUOBJS) $(COMMOBJS) $(IMGOBJS) libmylib.so
