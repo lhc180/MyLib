@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/12 15:17:46 from Okauchi.local by yoshito>
+ * Last Updated: <2014/04/18 14:06:00 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -132,13 +132,6 @@ namespace mylib{
 
     virtual void doDecodeWithZeroPadding_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                               double n0, int numPads, int iteration) const;
-
-    virtual void doDecodeWithZeroPaddingHDinMAP1(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                                 double n0, int numPads, int iteration) const;
-
-    virtual void doDecodeWithZeroPaddingHDinMAP1_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                                      double n0, int numPads, int iteration) const;
-
     
     // MAP1に入力される外部値のみ補正
     virtual void doDecodeWithZP1(const itpp::cvec& received, itpp::bvec* output,
@@ -283,26 +276,6 @@ namespace mylib{
     {
       itpp::bvec output;
       DecodeWithZeroPadding(receivedSignal, &output, n0, numPads, iteration);
-      return output;
-    }
-
-    // Hard DecisionをMAP Decoder 1で行う
-    void DecodeWithZeroPaddingHDinMAP1(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                       double n0, int numPads = 0, int iteration = 10) const
-    {
-      if (termination_){
-        doDecodeWithZeroPaddingHDinMAP1_term(receivedSignal, output, n0, numPads, iteration);
-      } // if
-      else{
-        doDecodeWithZeroPaddingHDinMAP1(receivedSignal, output, n0, numPads, iteration);
-      } // else
-    }
-
-    itpp::bvec DecodeWithZeroPaddingHDinMAP1(const itpp::cvec& receivedSignal,
-                                             double n0, int numPads = 0, int iteration = 10) const
-    {
-      itpp::bvec output;
-      DecodeWithZeroPaddingHDinMAP1(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }
     
