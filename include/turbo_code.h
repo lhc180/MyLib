@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/18 14:06:00 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/18 14:11:05 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -133,19 +133,6 @@ namespace mylib{
     virtual void doDecodeWithZeroPadding_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                               double n0, int numPads, int iteration) const;
     
-    // MAP1に入力される外部値のみ補正
-    virtual void doDecodeWithZP1(const itpp::cvec& received, itpp::bvec* output,
-                                 double n0, int numPads, int iteration) const;
-    virtual void doDecodeWithZP1_term(const itpp::cvec& received, itpp::bvec* output,
-                                 double n0, int numPads, int iteration) const;
-
-    // MAP2に入力される外部値のみ補正
-    virtual void doDecodeWithZP2(const itpp::cvec& received, itpp::bvec* output,
-                                 double n0, int numPads, int iteration) const;
-    virtual void doDecodeWithZP2_term(const itpp::cvec& received, itpp::bvec* output,
-                                 double n0, int numPads, int iteration) const;
-
-    
     // ++++ Cyclic Suffix ++++
     virtual void doDecodeWithCyclicSuffix(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                           double n0, int numPads, int iteration) const;
@@ -153,17 +140,6 @@ namespace mylib{
     virtual void doDecodeWithCyclicSuffix_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                                double n0, int numPads, int iteration) const;
 
-    // MAP1に入力される外部値のみ補正
-    virtual void doDecodeWithCS1(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                 double n0, int numPads, int iteration) const;
-    virtual void doDecodeWithCS1_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                 double n0, int numPads, int iteration) const;
-
-    // MAP2に入力される外部値のみ補正
-    virtual void doDecodeWithCS2(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                 double n0, int numPads, int iteration) const;
-    virtual void doDecodeWithCS2_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                 double n0, int numPads, int iteration) const;
     
     // ++++ Cyclic Prefix ++++
     virtual void doDecodeWithCyclicPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
@@ -171,18 +147,6 @@ namespace mylib{
 
     virtual void doDecodeWithCyclicPrefix_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                                double n0, int numPads, int iteration) const;
-
-    // MAP1に入力される外部値のみ補正
-    virtual void doDecodeWithCP1(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                 double n0, int numPads, int iteration) const;
-    virtual void doDecodeWithCP1_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                 double n0, int numPads, int iteration) const;
-
-    // MAP2に入力される外部値のみ補正
-    virtual void doDecodeWithCP2(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                 double n0, int numPads, int iteration) const;
-    virtual void doDecodeWithCP2_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                 double n0, int numPads, int iteration) const;
     
     // ++++ Inversed Prefix ++++
     virtual void doDecodeWithInversedPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
@@ -277,48 +241,7 @@ namespace mylib{
       itpp::bvec output;
       DecodeWithZeroPadding(receivedSignal, &output, n0, numPads, iteration);
       return output;
-    }
-    
-    // MAP1に入る外部値だけ補正する
-    void DecodeWithZP1(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                       double n0, int numPads = 0, int iteration = 10) const
-    {
-      if (termination_){
-        doDecodeWithZP1_term(receivedSignal, output, n0, numPads, iteration);
-      } // if
-      else{
-        doDecodeWithZP1(receivedSignal, output, n0, numPads, iteration);
-      } // else
-    }
-
-    itpp::bvec DecodeWithZP1(const itpp::cvec& receivedSignal,
-                             double n0, int numPads = 0, int iteration = 10) const
-    {
-      itpp::bvec output;
-      DecodeWithZP1(receivedSignal, &output, n0, numPads, iteration);
-      return output;
-    }
-
-    // MAP2に入る外部値だけ補正する
-    void DecodeWithZP2(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                       double n0, int numPads = 0, int iteration = 10) const
-    {
-      if (termination_){
-        doDecodeWithZP2_term(receivedSignal, output, n0, numPads, iteration);
-      } // if
-      else{
-        doDecodeWithZP2(receivedSignal, output, n0, numPads, iteration);
-      } // else
-    }
-
-    itpp::bvec DecodeWithZP2(const itpp::cvec& receivedSignal,
-                             double n0, int numPads = 0, int iteration = 10) const
-    {
-      itpp::bvec output;
-      DecodeWithZP2(receivedSignal, &output, n0, numPads, iteration);
-      return output;
-    }
-    
+    }    
     
     // ++++++++ Cyclic Suffix ++++++++
     void DecodeWithCyclicSuffix(const itpp::cvec& receivedSignal, itpp::bvec* output,
@@ -338,47 +261,6 @@ namespace mylib{
       DecodeWithCyclicSuffix(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }
-
-    // MAP1に入る外部値だけ補正する
-    void DecodeWithCS1(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                       double n0, int numPads = 0, int iteration = 10) const
-    {
-      if (termination_){
-        doDecodeWithCS1_term(receivedSignal, output, n0, numPads, iteration);
-      } // if
-      else{
-        doDecodeWithCS1(receivedSignal, output, n0, numPads, iteration);
-      } // else
-    }
-
-    itpp::bvec DecodeWithCS1(const itpp::cvec& receivedSignal,
-                             double n0, int numPads = 0, int iteration = 10) const
-    {
-      itpp::bvec output;
-      DecodeWithCS1(receivedSignal, &output, n0, numPads, iteration);
-      return output;
-    }
-
-    // MAP2に入る外部値だけ補正する
-    void DecodeWithCS2(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                       double n0, int numPads = 0, int iteration = 10) const
-    {
-      if (termination_){
-        doDecodeWithCS2_term(receivedSignal, output, n0, numPads, iteration);
-      } // if
-      else{
-        doDecodeWithCS2(receivedSignal, output, n0, numPads, iteration);
-      } // else
-    }
-
-    itpp::bvec DecodeWithCS2(const itpp::cvec& receivedSignal,
-                             double n0, int numPads = 0, int iteration = 10) const
-    {
-      itpp::bvec output;
-      DecodeWithCS2(receivedSignal, &output, n0, numPads, iteration);
-      return output;
-    }
-
     
     // ++++++++ Cyclic Prefix ++++++++
     void DecodeWithCyclicPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
@@ -398,47 +280,6 @@ namespace mylib{
       DecodeWithCyclicPrefix(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }
-
-    // MAP1に入る外部値だけ補正する
-    void DecodeWithCP1(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                       double n0, int numPads = 0, int iteration = 10) const
-    {
-      if (termination_){
-        doDecodeWithCP1_term(receivedSignal, output, n0, numPads, iteration);
-      } // if
-      else{
-        doDecodeWithCP1(receivedSignal, output, n0, numPads, iteration);
-      } // else
-    }
-
-    itpp::bvec DecodeWithCP1(const itpp::cvec& receivedSignal,
-                             double n0, int numPads = 0, int iteration = 10) const
-    {
-      itpp::bvec output;
-      DecodeWithCP1(receivedSignal, &output, n0, numPads, iteration);
-      return output;
-    }
-
-    // MAP2に入る外部値だけ補正する
-    void DecodeWithCP2(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                       double n0, int numPads = 0, int iteration = 10) const
-    {
-      if (termination_){
-        doDecodeWithCP2_term(receivedSignal, output, n0, numPads, iteration);
-      } // if
-      else{
-        doDecodeWithCP2(receivedSignal, output, n0, numPads, iteration);
-      } // else
-    }
-
-    itpp::bvec DecodeWithCP2(const itpp::cvec& receivedSignal,
-                             double n0, int numPads = 0, int iteration = 10) const
-    {
-      itpp::bvec output;
-      DecodeWithCP2(receivedSignal, &output, n0, numPads, iteration);
-      return output;
-    }
-
     
     void DecodeWithInversedPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                   double n0, int numPads = 0, int iteration = 10) const
