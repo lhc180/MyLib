@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/18 14:11:05 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/18 14:15:07 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -127,10 +127,10 @@ namespace mylib{
                                   double n0, int iteration) const;
     
     // ++++ Zero Padding ++++
-    virtual void doDecodeWithZeroPadding(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    virtual void doDecodeWithZP(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                          double n0, int numPads, int iteration) const;
 
-    virtual void doDecodeWithZeroPadding_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    virtual void doDecodeWithZP_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                               double n0, int numPads, int iteration) const;
     
     // ++++ Cyclic Suffix ++++
@@ -163,10 +163,10 @@ namespace mylib{
                                               double n0, int start, int numPads, int iteration) const;
     
   protected:
-    virtual void SeparateReceivedSignalForZeroPadding(const itpp::cvec& received,
+    virtual void SeparateReceivedSignalForZP(const itpp::cvec& received,
                                                       itpp::cvec* in1, itpp::cvec* in2, int numPads) const;
-    virtual void ModifySignalForZeroPadding(itpp::cvec* received, int numPads) const;
-    virtual void ModifyLLRForZeroPadding(itpp::vec* llr, int numPads) const;
+    virtual void ModifySignalForZP(itpp::cvec* received, int numPads) const;
+    virtual void ModifyLLRForZP(itpp::vec* llr, int numPads) const;
     
     virtual void ModifyLLRForCyclicSuffix(itpp::vec* llr, int numPads) const;
 
@@ -225,21 +225,21 @@ namespace mylib{
     }
 
     // ++++++++ Zero Padding ++++++++
-    void DecodeWithZeroPadding(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    void DecodeWithZP(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                double n0, int numPads = 0, int iteration = 10) const
     {
       if (termination_){
-        doDecodeWithZeroPadding_term(receivedSignal, output, n0, numPads, iteration);
+        doDecodeWithZP_term(receivedSignal, output, n0, numPads, iteration);
       } // if
       else{
-        doDecodeWithZeroPadding(receivedSignal, output, n0, numPads, iteration);
+        doDecodeWithZP(receivedSignal, output, n0, numPads, iteration);
       } // else 
     }
-    itpp::bvec DecodeWithZeroPadding(const itpp::cvec& receivedSignal,
+    itpp::bvec DecodeWithZP(const itpp::cvec& receivedSignal,
                                      double n0, int numPads = 0, int iteration = 10) const
     {
       itpp::bvec output;
-      DecodeWithZeroPadding(receivedSignal, &output, n0, numPads, iteration);
+      DecodeWithZP(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }    
     

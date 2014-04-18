@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/18 14:12:29 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/18 14:16:49 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -372,7 +372,7 @@ namespace mylib{
     
   }
 
-  void TurboCode::SeparateReceivedSignalForZeroPadding(const itpp::cvec &receivedSignal,
+  void TurboCode::SeparateReceivedSignalForZP(const itpp::cvec &receivedSignal,
                                                        itpp::cvec *in1, itpp::cvec *in2,
                                                        int numPads) const
   {
@@ -386,7 +386,7 @@ namespace mylib{
       parity2[i] = receivedSignal[3*i + 2];
     } // for i
 
-    ModifySignalForZeroPadding(&r, numPads);
+    ModifySignalForZP(&r, numPads);
 
     itpp::cvec interleaved_r = Interleave(r, interleaver_);
     
@@ -433,7 +433,7 @@ namespace mylib{
         
   }
 
-  void TurboCode::ModifyLLRForZeroPadding(itpp::vec *llr, int numPads) const
+  void TurboCode::ModifyLLRForZP(itpp::vec *llr, int numPads) const
   {
     int length = interleaver_.size();
     int numEffectiveBits = length - numPads;
@@ -443,7 +443,7 @@ namespace mylib{
     } // for i
   }
 
-  void TurboCode::ModifySignalForZeroPadding(itpp::cvec *received, int numPads) const
+  void TurboCode::ModifySignalForZP(itpp::cvec *received, int numPads) const
   {
     int length = interleaver_.size();
     int numEffectiveBits = length - numPads;
@@ -457,7 +457,7 @@ namespace mylib{
     } // for i
   }
   
-  void TurboCode::doDecodeWithZeroPadding(const itpp::cvec& receivedSignal, itpp::bvec* output,
+  void TurboCode::doDecodeWithZP(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                           double n0, int numPads, int iteration) const
   {
     assert(receivedSignal.size() % codeRate_.denominator() == 0);
@@ -468,14 +468,14 @@ namespace mylib{
     itpp::vec llrToRsc1(interleaver_.size());
     llrToRsc1.zeros();               // ## ここで提案法入れられるかも
 
-    ModifyLLRForZeroPadding(&llrToRsc1, numPads);
+    ModifyLLRForZP(&llrToRsc1, numPads);
     
     for (int ite = 0; ite < iteration; ++ite){
       
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
 
-      ModifyLLRForZeroPadding(&llrFromRsc1, numPads); 
+      ModifyLLRForZP(&llrFromRsc1, numPads); 
       
       itpp::vec llrToRsc2 = Interleave(llrFromRsc1, interleaver_);
 
@@ -484,7 +484,7 @@ namespace mylib{
       
       llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
 
-      ModifyLLRForZeroPadding(&llrToRsc1, numPads); 
+      ModifyLLRForZP(&llrToRsc1, numPads); 
     } // for ite
 
     itpp::bvec interleaved_output = rsc2_.HardDecision();
@@ -823,7 +823,7 @@ namespace mylib{
     (*output) = Deinterleave(interleaved_output.left(interleaver_.size()), interleaver_);
   }
   
-  void TurboCode::doDecodeWithZeroPadding_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
+  void TurboCode::doDecodeWithZP_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
                                                double n0, int numPads, int iteration) const
   {    
     int memory = rsc1_.Constraint() - 1;
@@ -839,7 +839,7 @@ namespace mylib{
 
     itpp::vec llrToRsc1(interleaver_.size() + memory);
     llrToRsc1.zeros();
-    ModifyLLRForZeroPadding(&llrToRsc1, numPads);
+    ModifyLLRForZP(&llrToRsc1, numPads);
         
     itpp::vec llrZeros(memory);
     llrZeros.zeros();
@@ -848,7 +848,7 @@ namespace mylib{
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
 
-      ModifyLLRForZeroPadding(&llrFromRsc1, numPads);
+      ModifyLLRForZP(&llrFromRsc1, numPads);
             
       itpp::vec llrToRsc2 = Interleave(llrFromRsc1.left(interleaver_.size()), interleaver_);
       llrToRsc2 = itpp::concat(llrToRsc2, llrZeros);
@@ -859,7 +859,7 @@ namespace mylib{
       llrToRsc1 = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
       llrToRsc1 = itpp::concat(llrToRsc1, llrZeros);
 
-      ModifyLLRForZeroPadding(&llrToRsc1, numPads);
+      ModifyLLRForZP(&llrToRsc1, numPads);
       
     } // for ite
 
