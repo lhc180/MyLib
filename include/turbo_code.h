@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/18 14:15:07 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/18 14:21:10 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -134,32 +134,32 @@ namespace mylib{
                                               double n0, int numPads, int iteration) const;
     
     // ++++ Cyclic Suffix ++++
-    virtual void doDecodeWithCyclicSuffix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    virtual void doDecodeWithCS(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                           double n0, int numPads, int iteration) const;
 
-    virtual void doDecodeWithCyclicSuffix_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    virtual void doDecodeWithCS_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                                double n0, int numPads, int iteration) const;
 
     
     // ++++ Cyclic Prefix ++++
-    virtual void doDecodeWithCyclicPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    virtual void doDecodeWithCP(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                           double n0, int numPads, int iteration) const;
 
-    virtual void doDecodeWithCyclicPrefix_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    virtual void doDecodeWithCP_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                                double n0, int numPads, int iteration) const;
     
     // ++++ Inversed Prefix ++++
-    virtual void doDecodeWithInversedPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    virtual void doDecodeWithIP(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                             double n0, int numPads, int iteration) const;
 
-    virtual void doDecodeWithInversedPrefix_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    virtual void doDecodeWithIP_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                                  double n0, int numPads, int iteration) const;
 
     // ++++ Cyclic Infix ++++
-    virtual void doDecodeWithCyclicInfix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    virtual void doDecodeWithCI(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                          double n0, int start, int numPads, int iteration) const;
     
-    virtual void doDecodeWithCyclicInfix_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    virtual void doDecodeWithCI_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                               double n0, int start, int numPads, int iteration) const;
     
   protected:
@@ -168,13 +168,13 @@ namespace mylib{
     virtual void ModifySignalForZP(itpp::cvec* received, int numPads) const;
     virtual void ModifyLLRForZP(itpp::vec* llr, int numPads) const;
     
-    virtual void ModifyLLRForCyclicSuffix(itpp::vec* llr, int numPads) const;
+    virtual void ModifyLLRForCS(itpp::vec* llr, int numPads) const;
 
-    virtual void ModifyLLRForCyclicPrefix(itpp::vec* llr, int numPads) const;
+    virtual void ModifyLLRForCP(itpp::vec* llr, int numPads) const;
 
-    virtual void ModifyLLRForInversedPrefix(itpp::vec* llr, int numPads) const;
+    virtual void ModifyLLRForIP(itpp::vec* llr, int numPads) const;
 
-    virtual void ModifyLLRForCyclicInfix(itpp::vec* llr, int start, int numPads) const;
+    virtual void ModifyLLRForCI(itpp::vec* llr, int start, int numPads) const;
 
     virtual void SeparateReceivedSignal(const itpp::cvec& receivedSignal,
                                         itpp::cvec* in1, itpp::cvec* in2) const;
@@ -244,76 +244,76 @@ namespace mylib{
     }    
     
     // ++++++++ Cyclic Suffix ++++++++
-    void DecodeWithCyclicSuffix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    void DecodeWithCS(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                 double n0, int numPads = 0, int iteration = 10) const
     {
       if (termination_){
-        doDecodeWithCyclicSuffix_term(receivedSignal, output, n0, numPads, iteration);
+        doDecodeWithCS_term(receivedSignal, output, n0, numPads, iteration);
       } // if
       else{
-        doDecodeWithCyclicSuffix(receivedSignal, output, n0, numPads, iteration);
+        doDecodeWithCS(receivedSignal, output, n0, numPads, iteration);
       } // else
     }
-    itpp::bvec DecodeWithCyclicSuffix(const itpp::cvec& receivedSignal,
+    itpp::bvec DecodeWithCS(const itpp::cvec& receivedSignal,
                                       double n0, int numPads = 0, int iteration = 10) const
     {
       itpp::bvec output;
-      DecodeWithCyclicSuffix(receivedSignal, &output, n0, numPads, iteration);
+      DecodeWithCS(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }
     
     // ++++++++ Cyclic Prefix ++++++++
-    void DecodeWithCyclicPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    void DecodeWithCP(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                 double n0, int numPads = 0, int iteration = 10) const
     {
       if (termination_){
-        doDecodeWithCyclicPrefix_term(receivedSignal, output, n0, numPads, iteration);
+        doDecodeWithCP_term(receivedSignal, output, n0, numPads, iteration);
       } // if
       else{
-        doDecodeWithCyclicPrefix(receivedSignal, output, n0, numPads, iteration);
+        doDecodeWithCP(receivedSignal, output, n0, numPads, iteration);
       } // else
     }
-    itpp::bvec DecodeWithCyclicPrefix(const itpp::cvec& receivedSignal,
+    itpp::bvec DecodeWithCP(const itpp::cvec& receivedSignal,
                                       double n0, int numPads = 0, int iteration = 10) const
     {
       itpp::bvec output;
-      DecodeWithCyclicPrefix(receivedSignal, &output, n0, numPads, iteration);
+      DecodeWithCP(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }
     
-    void DecodeWithInversedPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    void DecodeWithIP(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                   double n0, int numPads = 0, int iteration = 10) const
     {
       if (termination_){
-        doDecodeWithInversedPrefix_term(receivedSignal, output, n0, numPads, iteration);
+        doDecodeWithIP_term(receivedSignal, output, n0, numPads, iteration);
       } // if
       else{
-        doDecodeWithInversedPrefix(receivedSignal, output, n0, numPads, iteration);
+        doDecodeWithIP(receivedSignal, output, n0, numPads, iteration);
       } // else
     }
 
-    itpp::bvec DecodeWithInversedPrefix(const itpp::cvec& receivedSignal,
+    itpp::bvec DecodeWithIP(const itpp::cvec& receivedSignal,
                                         double n0, int numPads = 0, int iteration = 10) const
     {
       itpp::bvec output;
-      DecodeWithInversedPrefix(receivedSignal, &output, n0, numPads, iteration);
+      DecodeWithIP(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }
     
-    void DecodeWithCyclicInfix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    void DecodeWithCI(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                double n0, int start = 0, int numPads = 0, int iteration = 10) const
     {
       if (termination_){
-        doDecodeWithCyclicInfix_term(receivedSignal, output, n0, start, numPads, iteration);
+        doDecodeWithCI_term(receivedSignal, output, n0, start, numPads, iteration);
       } // if
       else{
-        doDecodeWithCyclicInfix(receivedSignal, output, n0, start, numPads, iteration);
+        doDecodeWithCI(receivedSignal, output, n0, start, numPads, iteration);
       } // else 
     }
-    itpp::bvec DecodeWithCyclicInfix(const itpp::cvec& receivedSignal, double n0, int start = 0, int numPads = 0, int iteration = 10) const
+    itpp::bvec DecodeWithCI(const itpp::cvec& receivedSignal, double n0, int start = 0, int numPads = 0, int iteration = 10) const
     {
       itpp::bvec output;
-      DecodeWithCyclicInfix(receivedSignal, &output, n0, start, numPads, iteration);
+      DecodeWithCI(receivedSignal, &output, n0, start, numPads, iteration);
       return output;
     }
     

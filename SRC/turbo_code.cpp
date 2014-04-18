@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/18 14:16:49 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/18 14:23:41 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -510,7 +510,7 @@ namespace mylib{
   // }
 
   // ## Replacement method
-  void TurboCode::ModifyLLRForCyclicSuffix(itpp::vec *llr, int numPads) const
+  void TurboCode::ModifyLLRForCS(itpp::vec *llr, int numPads) const
   {
     int infoLength = interleaver_.size();
     int numEffectiveBits = infoLength - numPads;
@@ -530,7 +530,7 @@ namespace mylib{
   }
 
   
-  void TurboCode::doDecodeWithCyclicSuffix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+  void TurboCode::doDecodeWithCS(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                            double n0, int numPads, int iteration) const
   {
     assert(receivedSignal.size() % codeRate_.denominator() == 0);
@@ -546,7 +546,7 @@ namespace mylib{
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
 
-      ModifyLLRForCyclicSuffix(&llrFromRsc1, numPads);
+      ModifyLLRForCS(&llrFromRsc1, numPads);
       
       itpp::vec llrToRsc2 = Interleave(llrFromRsc1, interleaver_);
 
@@ -555,7 +555,7 @@ namespace mylib{
       
       llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
 
-      ModifyLLRForCyclicSuffix(&llrToRsc1, numPads); 
+      ModifyLLRForCS(&llrToRsc1, numPads); 
     } // for ite
 
     itpp::bvec interleaved_output = rsc2_.HardDecision();
@@ -581,7 +581,7 @@ namespace mylib{
   // }
 
   // ## Replacement method
-  void TurboCode::ModifyLLRForCyclicPrefix(itpp::vec *llr, int numPads) const
+  void TurboCode::ModifyLLRForCP(itpp::vec *llr, int numPads) const
   {
     int infoLength = interleaver_.size();
     int numEffectiveBits = infoLength - numPads;
@@ -600,7 +600,7 @@ namespace mylib{
   }
 
   
-  void TurboCode::doDecodeWithCyclicPrefix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+  void TurboCode::doDecodeWithCP(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                            double n0, int numPads, int iteration) const
   {
     assert(receivedSignal.size() % codeRate_.denominator() == 0);
@@ -616,7 +616,7 @@ namespace mylib{
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
 
-      ModifyLLRForCyclicPrefix(&llrFromRsc1, numPads);
+      ModifyLLRForCP(&llrFromRsc1, numPads);
       
       itpp::vec llrToRsc2 = Interleave(llrFromRsc1, interleaver_);
 
@@ -625,7 +625,7 @@ namespace mylib{
       
       llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
 
-      ModifyLLRForCyclicPrefix(&llrToRsc1, numPads);
+      ModifyLLRForCP(&llrToRsc1, numPads);
     } // for ite
 
     itpp::bvec interleaved_output = rsc2_.HardDecision();
@@ -633,7 +633,7 @@ namespace mylib{
  
   }
     
-  void TurboCode::ModifyLLRForInversedPrefix(itpp::vec *llr, int numPads) const
+  void TurboCode::ModifyLLRForIP(itpp::vec *llr, int numPads) const
   {
     int infoLength = interleaver_.size();
     
@@ -650,7 +650,7 @@ namespace mylib{
     } // for i
   }
   
-  void TurboCode::doDecodeWithInversedPrefix(const itpp::cvec &receivedSignal,
+  void TurboCode::doDecodeWithIP(const itpp::cvec &receivedSignal,
                                              itpp::bvec *output, double n0,
                                              int numPads, int iteration) const
   {
@@ -667,7 +667,7 @@ namespace mylib{
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
 
-      ModifyLLRForInversedPrefix(&llrFromRsc1, numPads); // ## いらないかも
+      ModifyLLRForIP(&llrFromRsc1, numPads); // ## いらないかも
       
       itpp::vec llrToRsc2 = Interleave(llrFromRsc1, interleaver_);
 
@@ -676,7 +676,7 @@ namespace mylib{
       
       llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
 
-      ModifyLLRForInversedPrefix(&llrToRsc1, numPads); // ## いらないかも
+      ModifyLLRForIP(&llrToRsc1, numPads); // ## いらないかも
     } // for ite
 
     itpp::bvec interleaved_output = rsc2_.HardDecision();
@@ -698,7 +698,7 @@ namespace mylib{
 
   // }
 
-  void TurboCode::ModifyLLRForCyclicInfix(itpp::vec *llr, int start, int numPads) const
+  void TurboCode::ModifyLLRForCI(itpp::vec *llr, int start, int numPads) const
   {
     int infoLength = interleaver_.size();
     int padsStartPoint = infoLength - numPads;
@@ -718,7 +718,7 @@ namespace mylib{
     } // for i
   }
   
-  void TurboCode::doDecodeWithCyclicInfix(const itpp::cvec& receivedSignal, itpp::bvec* output,
+  void TurboCode::doDecodeWithCI(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                           double n0, int start, int numPads, int iteration) const
   {
     assert(receivedSignal.size() % codeRate_.denominator() == 0);
@@ -734,7 +734,7 @@ namespace mylib{
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
 
-      ModifyLLRForCyclicInfix(&llrFromRsc1, start, numPads); // ## Proposed
+      ModifyLLRForCI(&llrFromRsc1, start, numPads); // ## Proposed
       
       itpp::vec llrToRsc2 = Interleave(llrFromRsc1, interleaver_);
 
@@ -743,7 +743,7 @@ namespace mylib{
       
       llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
 
-      ModifyLLRForCyclicInfix(&llrToRsc1, start, numPads); // ## Proposed
+      ModifyLLRForCI(&llrToRsc1, start, numPads); // ## Proposed
     } // for ite
 
     itpp::bvec interleaved_output = rsc2_.HardDecision();
@@ -868,7 +868,7 @@ namespace mylib{
 
   }
   
-  void TurboCode::doDecodeWithCyclicPrefix_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
+  void TurboCode::doDecodeWithCP_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
                                                 double n0, int numPads, int iteration) const
   {
     int memory = rsc1_.Constraint() - 1;
@@ -892,7 +892,7 @@ namespace mylib{
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
 
-      ModifyLLRForCyclicPrefix(&llrFromRsc1, numPads); // Proposed
+      ModifyLLRForCP(&llrFromRsc1, numPads); // Proposed
 
       itpp::vec llrToRsc2 = Interleave(llrFromRsc1.left(interleaver_.size()), interleaver_);
       llrToRsc2 = itpp::concat(llrToRsc2, llrZeros);
@@ -903,7 +903,7 @@ namespace mylib{
       llrToRsc1 = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
       llrToRsc1 = itpp::concat(llrToRsc1, llrZeros);
 
-      ModifyLLRForCyclicPrefix(&llrToRsc1, numPads); // Proposed
+      ModifyLLRForCP(&llrToRsc1, numPads); // Proposed
       
     } // for ite
 
@@ -912,7 +912,7 @@ namespace mylib{
 
   }
   
-  void TurboCode::doDecodeWithInversedPrefix_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
+  void TurboCode::doDecodeWithIP_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
                                                 double n0, int numPads, int iteration) const
   {
     int memory = rsc1_.Constraint() - 1;
@@ -936,7 +936,7 @@ namespace mylib{
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
 
-      ModifyLLRForInversedPrefix(&llrFromRsc1, numPads); // Proposed
+      ModifyLLRForIP(&llrFromRsc1, numPads); // Proposed
 
       itpp::vec llrToRsc2 = Interleave(llrFromRsc1.left(interleaver_.size()), interleaver_);
       llrToRsc2 = itpp::concat(llrToRsc2, llrZeros);
@@ -947,7 +947,7 @@ namespace mylib{
       llrToRsc1 = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
       llrToRsc1 = itpp::concat(llrToRsc1, llrZeros);
 
-      ModifyLLRForInversedPrefix(&llrToRsc1, numPads); // Proposed
+      ModifyLLRForIP(&llrToRsc1, numPads); // Proposed
       
     } // for ite
 
@@ -957,7 +957,7 @@ namespace mylib{
   }
 
   
-  void TurboCode::doDecodeWithCyclicInfix_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
+  void TurboCode::doDecodeWithCI_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
                                                 double n0, int start, int numPads, int iteration) const
    {
      int memory = rsc1_.Constraint() - 1;
@@ -981,7 +981,7 @@ namespace mylib{
        itpp::vec llrFromRsc1;
        rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
 
-       ModifyLLRForCyclicInfix(&llrFromRsc1, start, numPads); // Proposed
+       ModifyLLRForCI(&llrFromRsc1, start, numPads); // Proposed
 
        itpp::vec llrToRsc2 = Interleave(llrFromRsc1.left(interleaver_.size()), interleaver_);
        llrToRsc2 = itpp::concat(llrToRsc2, llrZeros);
@@ -992,7 +992,7 @@ namespace mylib{
        llrToRsc1 = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
        llrToRsc1 = itpp::concat(llrToRsc1, llrZeros);
 
-       ModifyLLRForCyclicInfix(&llrToRsc1, start, numPads); // Proposed
+       ModifyLLRForCI(&llrToRsc1, start, numPads); // Proposed
 
      } // for ite
 
