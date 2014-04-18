@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/18 14:45:53 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/18 15:31:17 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -171,9 +171,6 @@ namespace mylib{
                                               double n0, int start, int numPads, int iteration) const;
     
   protected:
-    virtual void SeparateReceivedSignalForZP(const itpp::cvec& received,
-                                                      itpp::cvec* in1, itpp::cvec* in2, int numPads) const;
-
     virtual void ModifyLLRForZP(itpp::vec* llr, int numPads) const;
     
     virtual void ModifyLLRForCS(itpp::vec* llr, int numPads) const;
