@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/18 14:23:41 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/18 15:09:53 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -370,38 +370,7 @@ namespace mylib{
       (*in2)[2*i + 1] = parity2[i];
     } // for i
     
-  }
-
-  void TurboCode::SeparateReceivedSignalForZP(const itpp::cvec &receivedSignal,
-                                                       itpp::cvec *in1, itpp::cvec *in2,
-                                                       int numPads) const
-  {
-    int block = interleaver_.size();
-    
-    itpp::cvec r(block), parity1(block), parity2(block);
-
-    for (int i = 0; i < block; ++i){
-      r[i]       = receivedSignal[3*i];
-      parity1[i] = receivedSignal[3*i + 1];
-      parity2[i] = receivedSignal[3*i + 2];
-    } // for i
-
-    ModifySignalForZP(&r, numPads);
-
-    itpp::cvec interleaved_r = Interleave(r, interleaver_);
-    
-    in1->set_size(2*block);
-    in2->set_size(2*block);
-    for (int i = 0; i < block; ++i){
-      (*in1)[2*i]     = r[i];
-      (*in1)[2*i + 1] = parity1[i];
-
-      (*in2)[2*i]     = interleaved_r[i];
-      (*in2)[2*i + 1] = parity2[i];
-    } // for i
-
-  }
-    
+  }    
   
   void TurboCode::doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0, int iteration) const
   {
@@ -490,6 +459,83 @@ namespace mylib{
     itpp::bvec interleaved_output = rsc2_.HardDecision();
     (*output) = Deinterleave(interleaved_output, interleaver_);
       
+  }
+
+  inline bool JudgeZP(const itpp::bvec& input, int numJudgeBits)
+  {
+    int num0 = 0;
+    for (int i = 0; i < input.size(); ++i){
+      num0 += static_cast< int >(!input[i]);
+    } // for i
+    
+    if (num0 >= numJudgeBits){
+      return true;
+    } // if
+    else{
+      return false;
+    } // else 
+  }
+  
+  void TurboCode::doDecodeWithZP_Judge(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0,
+                                       int numPads, int numJudgeBits, int firstIteration, int secondIteration) const
+  {
+    assert(receivedSignal.size() % codeRate_.denominator() == 0);
+    assert(numPads >= numJudgeBits);
+
+    itpp::cvec in1, in2;
+    SeparateReceivedSignal(receivedSignal, &in1, &in2);
+    
+    itpp::vec llrToRsc1(interleaver_.size());
+    llrToRsc1.zeros();               // ## ここで提案法入れられるかも
+
+    for (int ite = 0; ite < firstIteration; ++ite){
+      itpp::vec llrFromRsc1;
+      rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
+      
+      itpp::vec llrToRsc2 = Interleave(llrFromRsc1, interleaver_);
+
+      itpp::vec llrFromRsc2;
+      rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
+      
+      llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
+    } // for ite
+        
+    itpp::bvec interleaved_output = rsc2_.HardDecision();
+    itpp::bvec t_output = Deinterleave(interleaved_output, interleaver_);
+
+    itpp::bvec decodedPadsPart = t_output.right(numPads);
+
+    bool paddingInserted = JudgeZP(decodedPadsPart, numJudgeBits);
+    
+    if (paddingInserted){
+      ModifyLLRForZP(&llrToRsc1, numPads);  
+    } // if 
+        
+    for (int ite = 0; ite < secondIteration; ++ite){
+      
+      itpp::vec llrFromRsc1;
+      rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
+
+      if (paddingInserted){
+        ModifyLLRForZP(&llrFromRsc1, numPads);         
+      } // if
+      
+      itpp::vec llrToRsc2 = Interleave(llrFromRsc1, interleaver_);
+
+      itpp::vec llrFromRsc2;
+      rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
+      
+      llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
+
+      if (paddingInserted){
+        ModifyLLRForZP(&llrToRsc1, numPads);         
+      } // if 
+
+    } // for ite
+
+    interleaved_output = rsc2_.HardDecision();
+    (*output) = Deinterleave(interleaved_output, interleaver_);
+
   }
   
   // ## Cumulative method

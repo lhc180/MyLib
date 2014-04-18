@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/18 14:21:10 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/18 14:45:53 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -132,6 +132,14 @@ namespace mylib{
 
     virtual void doDecodeWithZP_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                               double n0, int numPads, int iteration) const;
+
+    virtual void doDecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                      double n0, int numPads, int numJudgeBits, int firstIteration = 10,
+                                      int secondIteration = 10) const;
+
+    virtual void doDecodeWithZP_Judge_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                           double n0, int numPads, int numJudgeBits, int firstIteration = 10,
+                                           int secondIteration = 10) const;
     
     // ++++ Cyclic Suffix ++++
     virtual void doDecodeWithCS(const itpp::cvec& receivedSignal, itpp::bvec* output,
@@ -165,7 +173,7 @@ namespace mylib{
   protected:
     virtual void SeparateReceivedSignalForZP(const itpp::cvec& received,
                                                       itpp::cvec* in1, itpp::cvec* in2, int numPads) const;
-    virtual void ModifySignalForZP(itpp::cvec* received, int numPads) const;
+
     virtual void ModifyLLRForZP(itpp::vec* llr, int numPads) const;
     
     virtual void ModifyLLRForCS(itpp::vec* llr, int numPads) const;
@@ -242,6 +250,28 @@ namespace mylib{
       DecodeWithZP(receivedSignal, &output, n0, numPads, iteration);
       return output;
     }    
+
+    
+    void DecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                            double n0, int numPads, int numJudgeBits, int firstIteration = 10,
+                            int secondIteration = 10) const
+    {
+      if (termination_){
+        doDecodeWithZP_Judge_term(receivedSignal, output, n0, numPads, numJudgeBits, firstIteration, secondIteration);
+      } // if
+      else{
+        doDecodeWithZP_Judge(receivedSignal, output, n0, numPads, numJudgeBits, firstIteration, secondIteration);
+      } // else 
+    }
+
+    itpp::bvec DecodeWithZP_Judge(const itpp::cvec& receivedSignal, double n0,
+                                  int numPads, int numJudgeBits, int firstIteration = 10,
+                                  int secondIteration = 10) const
+    {
+      itpp::bvec output;
+      DecodeWithZP_Judge(receivedSignal, &output, n0, numPads, numJudgeBits, firstIteration, secondIteration);
+      return output;
+    }
     
     // ++++++++ Cyclic Suffix ++++++++
     void DecodeWithCS(const itpp::cvec& receivedSignal, itpp::bvec* output,
