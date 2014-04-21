@@ -33,26 +33,28 @@ namespace mylib {
   // +++++++++++++++++ Encoder +++++++++++++++++++
   class SPIHTencoder {
   private:
-    int numStages_;
+    int rows_;
+    int cols_;
+    int numStages_1;
     LIP lip_;
     LSP lsp_;
     LIS lis_;
     int step_;    /* quantization step */
-    void GetSuccessor(const itpp::imat& image, int x, int y, int* sx, int* sy);
+    void GetSuccessor(int x, int y, int* sx, int* sy);
     bool IsSignificantPixel(const itpp::imat& image, int x, int y);
     bool IsSignificant_SetA(const itpp::imat& image, int x, int y, int count = 1);
     bool IsSignificant_SetB(const itpp::imat& image, int x, int y, int count = 1);
     void Initialize(const itpp::imat& image, itpp::bvec* bout);
   public:
-    SPIHTencoder():numStages_(0)
+    SPIHTencoder():rows_(0), cols_(0), numStages_1(0)
     { }
-    SPIHTencoder(int numStages)
+    SPIHTencoder(int numStages): rows_(0), cols_(0)
     {
       Set(numStages);
     }
     void Set(int numStages)
     {
-      numStages_ = numStages;
+      numStages_1 = numStages-1;
     }
     // bitsは出力したいビット数。-1は全ビットを表す
     void Encode(const itpp::imat& image, int bits, itpp::bvec* bout);
@@ -67,7 +69,7 @@ namespace mylib {
   class SPIHTdecoder {
     int rows_;                  // 画像のサイズ
     int cols_;
-    int numStages_;
+    int numStages_1;
     LIP lip_;
     LSP lsp_;
     LIS lis_;
@@ -83,7 +85,7 @@ namespace mylib {
     }
     void Set(int numStages, int rows, int cols)
     {
-      numStages_ = numStages;
+      numStages_1 = numStages-1;
       rows_ = rows;
       cols_ = cols;
     }
