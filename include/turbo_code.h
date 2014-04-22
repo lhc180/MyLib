@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/22 16:13:58 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/22 16:41:14 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -282,7 +282,7 @@ namespace mylib{
     }
 
     void DecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                            double n0, const itpp::ivec &numPads, itpp::ivec &numJudgeBits,
+                            double n0, const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
                             int firstIteration = 10, int secondIteration = 10) const
     {
       if (termination_){
@@ -296,7 +296,7 @@ namespace mylib{
     }
 
     itpp::bvec DecodeWithZP_Judge(const itpp::cvec& receivedSignal, double n0,
-                                  const itpp::ivec &numPads, itpp::ivec &numJudgeBits,
+                                  const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
                                   int firstIteration = 10, int secondIteration = 10) const
     {
       itpp::bvec output;
