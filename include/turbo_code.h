@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/22 14:15:57 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/22 16:13:58 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -142,13 +142,13 @@ namespace mylib{
                                            int secondIteration) const;
 
     virtual void doDecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                      double n0, const std::vector< int >& numPads,
-                                      const std::vector< int > &numJudgeBits,
+                                      double n0, const itpp::ivec &numPads,
+                                      const itpp::ivec &numJudgeBits,
                                       int firstIteration, int secondIteration) const;
 
     virtual void doDecodeWithZP_Judge_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                           double n0, const std::vector< int >& numPads,
-                                           const std::vector< int >& numJudgeBits, int firstIteration,
+                                           double n0, const itpp::ivec &numPads,
+                                           const itpp::ivec &numJudgeBits, int firstIteration,
                                            int secondIteration) const;
 
     
@@ -282,7 +282,7 @@ namespace mylib{
     }
 
     void DecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                            double n0, const std::vector< int >& numPads, std::vector< int >& numJudgeBits,
+                            double n0, const itpp::ivec &numPads, itpp::ivec &numJudgeBits,
                             int firstIteration = 10, int secondIteration = 10) const
     {
       if (termination_){
@@ -296,7 +296,7 @@ namespace mylib{
     }
 
     itpp::bvec DecodeWithZP_Judge(const itpp::cvec& receivedSignal, double n0,
-                                  const std::vector< int >& numPads, std::vector< int >& numJudgeBits,
+                                  const itpp::ivec &numPads, itpp::ivec &numJudgeBits,
                                   int firstIteration = 10, int secondIteration = 10) const
     {
       itpp::bvec output;

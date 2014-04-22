@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/22 15:53:01 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/22 16:15:49 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -526,7 +526,7 @@ namespace mylib{
   }
 
   void TurboCode::doDecodeWithZP_Judge(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0,
-                                       const std::vector<int> &numPads, const std::vector<int> &numJudgeBits,
+                                       const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
                                        int firstIteration, int secondIteration) const
   {
     assert(receivedSignal.size() % codeRate_.denominator() == 0);
@@ -551,7 +551,7 @@ namespace mylib{
     } // for ite
 
     int sumPaddingBits = 0;
-    for (int pads_i = 0; pads_i < static_cast< int >(numPads.size()); ++pads_i){
+    for (int pads_i = 0; pads_i < numPads.size(); ++pads_i){
       sumPaddingBits += numPads[pads_i];
       
       itpp::bvec interleaved_output = rsc2_.HardDecision();
@@ -1047,8 +1047,8 @@ namespace mylib{
   }
 
   void TurboCode::doDecodeWithZP_Judge_term(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0,
-                                            const std::vector<int> &numPads,
-                                            const std::vector<int> &numJudgeBits,
+                                            const itpp::ivec &numPads,
+                                            const itpp::ivec &numJudgeBits,
                                             int firstIteration, int secondIteration) const
   {
     assert(numPads.size() == numJudgeBits.size());
@@ -1086,7 +1086,7 @@ namespace mylib{
     } // for ite
 
     int sumPaddingBits = 0;
-    for (int pads_i = 0; pads_i < static_cast< int >(numPads.size()); ++pads_i){
+    for (int pads_i = 0; pads_i < numPads.size(); ++pads_i){
       sumPaddingBits += numPads[pads_i];
       
       itpp::bvec interleaved_output = rsc2_.HardDecision();
@@ -1095,7 +1095,7 @@ namespace mylib{
       itpp::bvec decodedPadsPart = t_output.mid(t_output.size() - sumPaddingBits,
                                                 numPads[pads_i]);
       
-      bool paddingInserted = JudgeZP(decodedPadsPart, numJudgeBits);
+      bool paddingInserted = JudgeZP(decodedPadsPart, numJudgeBits[pads_i]);
 
       if (paddingInserted){
         ModifyLLRForZP(&llrToRsc1, sumPaddingBits);
