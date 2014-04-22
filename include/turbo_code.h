@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/21 22:07:25 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/22 14:15:57 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -134,22 +134,22 @@ namespace mylib{
                                               double n0, int numPads, int iteration) const;
 
     virtual void doDecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                      double n0, int numPads, int numJudgeBits, int firstIteration = 10,
-                                      int secondIteration = 10) const;
+                                      double n0, int numPads, int numJudgeBits, int firstIteration,
+                                      int secondIteration) const;
 
     virtual void doDecodeWithZP_Judge_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                           double n0, int numPads, int numJudgeBits, int firstIteration = 10,
-                                           int secondIteration = 10) const;
+                                           double n0, int numPads, int numJudgeBits, int firstIteration,
+                                           int secondIteration) const;
 
     virtual void doDecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                       double n0, const std::vector< int >& numPads,
                                       const std::vector< int > &numJudgeBits,
-                                      int firstIteration = 10, int secondIteration = 10) const;
+                                      int firstIteration, int secondIteration) const;
 
     virtual void doDecodeWithZP_Judge_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                            double n0, const std::vector< int >& numPads,
-                                           const std::vector< int >& numJudgeBits, int firstIteration = 10,
-                                           int secondIteration = 10) const;
+                                           const std::vector< int >& numJudgeBits, int firstIteration,
+                                           int secondIteration) const;
 
     
     // ++++ Cyclic Suffix ++++
