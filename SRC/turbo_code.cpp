@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/22 14:26:41 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/22 15:53:01 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -1127,8 +1127,9 @@ namespace mylib{
       } // if paddingInserted
       
     } // for pads_i
-
+    
     itpp::bvec interleaved_output = rsc2_.HardDecision();
+    
     (*output) = Deinterleave(interleaved_output.left(interleaver_.size()), interleaver_);
   }
 
