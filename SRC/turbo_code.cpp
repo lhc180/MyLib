@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/22 16:15:49 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/23 14:27:52 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -455,7 +455,6 @@ namespace mylib{
     } // for i
     
     if (num0 >= numJudgeBits){
-      std::cout << "\n## Judged." << std::endl;
       return true;
     } // if
     else{
@@ -463,8 +462,9 @@ namespace mylib{
     } // else 
   }
   
-  void TurboCode::doDecodeWithZP_Judge(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0,
-                                       int numPads, int numJudgeBits, int firstIteration, int secondIteration) const
+  void TurboCode::doDecodeWithZP_Judge(const itpp::cvec &receivedSignal, itpp::bvec *output, bool *paddingInserted,
+                                       double n0, int numPads, int numJudgeBits,
+                                       int firstIteration, int secondIteration) const
   {
     assert(receivedSignal.size() % codeRate_.denominator() == 0);
     assert(numPads >= numJudgeBits);
@@ -492,9 +492,9 @@ namespace mylib{
 
     itpp::bvec decodedPadsPart = t_output.right(numPads);
 
-    bool paddingInserted = JudgeZP(decodedPadsPart, numJudgeBits);
+    *paddingInserted = JudgeZP(decodedPadsPart, numJudgeBits);
     
-    if (paddingInserted){
+    if (*paddingInserted){
       ModifyLLRForZP(&llrToRsc1, numPads);
     } // if 
         
@@ -503,7 +503,7 @@ namespace mylib{
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
 
-      if (paddingInserted){
+      if (*paddingInserted){
         ModifyLLRForZP(&llrFromRsc1, numPads);         
       } // if
       
@@ -514,7 +514,7 @@ namespace mylib{
       
       llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
 
-      if (paddingInserted){
+      if (*paddingInserted){
         ModifyLLRForZP(&llrToRsc1, numPads);         
       } // if 
 
@@ -975,7 +975,10 @@ namespace mylib{
 
   }
 
-  void TurboCode::doDecodeWithZP_Judge_term(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0, int numPads, int numJudgeBits, int firstIteration, int secondIteration) const
+  void TurboCode::doDecodeWithZP_Judge_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
+                                            bool *paddingInserted,
+                                            double n0, int numPads, int numJudgeBits,
+                                            int firstIteration, int secondIteration) const
   {
     int memory = rsc1_.Constraint() - 1;
     
@@ -1014,16 +1017,16 @@ namespace mylib{
 
     itpp::bvec decodedPadsPart = t_output.right(numPads);
 
-    bool paddingInserted = JudgeZP(decodedPadsPart, numJudgeBits);
+    *paddingInserted = JudgeZP(decodedPadsPart, numJudgeBits);
 
-    if (paddingInserted){
+    if (*paddingInserted){
       ModifyLLRForZP(&llrToRsc1, numPads);
     } // if
     
     for (int ite = 0; ite < secondIteration; ++ite){
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
-      if (paddingInserted){
+      if (*paddingInserted){
         ModifyLLRForZP(&llrFromRsc1, numPads);
       } // if
       
@@ -1036,7 +1039,7 @@ namespace mylib{
       llrToRsc1 = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
       llrToRsc1 = itpp::concat(llrToRsc1, llrZeros);
 
-      if (paddingInserted){
+      if (*paddingInserted){
         ModifyLLRForZP(&llrToRsc1, numPads);        
       } // if
       
