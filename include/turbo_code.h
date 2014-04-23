@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/23 14:19:22 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/23 20:26:32 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -169,11 +169,21 @@ namespace mylib{
                                            double n0, const itpp::ivec &numPads,
                                            const itpp::ivec &numJudgeBits, int firstIteration,
                                            int secondIteration) const;
-    
+
+    virtual void doDecodeWithZP_JudgeOnce(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                          double n0, const itpp::ivec &numPads,
+                                          const itpp::ivec &numJudgeBits,
+                                          int firstIteration, int secondIteration) const;
+
+    virtual void doDecodeWithZP_JudgeOnce_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                           double n0, const itpp::ivec &numPads,
+                                           const itpp::ivec &numJudgeBits, int firstIteration,
+                                           int secondIteration) const;
+
     
     // ++++ Cyclic Suffix ++++
-    virtual void doDecodeWithCS(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                          double n0, int numPads, int iteration) const;
+      virtual void doDecodeWithCS(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                  double n0, int numPads, int iteration) const;
 
     virtual void doDecodeWithCS_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                                double n0, int numPads, int iteration) const;
@@ -346,7 +356,30 @@ namespace mylib{
       return output;
     }
 
-    
+    // numPadsとnumJudgeBitsには減算したものではなく事実上の長さを入れる
+    void DecodeWithZP_JudgeOnce(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                double n0, const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
+                                int firstIteration = 10, int secondIteration = 10) const
+    {
+      if (termination_){
+        doDecodeWithZP_JudgeOnce_term(receivedSignal, output, n0, numPads, numJudgeBits,
+                                  firstIteration, secondIteration);
+      } // if
+      else{
+        doDecodeWithZP_JudgeOnce(receivedSignal, output, n0, numPads, numJudgeBits,
+                             firstIteration, secondIteration);
+      } // else
+    }
+
+    itpp::bvec DecodeWithZP_JudgeOnce(const itpp::cvec& receivedSignal, double n0,
+                                  const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
+                                  int firstIteration = 10, int secondIteration = 10) const
+    {
+      itpp::bvec output;
+      DecodeWithZP_JudgeOnce(receivedSignal, &output, n0, numPads, numJudgeBits, firstIteration, secondIteration);
+      return output;
+    }
+
     
     // ++++++++ Cyclic Suffix ++++++++
     void DecodeWithCS(const itpp::cvec& receivedSignal, itpp::bvec* output,
