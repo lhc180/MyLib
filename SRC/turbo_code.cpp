@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/23 14:27:52 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/23 15:16:17 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -404,12 +404,17 @@ namespace mylib{
 
   void TurboCode::ModifyLLRForZP(itpp::vec *llr, int numPads) const
   {
+    static itpp::vec LLRModifier(0);
+    if (LLRModifier.size() != numPads){
+      LLRModifier.set_size(numPads);
+      for (int i = 0; i < LLRModifier.size(); ++i){
+        LLRModifier[i] = -LLR_THRESHOLD;
+      } // for 
+    } // if 
     int length = interleaver_.size();
     int numEffectiveBits = length - numPads;
-    
-    for (int i = numEffectiveBits; i < length; ++i){
-      (*llr)[i] = -LLR_THRESHOLD;
-    } // for i
+
+    (*llr).set_subvector(numEffectiveBits, LLRModifier);
   }
   
   void TurboCode::doDecodeWithZP(const itpp::cvec& receivedSignal, itpp::bvec* output,
@@ -472,8 +477,8 @@ namespace mylib{
     itpp::cvec in1, in2;
     SeparateReceivedSignal(receivedSignal, &in1, &in2);
     
-    itpp::vec llrToRsc1(interleaver_.size());
-    llrToRsc1.zeros();               // ## ここで提案法入れられるかも
+    itpp::vec llrToRsc1(interleaver_.size()); // ## staticにすると良さそう
+    llrToRsc1.zeros();
 
     for (int ite = 0; ite < firstIteration; ++ite){
       itpp::vec llrFromRsc1;
