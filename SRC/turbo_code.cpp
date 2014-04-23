@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/23 20:49:28 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/23 22:42:23 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -417,6 +417,13 @@ namespace mylib{
     (*llr).set_subvector(numEffectiveBits, LLRModifier);
   }
   
+  void TurboCode::ModifyAPLLR(itpp::vec *llr, double APZeroProb, int start, int num) const
+  {
+    for (int i = start; i < start+num; ++i){
+      (*llr)[i] = std::log((1.0-APZeroProb)/APZeroProb);
+    } // for i 
+  }
+  
   void TurboCode::doDecodeWithZP(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                           double n0, int numPads, int iteration) const
   {
@@ -466,9 +473,12 @@ namespace mylib{
       return false;
     } // else 
   }
+
   
-  void TurboCode::doDecodeWithZP_Judge(const itpp::cvec &receivedSignal, itpp::bvec *output, bool *paddingInserted,
-                                       double n0, int numPads, int numJudgeBits,
+  
+  void TurboCode::doDecodeWithZP_Judge(const itpp::cvec &receivedSignal, itpp::bvec *output, 
+                                       bool *paddingInserted,
+                                       double n0, int numPads, int numJudgeBits, double APZeroProb,
                                        int firstIteration, int secondIteration) const
   {
     assert(receivedSignal.size() % codeRate_.denominator() == 0);
@@ -480,6 +490,8 @@ namespace mylib{
     itpp::vec llrToRsc1(interleaver_.size()); // ## staticにすると良さそう
     llrToRsc1.zeros();
 
+    ModifyAPLLR(&llrToRsc1, APZeroProb, interleaver_.size()-numPads, numPads);
+    
     for (int ite = 0; ite < firstIteration; ++ite){
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
@@ -532,6 +544,7 @@ namespace mylib{
 
   void TurboCode::doDecodeWithZP_Judge(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0,
                                        const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
+                                       const itpp::vec &APZeroProb,
                                        int firstIteration, int secondIteration) const
   {
     assert(receivedSignal.size() % codeRate_.denominator() == 0);
@@ -541,8 +554,14 @@ namespace mylib{
     SeparateReceivedSignal(receivedSignal, &in1, &in2);
     
     itpp::vec llrToRsc1(interleaver_.size());
-    llrToRsc1.zeros();               // ## ここで提案法入れられるかも
+    llrToRsc1.zeros();
 
+    int sumPaddingBits = 0;
+    for (int i = 0; i < numPads.size(); ++i){
+      sumPaddingBits += numPads[i];
+      ModifyAPLLR(&llrToRsc1, APZeroProb[i], interleaver_.size() - sumPaddingBits, numPads[i]);
+    } // for i
+    
     for (int ite = 0; ite < firstIteration; ++ite){
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
@@ -555,7 +574,7 @@ namespace mylib{
       llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
     } // for ite
 
-    int sumPaddingBits = 0;
+    sumPaddingBits = 0;
     for (int pads_i = 0; pads_i < numPads.size(); ++pads_i){
       sumPaddingBits += numPads[pads_i];
       
@@ -605,6 +624,7 @@ namespace mylib{
 
   void TurboCode::doDecodeWithZP_JudgeOnce(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0,
                                            const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
+                                           const itpp::vec &APZeroProb,
                                            int firstIteration, int secondIteration) const
   {
     assert(receivedSignal.size() % codeRate_.denominator() == 0);
@@ -614,8 +634,15 @@ namespace mylib{
     SeparateReceivedSignal(receivedSignal, &in1, &in2);
     
     itpp::vec llrToRsc1(interleaver_.size());
-    llrToRsc1.zeros();               // ## ここで提案法入れられるかも
+    llrToRsc1.zeros();
 
+    int sumPaddingBits = 0;
+    for (int i = 0; i < numPads.size(); ++i){
+      sumPaddingBits += numPads[i];
+      ModifyAPLLR(&llrToRsc1, APZeroProb[i], interleaver_.size() - sumPaddingBits, numPads[i]);
+    } // for i
+    
+    
     for (int ite = 0; ite < firstIteration; ++ite){
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
@@ -1045,6 +1072,7 @@ namespace mylib{
   void TurboCode::doDecodeWithZP_Judge_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
                                             bool *paddingInserted,
                                             double n0, int numPads, int numJudgeBits,
+                                            double APZeroProb,
                                             int firstIteration, int secondIteration) const
   {
     int memory = rsc1_.Constraint() - 1;
@@ -1061,6 +1089,8 @@ namespace mylib{
     itpp::vec llrToRsc1(interleaver_.size() + memory);
     llrToRsc1.zeros();
 
+    ModifyAPLLR(&llrToRsc1, APZeroProb, interleaver_.size()-numPads, numPads);
+    
     itpp::vec llrZeros(memory);
     llrZeros.zeros();
     
@@ -1119,6 +1149,7 @@ namespace mylib{
   void TurboCode::doDecodeWithZP_Judge_term(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0,
                                             const itpp::ivec &numPads,
                                             const itpp::ivec &numJudgeBits,
+                                            const itpp::vec &APZeroProb,
                                             int firstIteration, int secondIteration) const
   {
     assert(numPads.size() == numJudgeBits.size());
@@ -1137,6 +1168,12 @@ namespace mylib{
     itpp::vec llrToRsc1(interleaver_.size() + memory);
     llrToRsc1.zeros();
 
+    int sumPaddingBits = 0;
+    for (int i = 0; i < numPads.size(); ++i){
+      sumPaddingBits += numPads[i];
+      ModifyAPLLR(&llrToRsc1, APZeroProb[i], interleaver_.size() - sumPaddingBits, numPads[i]);
+    } // for i
+    
     itpp::vec llrZeros(memory);
     llrZeros.zeros();
     
@@ -1155,7 +1192,7 @@ namespace mylib{
       
     } // for ite
 
-    int sumPaddingBits = 0;
+    sumPaddingBits = 0;
     for (int pads_i = 0; pads_i < numPads.size(); ++pads_i){
       sumPaddingBits += numPads[pads_i];
       
@@ -1206,6 +1243,7 @@ namespace mylib{
   void TurboCode::doDecodeWithZP_JudgeOnce_term(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0,
                                                 const itpp::ivec &numPads,
                                                 const itpp::ivec &numJudgeBits,
+                                                const itpp::vec &APZeroProb,
                                                 int firstIteration, int secondIteration) const
   {
     assert(numPads.size() == numJudgeBits.size());
@@ -1224,6 +1262,13 @@ namespace mylib{
     itpp::vec llrToRsc1(interleaver_.size() + memory);
     llrToRsc1.zeros();
 
+    int sumPaddingBits = 0;
+    for (int i = 0; i < numPads.size(); ++i){
+      sumPaddingBits += numPads[i];
+      ModifyAPLLR(&llrToRsc1, APZeroProb[i], interleaver_.size() - sumPaddingBits, numPads[i]);
+    } // for i
+
+    
     itpp::vec llrZeros(memory);
     llrZeros.zeros();
     
