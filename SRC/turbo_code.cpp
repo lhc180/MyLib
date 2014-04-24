@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/24 18:25:46 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/24 18:30:50 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -1168,7 +1168,10 @@ namespace mylib{
     } // for i
 
     Decoder_term(llrToRsc1, in1, in2, n0, firstIteration);
-                
+
+    itpp::vec llrZeros(memory);
+    llrZeros.zeros();
+    
     sumPaddingBits = 0;
     for (int pads_i = 0; pads_i < numPads.size(); ++pads_i){
       sumPaddingBits += numPads[pads_i];
