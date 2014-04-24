@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/23 22:20:05 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/24 18:14:33 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -221,6 +221,12 @@ namespace mylib{
     virtual void ModifyAPLLR(itpp::vec* llr, double APZeroProb, int start, int num) const;
     
     virtual void ModifyLLRForZP(itpp::vec* llr, int numPads) const;
+
+    virtual void Decoder_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
+                              double n0, int iteration) const;
+    
+    virtual void DecoderForZP_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
+                                   double n0, int numPads, int iteration) const;
     
     virtual void ModifyLLRForCS(itpp::vec* llr, int numPads) const;
 
@@ -352,6 +358,7 @@ namespace mylib{
       return output;
     }
 
+    // numPadsとnumJudgeBitsには段階的な数字を入れていく
     void DecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
                             double n0, const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
                             const itpp::vec &APZeroProb,
@@ -378,7 +385,7 @@ namespace mylib{
       return output;
     }
 
-    // numPadsとnumJudgeBitsには減算したものではなく事実上の長さを入れる
+
     void DecodeWithZP_JudgeOnce(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                 double n0, const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
                                 const itpp::vec &APZeroProb,
