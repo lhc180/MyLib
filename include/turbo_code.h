@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/24 18:14:33 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/25 21:06:01 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -115,82 +115,85 @@ namespace mylib{
     const itpp::ivec interleaver_;
     const Rsc rsc1_, rsc2_;
     static const boost::rational< int > codeRate_; // 符号化率は1/3で固定
+    const int iteration_;
     const bool termination_;
-
+    
+    
+  protected:
     virtual void doEncode(const itpp::bvec& input, itpp::bvec* output) const; // NVI
     virtual void doEncodeWithTerm(const itpp::bvec& input, itpp::bvec* output) const;
     
     virtual void doDecode(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                          double n0, int iteration) const;
+                          double n0) const;
 
     virtual void doDecodeWithTerm(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                  double n0, int iteration) const;
+                                  double n0) const;
     
     // ++++ Zero Padding ++++
-    virtual void doDecodeWithZP(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                         double n0, int numPads, int iteration) const;
+    // virtual void doDecodeWithZP(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                                      double n0, int numPads, int iteration) const;
 
-    virtual void doDecodeWithZP_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                              double n0, int numPads, int iteration) const;
+    // virtual void doDecodeWithZP_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                                           double n0, int numPads, int iteration) const;
 
-    virtual void doDecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                      double n0, int numPads, int numJudgeBits, double APZeroProb,
-                                      int firstIteration,
-                                      int secondIteration) const
-    {
-      bool dummy;
-      doDecodeWithZP_Judge(receivedSignal, output, &dummy, n0, numPads, numJudgeBits, APZeroProb,
-                           firstIteration,
-                           secondIteration);
-    }
+    // virtual void doDecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                                   double n0, int numPads, int numJudgeBits, double APZeroProb,
+    //                                   int firstIteration,
+    //                                   int secondIteration) const
+    // {
+    //   bool dummy;
+    //   doDecodeWithZP_Judge(receivedSignal, output, &dummy, n0, numPads, numJudgeBits, APZeroProb,
+    //                        firstIteration,
+    //                        secondIteration);
+    // }
 
-    virtual void doDecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                      bool *paddingInserted, double n0, int numPads, int numJudgeBits,
-                                      double APZeroProb,
-                                      int firstIteration, int secondIteration) const;
+    // virtual void doDecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                                   bool *paddingInserted, double n0, int numPads, int numJudgeBits,
+    //                                   double APZeroProb,
+    //                                   int firstIteration, int secondIteration) const;
         
-    virtual void doDecodeWithZP_Judge_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                           double n0, int numPads, int numJudgeBits, double APZeroProb,
-                                           int firstIteration,
-                                           int secondIteration) const
-    {
-      bool dummy;
-      doDecodeWithZP_Judge_term(receivedSignal, output, &dummy, n0, numPads, numJudgeBits, APZeroProb,
-                                firstIteration, secondIteration);
-    }
+    // virtual void doDecodeWithZP_Judge_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                                        double n0, int numPads, int numJudgeBits, double APZeroProb,
+    //                                        int firstIteration,
+    //                                        int secondIteration) const
+    // {
+    //   bool dummy;
+    //   doDecodeWithZP_Judge_term(receivedSignal, output, &dummy, n0, numPads, numJudgeBits, APZeroProb,
+    //                             firstIteration, secondIteration);
+    // }
 
-    virtual void doDecodeWithZP_Judge_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                           bool *paddingInserted, double n0, int numPads, int numJudgeBits,
-                                           double APZeroProb,
-                                           int firstIteration, int secondIteration) const;
+    // virtual void doDecodeWithZP_Judge_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                                        bool *paddingInserted, double n0, int numPads, int numJudgeBits,
+    //                                        double APZeroProb,
+    //                                        int firstIteration, int secondIteration) const;
     
     
-    virtual void doDecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                      double n0, const itpp::ivec &numPads,
-                                      const itpp::ivec &numJudgeBits, const itpp::vec &APZeroProb,
-                                      int firstIteration, int secondIteration) const;
+    // virtual void doDecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                                   double n0, const itpp::ivec &numPads,
+    //                                   const itpp::ivec &numJudgeBits, const itpp::vec &APZeroProb,
+    //                                   int firstIteration, int secondIteration) const;
 
-    virtual void doDecodeWithZP_Judge_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                           double n0, const itpp::ivec &numPads,
-                                           const itpp::ivec &numJudgeBits, const itpp::vec &APZeroProb,
-                                           int firstIteration,
-                                           int secondIteration) const;
+    // virtual void doDecodeWithZP_Judge_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                                        double n0, const itpp::ivec &numPads,
+    //                                        const itpp::ivec &numJudgeBits, const itpp::vec &APZeroProb,
+    //                                        int firstIteration,
+    //                                        int secondIteration) const;
 
-    virtual void doDecodeWithZP_JudgeOnce(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                          double n0, const itpp::ivec &numPads,
-                                          const itpp::ivec &numJudgeBits, const itpp::vec &APZeroProb,
-                                          int firstIteration, int secondIteration) const;
+    // virtual void doDecodeWithZP_JudgeOnce(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                                       double n0, const itpp::ivec &numPads,
+    //                                       const itpp::ivec &numJudgeBits, const itpp::vec &APZeroProb,
+    //                                       int firstIteration, int secondIteration) const;
 
-    virtual void doDecodeWithZP_JudgeOnce_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                               double n0, const itpp::ivec &numPads,
-                                               const itpp::ivec &numJudgeBits, const itpp::vec &APZeroProb,
-                                               int firstIteration,
-                                               int secondIteration) const;
+    // virtual void doDecodeWithZP_JudgeOnce_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                                            double n0, const itpp::ivec &numPads,
+    //                                            const itpp::ivec &numJudgeBits, const itpp::vec &APZeroProb,
+    //                                            int firstIteration,
+    //                                            int secondIteration) const;
 
     
     // ++++ Cyclic Suffix ++++
-      virtual void doDecodeWithCS(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                  double n0, int numPads, int iteration) const;
+    virtual void doDecodeWithCS(const itpp::cvec& receivedSignal, itpp::bvec* output,
+                                double n0, int numPads, int iteration) const;
 
     virtual void doDecodeWithCS_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                                double n0, int numPads, int iteration) const;
@@ -217,16 +220,15 @@ namespace mylib{
     virtual void doDecodeWithCI_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                               double n0, int start, int numPads, int iteration) const;
     
-  protected:
     virtual void ModifyAPLLR(itpp::vec* llr, double APZeroProb, int start, int num) const;
     
-    virtual void ModifyLLRForZP(itpp::vec* llr, int numPads) const;
+    // virtual void ModifyLLRForZP(itpp::vec* llr, int numPads) const;
 
     virtual void Decoder_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
                               double n0, int iteration) const;
     
-    virtual void DecoderForZP_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
-                                   double n0, int numPads, int iteration) const;
+    // virtual void DecoderForZP_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
+    //                                double n0, int numPads, int iteration) const;
     
     virtual void ModifyLLRForCS(itpp::vec* llr, int numPads) const;
 
@@ -240,9 +242,11 @@ namespace mylib{
                                         itpp::cvec* in1, itpp::cvec* in2) const;
     
   public:
-    explicit TurboCode(itpp::ivec interleaver, int constraint = 3, int feedforward = 05, int feedback = 07,
+    explicit TurboCode(const itpp::ivec &interleaver, int constraint = 3, int feedforward = 05, int feedback = 07,
+                       int iteration = 10,
                        bool termination = false):
-      interleaver_(interleaver), rsc1_(constraint, feedforward, feedback), rsc2_(constraint, feedforward, feedback),
+      interleaver_(interleaver), rsc1_(constraint, feedforward, feedback),
+      rsc2_(constraint, feedforward, feedback), iteration_(iteration),
       termination_(termination)
     { }
         
@@ -268,149 +272,149 @@ namespace mylib{
     }
 
     // Log-Map Decode
-    void Decode(const itpp::cvec& receivedSignal, itpp::bvec* output, double n0, int iteration = 10) const
+    void Decode(const itpp::cvec& receivedSignal, itpp::bvec* output, double n0) const
     {
       if (termination_){
-        doDecodeWithTerm(receivedSignal, output, n0, iteration);
+        doDecodeWithTerm(receivedSignal, output, n0);
       } // if termination_
       else {
-        doDecode(receivedSignal, output, n0, iteration); 
+        doDecode(receivedSignal, output, n0); 
       } 
     }
-    itpp::bvec Decode(const itpp::cvec& receivedSignal, double n0, int iteration = 10) const
+    itpp::bvec Decode(const itpp::cvec& receivedSignal, double n0) const
     {
       itpp::bvec output;
-      Decode(receivedSignal, &output, n0, iteration);
+      Decode(receivedSignal, &output, n0);
       return output;
     }
 
     // ++++++++ Zero Padding ++++++++
-    void DecodeWithZP(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                               double n0, int numPads = 0, int iteration = 10) const
-    {
-      if (termination_){
-        doDecodeWithZP_term(receivedSignal, output, n0, numPads, iteration);
-      } // if
-      else{
-        doDecodeWithZP(receivedSignal, output, n0, numPads, iteration);
-      } // else 
-    }
-    itpp::bvec DecodeWithZP(const itpp::cvec& receivedSignal,
-                                     double n0, int numPads = 0, int iteration = 10) const
-    {
-      itpp::bvec output;
-      DecodeWithZP(receivedSignal, &output, n0, numPads, iteration);
-      return output;
-    }    
+    // void DecodeWithZP(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                            double n0, int numPads = 0, int iteration = 10) const
+    // {
+    //   if (termination_){
+    //     doDecodeWithZP_term(receivedSignal, output, n0, numPads, iteration);
+    //   } // if
+    //   else{
+    //     doDecodeWithZP(receivedSignal, output, n0, numPads, iteration);
+    //   } // else 
+    // }
+    // itpp::bvec DecodeWithZP(const itpp::cvec& receivedSignal,
+    //                                  double n0, int numPads = 0, int iteration = 10) const
+    // {
+    //   itpp::bvec output;
+    //   DecodeWithZP(receivedSignal, &output, n0, numPads, iteration);
+    //   return output;
+    // }    
 
     // APZeroProbはパディングビット部分のa priori probability
-    void DecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                            double n0, int numPads, int numJudgeBits, double APZeroProb = 0.5,
-                            int firstIteration = 10,
-                            int secondIteration = 10) const
-    {
-      if (termination_){
-        doDecodeWithZP_Judge_term(receivedSignal, output, n0, numPads, numJudgeBits, APZeroProb,
-                                  firstIteration, secondIteration);
-      } // if
-      else{
-        doDecodeWithZP_Judge(receivedSignal, output, n0, numPads, numJudgeBits, APZeroProb,
-                             firstIteration, secondIteration);
-      } // else 
-    }
+    // void DecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                         double n0, int numPads, int numJudgeBits, double APZeroProb = 0.5,
+    //                         int firstIteration = 10,
+    //                         int secondIteration = 10) const
+    // {
+    //   if (termination_){
+    //     doDecodeWithZP_Judge_term(receivedSignal, output, n0, numPads, numJudgeBits, APZeroProb,
+    //                               firstIteration, secondIteration);
+    //   } // if
+    //   else{
+    //     doDecodeWithZP_Judge(receivedSignal, output, n0, numPads, numJudgeBits, APZeroProb,
+    //                          firstIteration, secondIteration);
+    //   } // else 
+    // }
     
-    itpp::bvec DecodeWithZP_Judge(const itpp::cvec& receivedSignal, double n0,
-                                  int numPads, int numJudgeBits, double APZeroProb = 0.5,
-                                  int firstIteration = 10,
-                                  int secondIteration = 10) const
-    {
-      itpp::bvec output;
-      DecodeWithZP_Judge(receivedSignal, &output, n0, numPads, numJudgeBits, APZeroProb,
-                         firstIteration, secondIteration);
-      return output;
-    }
+    // itpp::bvec DecodeWithZP_Judge(const itpp::cvec& receivedSignal, double n0,
+    //                               int numPads, int numJudgeBits, double APZeroProb = 0.5,
+    //                               int firstIteration = 10,
+    //                               int secondIteration = 10) const
+    // {
+    //   itpp::bvec output;
+    //   DecodeWithZP_Judge(receivedSignal, &output, n0, numPads, numJudgeBits, APZeroProb,
+    //                      firstIteration, secondIteration);
+    //   return output;
+    // }
 
-    void DecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output, bool *paddingInserted,
-                            double n0, int numPads, int numJudgeBits, double APZeroProb = 0.5,
-                            int firstIteration = 10,
-                            int secondIteration = 10) const
-    {
-      if (termination_){
-        doDecodeWithZP_Judge_term(receivedSignal, output, paddingInserted, n0, numPads, numJudgeBits,
-                                  APZeroProb,
-                                  firstIteration, secondIteration);
-      } // if
-      else{
-        doDecodeWithZP_Judge(receivedSignal, output, paddingInserted, n0, numPads, numJudgeBits,
-                             APZeroProb,
-                             firstIteration, secondIteration);
-      } // else
-    }
+    // void DecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output, bool *paddingInserted,
+    //                         double n0, int numPads, int numJudgeBits, double APZeroProb = 0.5,
+    //                         int firstIteration = 10,
+    //                         int secondIteration = 10) const
+    // {
+    //   if (termination_){
+    //     doDecodeWithZP_Judge_term(receivedSignal, output, paddingInserted, n0, numPads, numJudgeBits,
+    //                               APZeroProb,
+    //                               firstIteration, secondIteration);
+    //   } // if
+    //   else{
+    //     doDecodeWithZP_Judge(receivedSignal, output, paddingInserted, n0, numPads, numJudgeBits,
+    //                          APZeroProb,
+    //                          firstIteration, secondIteration);
+    //   } // else
+    // }
 
-    itpp::bvec DecodeWithZP_Judge(const itpp::cvec &receivedSignal, bool *paddingInserted,
-                                  double n0, int numPads, int numJudgeBits, double APZeroProb = 0.5,
-                                  int firstIteration = 10,
-                                  int secondIteration = 10) const
-    {
-      itpp::bvec output;
-      DecodeWithZP_Judge(receivedSignal, &output, paddingInserted, n0, numPads, numJudgeBits, APZeroProb,
-                         firstIteration, secondIteration);
-      return output;
-    }
+    // itpp::bvec DecodeWithZP_Judge(const itpp::cvec &receivedSignal, bool *paddingInserted,
+    //                               double n0, int numPads, int numJudgeBits, double APZeroProb = 0.5,
+    //                               int firstIteration = 10,
+    //                               int secondIteration = 10) const
+    // {
+    //   itpp::bvec output;
+    //   DecodeWithZP_Judge(receivedSignal, &output, paddingInserted, n0, numPads, numJudgeBits, APZeroProb,
+    //                      firstIteration, secondIteration);
+    //   return output;
+    // }
 
-    // numPadsとnumJudgeBitsには段階的な数字を入れていく
-    void DecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                            double n0, const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
-                            const itpp::vec &APZeroProb,
-                            int firstIteration = 10, int secondIteration = 10) const
-    {
-      if (termination_){
-        doDecodeWithZP_Judge_term(receivedSignal, output, n0, numPads, numJudgeBits, APZeroProb,
-                                  firstIteration, secondIteration);
-      } // if
-      else{
-        doDecodeWithZP_Judge(receivedSignal, output, n0, numPads, numJudgeBits, APZeroProb,
-                             firstIteration, secondIteration);
-      } // else
-    }
+    // // numPadsとnumJudgeBitsには段階的な数字を入れていく
+    // void DecodeWithZP_Judge(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                         double n0, const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
+    //                         const itpp::vec &APZeroProb,
+    //                         int firstIteration = 10, int secondIteration = 10) const
+    // {
+    //   if (termination_){
+    //     doDecodeWithZP_Judge_term(receivedSignal, output, n0, numPads, numJudgeBits, APZeroProb,
+    //                               firstIteration, secondIteration);
+    //   } // if
+    //   else{
+    //     doDecodeWithZP_Judge(receivedSignal, output, n0, numPads, numJudgeBits, APZeroProb,
+    //                          firstIteration, secondIteration);
+    //   } // else
+    // }
 
-    itpp::bvec DecodeWithZP_Judge(const itpp::cvec& receivedSignal, double n0,
-                                  const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
-                                  const itpp::vec &APZeroProb,
-                                  int firstIteration = 10, int secondIteration = 10) const
-    {
-      itpp::bvec output;
-      DecodeWithZP_Judge(receivedSignal, &output, n0, numPads, numJudgeBits, APZeroProb,
-                         firstIteration, secondIteration);
-      return output;
-    }
+    // itpp::bvec DecodeWithZP_Judge(const itpp::cvec& receivedSignal, double n0,
+    //                               const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
+    //                               const itpp::vec &APZeroProb,
+    //                               int firstIteration = 10, int secondIteration = 10) const
+    // {
+    //   itpp::bvec output;
+    //   DecodeWithZP_Judge(receivedSignal, &output, n0, numPads, numJudgeBits, APZeroProb,
+    //                      firstIteration, secondIteration);
+    //   return output;
+    // }
 
 
-    void DecodeWithZP_JudgeOnce(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                double n0, const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
-                                const itpp::vec &APZeroProb,
-                                int firstIteration = 10, int secondIteration = 10) const
-    {
-      if (termination_){
-        doDecodeWithZP_JudgeOnce_term(receivedSignal, output, n0, numPads, numJudgeBits, APZeroProb,
-                                  firstIteration, secondIteration);
-      } // if
-      else{
-        doDecodeWithZP_JudgeOnce(receivedSignal, output, n0, numPads, numJudgeBits, APZeroProb,
-                                 firstIteration, secondIteration);
-      } // else
-    }
+    // void DecodeWithZP_JudgeOnce(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    //                             double n0, const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
+    //                             const itpp::vec &APZeroProb,
+    //                             int firstIteration = 10, int secondIteration = 10) const
+    // {
+    //   if (termination_){
+    //     doDecodeWithZP_JudgeOnce_term(receivedSignal, output, n0, numPads, numJudgeBits, APZeroProb,
+    //                               firstIteration, secondIteration);
+    //   } // if
+    //   else{
+    //     doDecodeWithZP_JudgeOnce(receivedSignal, output, n0, numPads, numJudgeBits, APZeroProb,
+    //                              firstIteration, secondIteration);
+    //   } // else
+    // }
 
-    itpp::bvec DecodeWithZP_JudgeOnce(const itpp::cvec& receivedSignal, double n0,
-                                      const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
-                                      const itpp::vec &APZeroProb,
-                                  int firstIteration = 10, int secondIteration = 10) const
-    {
-      itpp::bvec output;
-      DecodeWithZP_JudgeOnce(receivedSignal, &output, n0, numPads, numJudgeBits, APZeroProb,
-                             firstIteration, secondIteration);
-      return output;
-    }
+    // itpp::bvec DecodeWithZP_JudgeOnce(const itpp::cvec& receivedSignal, double n0,
+    //                                   const itpp::ivec &numPads, const itpp::ivec &numJudgeBits,
+    //                                   const itpp::vec &APZeroProb,
+    //                               int firstIteration = 10, int secondIteration = 10) const
+    // {
+    //   itpp::bvec output;
+    //   DecodeWithZP_JudgeOnce(receivedSignal, &output, n0, numPads, numJudgeBits, APZeroProb,
+    //                          firstIteration, secondIteration);
+    //   return output;
+    // }
 
     
     // ++++++++ Cyclic Suffix ++++++++
@@ -506,6 +510,68 @@ namespace mylib{
     
   };
 
+  // Zero Padding
+  class TurboCodeWithZP: TurboCode
+  {
+  private:
+    int numPads_;
+
+    virtual void DecoderForZP_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
+                                   double n0, int numPads, int iteration) const;
+    
+    virtual void ModifyLLRForZP(itpp::vec* llr) const;
+
+    
+  protected:
+    // Encoderは普通のTurboCodeと同じやつで大丈夫
+    void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
+    void doDecodeWithTerm(const itpp::cvec &receivedSignal, itpp::bvec *output,
+                          double n0) const;
+    
+  public:
+    TurboCodeWithZP(const itpp::ivec &interleaver, int constraint, int feedforward, int feedback,
+                    int iteration, bool termination, int numPads):
+      TurboCode(interleaver, constraint, feedforward, feedback, iteration, termination), numPads_(numPads)
+    { }
+    
+    virtual ~TurboCodeWithZP();
+  };
+
+  // With Decision of Zero Padding Insertion
+  class TurboCodeWithZP_Judge: TurboCode
+  {
+  private:
+    itpp::ivec numPads_;
+    itpp::ivec judgeBits_;
+    int levels_;
+
+  protected:
+    virtual void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
+    virtual void doDecodeWithTerm(const itpp::cvec &receivedSignal, itpp::bvec *output,
+                                  double n0) const;
+        
+  public:
+    // 1段階しか無い場合
+    TurboCodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
+                          int iteration, bool termination, int numPads, int judgeBits):
+      TurboCode(interleaver, constraint, feedforward, feedback, iteration, termination),
+      numPads_(1),judgeBits_(1),levels_(1)
+    {
+      numPads_[0] = numPads;
+      judgeBits_[0] = judgeBits;
+    }
+    // 複数段階チェックする場合
+    TurboCodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
+                          int iteration, bool termination,
+                          const itpp::ivec &numPads, const itpp::ivec &judgeBits):
+      TurboCode(interleaver, constraint, feedforward, feedback, iteration, termination),
+      numPads_(numPads), judgeBits_(judgeBits), levels_(numPads.size())
+    {
+      assert(numPads.size() == judgeBits.size());
+    }
+    virtual ~TurboCodeWithZP_Judge();
+  };
+  
   /************************************************************************************
    * RandomInterleaver -- ランダムインタリーバを生成する
    * 
