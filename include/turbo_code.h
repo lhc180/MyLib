@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/25 22:10:15 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/25 22:20:45 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -558,6 +558,8 @@ namespace mylib{
     {
       numPads_[0] = numPads;
       judgeBits_[0] = judgeBits;
+
+      assert(numPads >= judgeBits);
     }
     // 複数段階チェックする場合
     TurboCodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
