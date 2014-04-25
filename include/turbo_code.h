@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/25 22:20:45 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/25 22:24:50 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -528,7 +528,7 @@ namespace mylib{
     
   public:
     TurboCodeWithZP(const itpp::ivec &interleaver, int constraint, int feedforward, int feedback,
-                    int iteration, bool termination, int numPads):
+                    int iteration, int numPads, bool termination):
       TurboCode(interleaver, constraint, feedforward, feedback, iteration, termination), numPads_(numPads)
     { }
     
@@ -552,8 +552,8 @@ namespace mylib{
   public:
     // 1段階しか無い場合
     TurboCodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
-                          int iteration, bool termination, int numPads, int judgeBits, int secondIteration):
-      TurboCodeWithZP(interleaver, constraint, feedforward, feedback, iteration, termination, 0),
+                          int firstIteration, int secondIteration, int numPads, int judgeBits, bool termination):
+      TurboCodeWithZP(interleaver, constraint, feedforward, feedback, firstIteration, termination, 0),
       numPads_(1),judgeBits_(1),levels_(1), secondIteration_(secondIteration)
     {
       numPads_[0] = numPads;
@@ -563,9 +563,9 @@ namespace mylib{
     }
     // 複数段階チェックする場合
     TurboCodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
-                          int iteration, bool termination,
-                          const itpp::ivec &numPads, const itpp::ivec &judgeBits, int secondIteration):
-      TurboCodeWithZP(interleaver, constraint, feedforward, feedback, iteration, termination, 0),
+                          int firstIteration, int secondIteration, 
+                          const itpp::ivec &numPads, const itpp::ivec &judgeBits, bool termination):
+      TurboCodeWithZP(interleaver, constraint, feedforward, feedback, firstIteration, termination, 0),
       numPads_(numPads), judgeBits_(judgeBits), levels_(numPads.size()), secondIteration_(secondIteration)
     {
       assert(numPads.size() == judgeBits.size());
