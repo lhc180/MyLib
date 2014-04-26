@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/25 22:24:50 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/26 14:48:29 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
