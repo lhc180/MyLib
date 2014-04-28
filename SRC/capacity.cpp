@@ -5,19 +5,7 @@
 #include "../include/capacity.h"
 
 namespace mylib{
-  void Capacity::SetModulator(const itpp::Modulator_2D &Mod)
-  {
-    modulator_ = Mod;
-    bitsPerSymbol_ = modulator_.bits_per_symbol();
-    symbols_ = modulator_.get_symbols();
-  
-    // std::cout << "## vecSymbols = " << vecSymbols << std::endl;
-  
-    numSymbols_ = symbols_.size();
-
-    setMod_ = true;
-  }
-  
+    
   // 条件付き確率
   inline double pdf_awgn(std::complex<double> y, std::complex<double> x, double N0)
   {
@@ -27,26 +15,23 @@ namespace mylib{
   }
 
   // キャパシティを返す
-  double Capacity::operator()(double N0, int nTrans, int nTrial)
+  double Capacity::operator()(double N0)
   {
-    assert(setMod_);
-
     itpp::AWGN_Channel awgn(N0);
 
     double avr = 0.0;
-    for(int trial = 0; trial < nTrial; trial++){
+    for(int trial = 0; trial < nTrial_; trial++){
 
-      itpp::bvec bits = itpp::randb(bitsPerSymbol_*nTrans);
+      itpp::bvec bits = itpp::randb(bitsPerSymbol_*nTrans_);
 
       // nTrial個のシンボル
       itpp::cvec symbol = modulator_.modulate_bits(bits);
-      assert(symbol.size() == nTrans);
 
       itpp::cvec received = awgn(symbol);  
 
       // 受信信号の数
       double sum2 = 0.0;		// Ex用 
-      for(int y = 0; y < nTrans; y++){ 
+      for(int y = 0; y < nTrans_; y++){ 
         // コンスタレーションの数
     
         // for(int x = 0; x < nSymbols; x++){
@@ -65,9 +50,9 @@ namespace mylib{
   
       avr += sum2;// static_cast<double>(nTrans);
     }
-    avr /= static_cast<double>(nTrans);
+    avr /= static_cast<double>(nTrans_);
 
-    avr /= static_cast<double>(nTrial);
+    avr /= static_cast<double>(nTrial_);
   
     return bitsPerSymbol_ - avr;
   }
