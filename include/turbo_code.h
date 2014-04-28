@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/26 14:48:29 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/28 14:18:28 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -532,7 +532,8 @@ namespace mylib{
       TurboCode(interleaver, constraint, feedforward, feedback, iteration, termination), numPads_(numPads)
     { }
     
-    virtual ~TurboCodeWithZP();
+    virtual ~TurboCodeWithZP()
+    { }
   };
 
   // With Decision of Zero Padding Insertion
@@ -570,7 +571,8 @@ namespace mylib{
     {
       assert(numPads.size() == judgeBits.size());
     }
-    virtual ~TurboCodeWithZP_Judge();
+    virtual ~TurboCodeWithZP_Judge()
+    { }
   };
   
   /************************************************************************************
