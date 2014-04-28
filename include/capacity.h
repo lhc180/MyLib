@@ -28,7 +28,7 @@ namespace mylib{
     void SetModulator(const itpp::Modulator_2D &Mod );
 
     // nTrans --- the number of transmitted symbol, nTrial --- trial times 
-    double GetCapacity(double EsN0dB, int nTrans = 1000, int nTrial = 100);
+    double GetCapacity(double N0, int nTrans = 1000, int nTrial = 100);
     
   };
   
