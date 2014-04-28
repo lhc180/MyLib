@@ -27,13 +27,9 @@ namespace mylib{
   }
 
   // キャパシティを返す
-  double Capacity::GetCapacity(double EsN0dB, int nTrans, int nTrial)
+  double Capacity::operator()(double N0, int nTrans, int nTrial)
   {
     assert(setMod_);
-
-    double Es = 1.0;
-    double EsN0 = pow(10.0, EsN0dB/10.0);
-    double N0 = Es/EsN0;
 
     itpp::AWGN_Channel awgn(N0);
 
