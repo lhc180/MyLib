@@ -19,7 +19,7 @@ namespace mylib{
   }
   
   // 条件付き確率
-  inline double probability(std::complex<double> y, std::complex<double> x, double N0)
+  inline double pdf_awgn(std::complex<double> y, std::complex<double> x, double N0)
   {
     // std::cout << "abs(y-x) = " << abs(y-x) << std::endl;
 
@@ -55,12 +55,12 @@ namespace mylib{
     
         // for(int x = 0; x < nSymbols; x++){
   
-        double denominator = probability(received(y), symbol(y), N0);
+        double denominator = pdf_awgn(received(y), symbol(y), N0);
 
         // logの内側のΣ用
         double sum1 = 0.0;	// log用
         for(int x_dash = 0; x_dash < numSymbols_; x_dash++){
-          sum1 += probability(received(y), symbols_(x_dash), N0);
+          sum1 += pdf_awgn(received(y), symbols_(x_dash), N0);
         }	// for x_dash
       
         sum2 += log2(sum1/denominator);
