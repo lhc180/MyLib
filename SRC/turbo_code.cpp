@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/26 15:49:26 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/04/29 13:06:35 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
@@ -258,9 +258,9 @@ namespace mylib{
     logLikelihood_out->set_size(branchNum);
     for (int i = 0; i < branchNum; ++i){
       (*logLikelihood_out)[i] = lambda_[i] + 4.0 / n0 * std::real(received[2*i]) - logLikelihood_in[i];
-      if (std::abs((*logLikelihood_out)[i]) > LLR_THRESHOLD){
-        (*logLikelihood_out)[i] = itpp::sign((*logLikelihood_out)[i])*LLR_THRESHOLD;
-      } // if 
+      // if (std::abs((*logLikelihood_out)[i]) > LLR_THRESHOLD){
+      //   (*logLikelihood_out)[i] = itpp::sign((*logLikelihood_out)[i])*LLR_THRESHOLD;
+      // } // if 
     } // for i
 
   }
@@ -274,9 +274,9 @@ namespace mylib{
     logLikelihood_out->set_size(branchNum);
     for (int i = 0; i < branchNum; ++i){
       (*logLikelihood_out)[i] = lambda[i] + 4.0 / n0 * std::real(received[2*i]) - logLikelihood_in[i];
-      if (std::abs((*logLikelihood_out)[i]) > LLR_THRESHOLD){
-        (*logLikelihood_out)[i] = itpp::sign((*logLikelihood_out)[i])*LLR_THRESHOLD;
-      } // if 
+      // if (std::abs((*logLikelihood_out)[i]) > LLR_THRESHOLD){
+      //   (*logLikelihood_out)[i] = itpp::sign((*logLikelihood_out)[i])*LLR_THRESHOLD;
+      // } // if 
     } // for i
 
   }
@@ -324,7 +324,9 @@ namespace mylib{
     return outputBits;
   }
 
-  // +++++++++++++++ TurboCode +++++++++++++++++++
+  /************************************************************************************
+   * TurboCode 
+   ************************************************************************************/
 
   const boost::rational< int > TurboCode::codeRate_(1, 3);
   
