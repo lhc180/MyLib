@@ -65,8 +65,10 @@ namespace mylib{
     return bitsPerSymbol_ - avr;
   }
 
-
-  double CodingExponent::CutoffRate(double rho, double n0)
+/************************************************************************************
+ * CodingExponent 
+ ************************************************************************************/
+  double CodingExponent::CutoffRate(double rho, double n0) const
   {
     itpp::AWGN_Channel awgn(n0);
     
@@ -114,28 +116,43 @@ namespace mylib{
 
   }
 
-  double CodingExponent::operator()(double n0, double prevR)
+  /************************************************************************************
+   * CodeRate -- ïÑçÜâªó¶ÇãÅÇﬂÇÈ
+   * 
+   * Arguments:
+   *   n0 -- éGâπÇÃï™éU
+   *   targetErrorRate -- íBê¨ÇµÇΩÇ¢FER
+   *   prevR -- Ç±ÇÃílÇÊÇËÇ‡è¨Ç≥Ç¢ïÑçÜâªó¶ÇÕï‘Ç≥Ç»Ç¢
+   *
+   * Return Value:
+   *   double -- ïÑçÜâªó¶
+   ************************************************************************************/
+  double CodingExponent::CodeRate(double n0, double targetErrorRate, double prevR) const
   {
     static const itpp::vec rho("0:0.01:1");
     std::string codeRateString = boost::lexical_cast< std::string >(prevR) + ":0.001:" +
       boost::lexical_cast< std::string >(bitsPerSymbol_);
     const itpp::vec rate(codeRateString.c_str());
 
-    std::cout << std::endl;
+    double targetCodingExponent = -1.0/static_cast< double >(codeLength_)*log2(targetErrorRate);
+
+    itpp::vec E0_rho(rho.size());
+    for (int rho_i = 0; rho_i < rho.size(); ++rho_i){
+      E0_rho[rho_i] = CutoffRate(rho[rho_i], n0);
+    } // for rho_i
+    
     double finalR = prevR;
     for (int rate_i = 0; rate_i < rate.size(); ++rate_i){
-      std::cout << "## rate = " << rate[rate_i] << '\r' << std::flush;
       double Er_max = std::numeric_limits< double >::min();
 
       for (int rho_i = 0; rho_i < rho.size(); ++rho_i){
-        double E0_rho = CutoffRate(rho[rho_i], n0);
-        double Er_temp = E0_rho - rho[rho_i]*rate[rate_i];
+        double Er_temp = E0_rho[rho_i] - rho[rho_i]*rate[rate_i];
         if (Er_temp > Er_max){
           Er_max = Er_temp;
         } // if 
       } // for rho_i
 
-      if (targetRCE_ <= Er_max){
+      if (targetCodingExponent <= Er_max){
         finalR = rate[rate_i];
       } // if
       else{
@@ -146,6 +163,40 @@ namespace mylib{
     return finalR;
   }
 
+  double CodingExponent::ErrorRate(double n0, double codeRate) const
+  {
+    static const itpp::vec rho("0:0.01:1");
+    double finalErrorRate = 1.0;
+    double errorRate = 1.0;
+
+    itpp::vec E0_rho(rho.size());
+    for (int rho_i = 0; rho_i < rho.size(); ++rho_i){
+      E0_rho[rho_i] = CutoffRate(rho[rho_i], n0);
+    } // for rho_i
+    
+    while (errorRate >= 1e-6){
+      double codingExponent = -1.0/static_cast< double >(codeLength_)*log2(errorRate);
+      double Er_max = std::numeric_limits< double >::min();
+
+      for (int rho_i = 0; rho_i < rho.size(); ++rho_i){
+        double Er_temp = E0_rho[rho_i] - rho[rho_i]*codeRate;
+        if (Er_temp > Er_max){
+          Er_max = Er_temp;
+        } // if 
+      } // for rho_i
+
+      if (codingExponent <= Er_max){
+        finalErrorRate = errorRate;
+        errorRate /= 2.0;
+      } // if
+      else{
+        break;
+      } // else
+    } // while 
+
+    return finalErrorRate;
+  }
+  
   
 } // namespace mylib
 
