@@ -7,16 +7,15 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/09 16:43:01 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/09 17:17:46 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
-#include <boost/thread.hpp>
+// #include <boost/thread.hpp>
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
 
 namespace mylib{
 
   static const double LLR_THRESHOLD = 50;
-  static const int JACOBIAN_TABLE_SIZE = 200;
   
   const boost::rational< int > Rsc::codeRate_(1, 2);
   
@@ -26,7 +25,6 @@ namespace mylib{
     encodeTable_(static_cast< int >(itpp::pow2(memory_)), std::vector< encodeTable >(2)),
     revEncodeTable_(static_cast< int >(itpp::pow2(memory_)), std::vector< int >(2) ),
     tailbitTable_(static_cast< int >(itpp::pow2(memory_))),
-    jacobianTable_(JACOBIAN_TABLE_SIZE),
     lastState_(-1)
   {
     assert(constraint_ > 0);
@@ -67,11 +65,6 @@ namespace mylib{
         revEncodeTable_[nextState][bit] = state;
       } // for bit
     } // for state
-
-    for (int i = 0; i < JACOBIAN_TABLE_SIZE; ++i){
-      jacobianTable_[i] = std::log(1 + std::exp(-static_cast< double >(i)));
-    } // for i
-
   }
   
   void Rsc::GenParity(const itpp::bvec& input, itpp::bvec *output) const
@@ -146,15 +139,11 @@ namespace mylib{
   
   inline double Rsc::Jacobian(double x1, double x2) const
   {
-
     double y = std::max(x1, x2);
 
-    // double temp = y + std::log(1.0 + std::exp(-std::abs(x2-x1)));
-
-    double temp = y + jacobianTable_[std::abs(itpp::SISO::threshold(x1-x2, JACOBIAN_TABLE_SIZE))];
+    double temp = y + std::log(1.0 + std::exp(-std::abs(x2-x1)));    
     
     return temp;
-    
   }
 
   // void Rsc::CalcAlpha(itpp::mat *alpha, const std::vector<itpp::mat> &gamma, int nodeNum) const
@@ -201,7 +190,7 @@ namespace mylib{
     // p.162の下部
     for (int i = 0; i < branchNum; ++i){
       // double t_exp = std::exp(logLikelihood_in[i]);
-      logPrioriProb(i, 0) = -Jacobian(0, logLikelihood_in[i]); // ## Jacobianに変えた
+      logPrioriProb(i, 0) = -itpp::log_add(0, logLikelihood_in[i]);
       // std::log(1.0 + t_exp);
       logPrioriProb(i, 1) = logLikelihood_in[i] + logPrioriProb(i, 0);
     } // for i
@@ -257,7 +246,7 @@ namespace mylib{
         // for (int bit = 0; bit < 2; ++bit){
         int primState0 = revEncodeTable_[state][0];
         int primState1 = revEncodeTable_[state][1];
-        alpha(i, state) = Jacobian(alpha(i-1, primState0) + gamma[i-1](primState0, 0),
+        alpha(i, state) = itpp::log_add(alpha(i-1, primState0) + gamma[i-1](primState0, 0),
                                    alpha(i-1, primState1) + gamma[i-1](primState1, 1));
         // } // for bit
       } // for state
@@ -269,7 +258,7 @@ namespace mylib{
         // for (int bit = 0; bit < 2; ++bit){
         int nextState0 = encodeTable_[state][0].nextState_;
         int nextState1 = encodeTable_[state][1].nextState_;
-        beta(i, state) = Jacobian(beta(i+1, nextState0) + gamma[i](state, 0),
+        beta(i, state) = itpp::log_add(beta(i+1, nextState0) + gamma[i](state, 0),
                                   beta(i+1, nextState1) + gamma[i](state, 1));
           
         // } // for bit
@@ -287,7 +276,7 @@ namespace mylib{
           int nextState = encodeTable_[state][bit].nextState_;
           double t_delta = alpha(i-1, state) + gamma[i-1](state, bit)
             + beta(i, nextState);
-          likelihood[bit] = Jacobian(likelihood[bit], t_delta);
+          likelihood[bit] = itpp::log_add(likelihood[bit], t_delta);
         } // for bit
       } // for state
       lambda_[i - 1] = likelihood[1] - likelihood[0];

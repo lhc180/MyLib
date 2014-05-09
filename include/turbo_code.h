@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/09 16:22:53 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/09 17:15:19 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -37,7 +37,6 @@ namespace mylib{
     std::vector< std::vector < int > > revEncodeTable_;
     mutable itpp::vec lambda_;
     mutable itpp::bvec tailbitTable_;
-    mutable itpp::vec jacobianTable_;
     mutable int lastState_;
     
   protected:
