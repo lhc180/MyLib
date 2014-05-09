@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/09 15:20:34 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/09 15:42:31 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -237,36 +237,36 @@ namespace mylib{
       } // for i
     }   // gamma
 
-    boost::thread alphaThread = boost::thread(boost::bind(&Rsc::CalcAlpha, this, &alpha, gamma, nodeNum));
-    boost::thread betaThread =  boost::thread(boost::bind(&Rsc::CalcBeta, this, &beta, gamma, nodeNum));
+    // boost::thread alphaThread = boost::thread(boost::bind(&Rsc::CalcAlpha, this, &alpha, gamma, nodeNum));
+    // boost::thread betaThread =  boost::thread(boost::bind(&Rsc::CalcBeta, this, &beta, gamma, nodeNum));
+    // alphaThread.join();
+    // betaThread.join();
     
-    // // alpha
-    // for (int i = 1; i < nodeNum; ++i){
-    //   for (int state = 0; state < stateNum_; ++state){
-    //     // for (int bit = 0; bit < 2; ++bit){
-    //     int primState0 = revEncodeTable_[state][0];
-    //     int primState1 = revEncodeTable_[state][1];
-    //     alpha(i, state) = Jacobian(alpha(i-1, primState0) + gamma[i-1](primState0, 0),
-    //                                alpha(i-1, primState1) + gamma[i-1](primState1, 1));
-    //     // } // for bit
-    //   } // for state
-    // } // for i
+    // alpha
+    for (int i = 1; i < nodeNum; ++i){
+      for (int state = 0; state < stateNum_; ++state){
+        // for (int bit = 0; bit < 2; ++bit){
+        int primState0 = revEncodeTable_[state][0];
+        int primState1 = revEncodeTable_[state][1];
+        alpha(i, state) = Jacobian(alpha(i-1, primState0) + gamma[i-1](primState0, 0),
+                                   alpha(i-1, primState1) + gamma[i-1](primState1, 1));
+        // } // for bit
+      } // for state
+    } // for i
     
-    // // beta
-    // for (int i = nodeNum - 2; i >= 0; --i){
-    //   for (int state = 0; state < stateNum_; ++state){
-    //     // for (int bit = 0; bit < 2; ++bit){
-    //     int nextState0 = encodeTable_[state][0].nextState_;
-    //     int nextState1 = encodeTable_[state][1].nextState_;
-    //     beta(i, state) = Jacobian(beta(i+1, nextState0) + gamma[i](state, 0),
-    //                               beta(i+1, nextState1) + gamma[i](state, 1));
+    // beta
+    for (int i = nodeNum - 2; i >= 0; --i){
+      for (int state = 0; state < stateNum_; ++state){
+        // for (int bit = 0; bit < 2; ++bit){
+        int nextState0 = encodeTable_[state][0].nextState_;
+        int nextState1 = encodeTable_[state][1].nextState_;
+        beta(i, state) = Jacobian(beta(i+1, nextState0) + gamma[i](state, 0),
+                                  beta(i+1, nextState1) + gamma[i](state, 1));
           
-    //     // } // for bit
-    //   } // for state
-    // } // for i
+        // } // for bit
+      } // for state
+    } // for i
 
-    alphaThread.join();
-    betaThread.join();
     
     // lambda_
     for (int i = 1; i < nodeNum; ++i){
