@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/09 18:12:35 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/09 18:53:52 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -68,7 +68,7 @@ namespace mylib{
     } // for state
 
     for (int i = 0; i < JACOBIAN_TABLE_SIZE; ++i){
-      jacobianTable_[i] = std::log(1.0 + std::exp(-static_cast< double >(i)/JACOBIAN_TABLE_SCALE));
+      jacobianTable_[i] = std::log(1.0 + std::exp(-static_cast< double >(i)*JACOBIAN_TABLE_SCALE));
     } // for i
   }
   
@@ -149,7 +149,7 @@ namespace mylib{
     // double temp = y + std::log(1.0 + std::exp(-std::abs(x2-x1)));    
 
     double temp = y + jacobianTable_[std::abs(itpp::round_i(
-                                              itpp::SISO::threshold((x1-x2)*JACOBIAN_TABLE_SCALE,
+                                              itpp::SISO::threshold((x1-x2)/JACOBIAN_TABLE_SCALE,
                                                                     JACOBIAN_TABLE_SIZE)))];
     
     return temp;
@@ -200,7 +200,7 @@ namespace mylib{
     // p.162の下部
     for (int i = 0; i < branchNum; ++i){
       // double t_exp = std::exp(logLikelihood_in[i]);
-      logPrioriProb(i, 0) = -itpp::log_add(0, logLikelihood_in[i]);
+      logPrioriProb(i, 0) = -Jacobian(0, logLikelihood_in[i]);
       // std::log(1.0 + t_exp);
       logPrioriProb(i, 1) = logLikelihood_in[i] + logPrioriProb(i, 0);
     } // for i
@@ -256,7 +256,7 @@ namespace mylib{
         // for (int bit = 0; bit < 2; ++bit){
         int primState0 = revEncodeTable_[state][0];
         int primState1 = revEncodeTable_[state][1];
-        alpha(i, state) = itpp::log_add(alpha(i-1, primState0) + gamma[i-1](primState0, 0),
+        alpha(i, state) = Jacobian(alpha(i-1, primState0) + gamma[i-1](primState0, 0),
                                    alpha(i-1, primState1) + gamma[i-1](primState1, 1));
         // } // for bit
       } // for state
@@ -268,7 +268,7 @@ namespace mylib{
         // for (int bit = 0; bit < 2; ++bit){
         int nextState0 = encodeTable_[state][0].nextState_;
         int nextState1 = encodeTable_[state][1].nextState_;
-        beta(i, state) = itpp::log_add(beta(i+1, nextState0) + gamma[i](state, 0),
+        beta(i, state) = Jacobian(beta(i+1, nextState0) + gamma[i](state, 0),
                                   beta(i+1, nextState1) + gamma[i](state, 1));
           
         // } // for bit
@@ -286,7 +286,7 @@ namespace mylib{
           int nextState = encodeTable_[state][bit].nextState_;
           double t_delta = alpha(i-1, state) + gamma[i-1](state, bit)
             + beta(i, nextState);
-          likelihood[bit] = itpp::log_add(likelihood[bit], t_delta);
+          likelihood[bit] = Jacobian(likelihood[bit], t_delta);
         } // for bit
       } // for state
       lambda_[i - 1] = likelihood[1] - likelihood[0];
