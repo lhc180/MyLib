@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/09 17:17:46 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/09 18:12:35 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -16,6 +16,8 @@
 namespace mylib{
 
   static const double LLR_THRESHOLD = 50;
+  static const int JACOBIAN_TABLE_SIZE = 50000;
+  static const double JACOBIAN_TABLE_SCALE = 0.005;
   
   const boost::rational< int > Rsc::codeRate_(1, 2);
   
@@ -25,14 +27,13 @@ namespace mylib{
     encodeTable_(static_cast< int >(itpp::pow2(memory_)), std::vector< encodeTable >(2)),
     revEncodeTable_(static_cast< int >(itpp::pow2(memory_)), std::vector< int >(2) ),
     tailbitTable_(static_cast< int >(itpp::pow2(memory_))),
+    jacobianTable_(JACOBIAN_TABLE_SIZE),
     lastState_(-1)
   {
     assert(constraint_ > 0);
     assert(itpp::pow2(constraint_) > feedforward_ && itpp::pow2(constraint_) > feedback_);
     
     int mask = stateNum_ - 1;
-
-    tailbitTable_.set_size(stateNum_);
     
     // テーブルを作る
     for (int state = 0; state < stateNum_; ++state){ // 
@@ -65,6 +66,10 @@ namespace mylib{
         revEncodeTable_[nextState][bit] = state;
       } // for bit
     } // for state
+
+    for (int i = 0; i < JACOBIAN_TABLE_SIZE; ++i){
+      jacobianTable_[i] = std::log(1.0 + std::exp(-static_cast< double >(i)/JACOBIAN_TABLE_SCALE));
+    } // for i
   }
   
   void Rsc::GenParity(const itpp::bvec& input, itpp::bvec *output) const
@@ -141,7 +146,11 @@ namespace mylib{
   {
     double y = std::max(x1, x2);
 
-    double temp = y + std::log(1.0 + std::exp(-std::abs(x2-x1)));    
+    // double temp = y + std::log(1.0 + std::exp(-std::abs(x2-x1)));    
+
+    double temp = y + jacobianTable_[std::abs(itpp::round_i(
+                                              itpp::SISO::threshold((x1-x2)*JACOBIAN_TABLE_SCALE,
+                                                                    JACOBIAN_TABLE_SIZE)))];
     
     return temp;
   }
@@ -187,6 +196,7 @@ namespace mylib{
     lambda_.set_size(branchNum);          // デコードし終わったときのLambda
     
     itpp::mat logPrioriProb(branchNum, 2);
+    
     // p.162の下部
     for (int i = 0; i < branchNum; ++i){
       // double t_exp = std::exp(logLikelihood_in[i]);
