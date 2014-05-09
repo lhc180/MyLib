@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/28 14:18:28 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/07 15:07:13 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -503,8 +503,6 @@ namespace mylib{
     {
       return CodeRateWithTerm(interleaver_.size(), rsc1_.Constraint());
     }
-
-    friend class ExitChart_TurboCode;
     
   };
 
