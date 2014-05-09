@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/09 15:42:31 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/09 15:58:18 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -237,22 +237,22 @@ namespace mylib{
       } // for i
     }   // gamma
 
-    // boost::thread alphaThread = boost::thread(boost::bind(&Rsc::CalcAlpha, this, &alpha, gamma, nodeNum));
+    boost::thread alphaThread = boost::thread(boost::bind(&Rsc::CalcAlpha, this, &alpha, gamma, nodeNum));
     // boost::thread betaThread =  boost::thread(boost::bind(&Rsc::CalcBeta, this, &beta, gamma, nodeNum));
-    // alphaThread.join();
+
     // betaThread.join();
     
-    // alpha
-    for (int i = 1; i < nodeNum; ++i){
-      for (int state = 0; state < stateNum_; ++state){
-        // for (int bit = 0; bit < 2; ++bit){
-        int primState0 = revEncodeTable_[state][0];
-        int primState1 = revEncodeTable_[state][1];
-        alpha(i, state) = Jacobian(alpha(i-1, primState0) + gamma[i-1](primState0, 0),
-                                   alpha(i-1, primState1) + gamma[i-1](primState1, 1));
-        // } // for bit
-      } // for state
-    } // for i
+    // // alpha
+    // for (int i = 1; i < nodeNum; ++i){
+    //   for (int state = 0; state < stateNum_; ++state){
+    //     // for (int bit = 0; bit < 2; ++bit){
+    //     int primState0 = revEncodeTable_[state][0];
+    //     int primState1 = revEncodeTable_[state][1];
+    //     alpha(i, state) = Jacobian(alpha(i-1, primState0) + gamma[i-1](primState0, 0),
+    //                                alpha(i-1, primState1) + gamma[i-1](primState1, 1));
+    //     // } // for bit
+    //   } // for state
+    // } // for i
     
     // beta
     for (int i = nodeNum - 2; i >= 0; --i){
@@ -267,6 +267,7 @@ namespace mylib{
       } // for state
     } // for i
 
+    alphaThread.join();
     
     // lambda_
     for (int i = 1; i < nodeNum; ++i){
