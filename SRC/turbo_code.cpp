@@ -7,8 +7,9 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/04/29 13:06:35 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/09 15:20:34 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
+#include <boost/thread.hpp>
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
 
@@ -147,6 +148,34 @@ namespace mylib{
     
   }
 
+  void Rsc::CalcAlpha(itpp::mat *alpha, const std::vector<itpp::mat> &gamma, int nodeNum) const
+  {
+    for (int i = 1; i < nodeNum; ++i){
+      for (int state = 0; state < stateNum_; ++state){
+        // for (int bit = 0; bit < 2; ++bit){
+        int primState0 = revEncodeTable_[state][0];
+        int primState1 = revEncodeTable_[state][1];
+        (*alpha)(i, state) = Jacobian((*alpha)(i-1, primState0) + gamma[i-1](primState0, 0),
+                                      (*alpha)(i-1, primState1) + gamma[i-1](primState1, 1));
+        // } // for bit
+      } // for state
+    } // for i
+  }
+
+  void Rsc::CalcBeta(itpp::mat *beta, const std::vector<itpp::mat> &gamma, int nodeNum) const
+  {
+    for (int i = nodeNum - 2; i >= 0; --i){
+      for (int state = 0; state < stateNum_; ++state){
+        // for (int bit = 0; bit < 2; ++bit){
+        int nextState0 = encodeTable_[state][0].nextState_;
+        int nextState1 = encodeTable_[state][1].nextState_;
+        (*beta)(i, state) = Jacobian((*beta)(i+1, nextState0) + gamma[i](state, 0),
+                                     (*beta)(i+1, nextState1) + gamma[i](state, 1));
+        // } // for bit
+      } // for state
+    } // for i
+  }
+  
   void Rsc::CalcLambda(const itpp::cvec &received, const itpp::vec &logLikelihood_in, double n0,
                        bool knowLastState) const
   {
@@ -207,32 +236,38 @@ namespace mylib{
         } // for state
       } // for i
     }   // gamma
-    
-    // alpha
-    for (int i = 1; i < nodeNum; ++i){
-      for (int state = 0; state < stateNum_; ++state){
-        // for (int bit = 0; bit < 2; ++bit){
-        int primState0 = revEncodeTable_[state][0];
-        int primState1 = revEncodeTable_[state][1];
-        alpha(i, state) = Jacobian(alpha(i-1, primState0) + gamma[i-1](primState0, 0),
-                                   alpha(i-1, primState1) + gamma[i-1](primState1, 1));
-        // } // for bit
-      } // for state
-    } // for i
-    
-    // beta
-    for (int i = nodeNum - 2; i >= 0; --i){
-      for (int state = 0; state < stateNum_; ++state){
-        // for (int bit = 0; bit < 2; ++bit){
-        int nextState0 = encodeTable_[state][0].nextState_;
-        int nextState1 = encodeTable_[state][1].nextState_;
-        beta(i, state) = Jacobian(beta(i+1, nextState0) + gamma[i](state, 0),
-                                  beta(i+1, nextState1) + gamma[i](state, 1));
-          
-        // } // for bit
-      } // for state
-    } // for i
 
+    boost::thread alphaThread = boost::thread(boost::bind(&Rsc::CalcAlpha, this, &alpha, gamma, nodeNum));
+    boost::thread betaThread =  boost::thread(boost::bind(&Rsc::CalcBeta, this, &beta, gamma, nodeNum));
+    
+    // // alpha
+    // for (int i = 1; i < nodeNum; ++i){
+    //   for (int state = 0; state < stateNum_; ++state){
+    //     // for (int bit = 0; bit < 2; ++bit){
+    //     int primState0 = revEncodeTable_[state][0];
+    //     int primState1 = revEncodeTable_[state][1];
+    //     alpha(i, state) = Jacobian(alpha(i-1, primState0) + gamma[i-1](primState0, 0),
+    //                                alpha(i-1, primState1) + gamma[i-1](primState1, 1));
+    //     // } // for bit
+    //   } // for state
+    // } // for i
+    
+    // // beta
+    // for (int i = nodeNum - 2; i >= 0; --i){
+    //   for (int state = 0; state < stateNum_; ++state){
+    //     // for (int bit = 0; bit < 2; ++bit){
+    //     int nextState0 = encodeTable_[state][0].nextState_;
+    //     int nextState1 = encodeTable_[state][1].nextState_;
+    //     beta(i, state) = Jacobian(beta(i+1, nextState0) + gamma[i](state, 0),
+    //                               beta(i+1, nextState1) + gamma[i](state, 1));
+          
+    //     // } // for bit
+    //   } // for state
+    // } // for i
+
+    alphaThread.join();
+    betaThread.join();
+    
     // lambda_
     for (int i = 1; i < nodeNum; ++i){
       itpp::vec likelihood(2);
@@ -247,7 +282,6 @@ namespace mylib{
       } // for state
       lambda_[i - 1] = likelihood[1] - likelihood[0];
     } // for i
-    
   }
   
   void Rsc::CalcLLR_out(const itpp::cvec &received, const itpp::vec &logLikelihood_in,
