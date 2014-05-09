@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/09 14:16:17 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/09 14:18:13 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -43,8 +43,10 @@ namespace mylib{
     virtual double Jacobian(double x1, double x2) const;
 
     // マルチスレッド用
-    virtual void CalcAlpha(itpp::vec *alpha, const itpp::vec &gamma, int branchNum, int nodeNum) const;
-    virtual void CalcBeta(itpp::vec *beta, const itpp::vec &gamma, int branchNum, int nodeNum) const;
+    virtual void CalcAlpha(itpp::mat *alpha, const std::vector< itpp::mat > &gamma,
+                           int branchNum, int nodeNum) const;
+    virtual void CalcBeta(itpp::mat *beta, const std::vector< itpp::mat > &gamma,
+                          int branchNum, int nodeNum) const;
     
     virtual void CalcLambda(const itpp::cvec& received, const itpp::vec &logLikelihood_in,
                             double n0, bool knowLastState) const;
