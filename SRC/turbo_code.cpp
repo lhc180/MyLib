@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/09 16:15:41 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/09 16:43:01 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -16,6 +16,7 @@
 namespace mylib{
 
   static const double LLR_THRESHOLD = 50;
+  static const int JACOBIAN_TABLE_SIZE = 200;
   
   const boost::rational< int > Rsc::codeRate_(1, 2);
   
@@ -24,6 +25,8 @@ namespace mylib{
     feedforward_(feedforward), feedback_(feedback),
     encodeTable_(static_cast< int >(itpp::pow2(memory_)), std::vector< encodeTable >(2)),
     revEncodeTable_(static_cast< int >(itpp::pow2(memory_)), std::vector< int >(2) ),
+    tailbitTable_(static_cast< int >(itpp::pow2(memory_))),
+    jacobianTable_(JACOBIAN_TABLE_SIZE),
     lastState_(-1)
   {
     assert(constraint_ > 0);
@@ -64,6 +67,10 @@ namespace mylib{
         revEncodeTable_[nextState][bit] = state;
       } // for bit
     } // for state
+
+    for (int i = 0; i < JACOBIAN_TABLE_SIZE; ++i){
+      jacobianTable_[i] = std::log(1 + std::exp(-static_cast< double >(i)));
+    } // for i
 
   }
   
@@ -142,7 +149,9 @@ namespace mylib{
 
     double y = std::max(x1, x2);
 
-    double temp = y + std::log(1.0 + std::exp(-std::abs(x2-x1)));
+    // double temp = y + std::log(1.0 + std::exp(-std::abs(x2-x1)));
+
+    double temp = y + jacobianTable_[std::abs(itpp::SISO::threshold(x1-x2, JACOBIAN_TABLE_SIZE))];
     
     return temp;
     
