@@ -40,17 +40,14 @@ namespace mylib{
       // 受信信号の数
       double sum2 = 0.0;		// Ex用 
       for(int y = 0; y < nTrans_; y++){ 
-        // コンスタレーションの数
-    
-        // for(int x = 0; x < nSymbols; x++){
-  
+
         double denominator = PdfAWGN(received(y), symbol(y), N0);
 
         // logの内側のΣ用
         double sum1 = 0.0;	// log用
         for(int x_dash = 0; x_dash < numSymbols_; x_dash++){
           sum1 += PdfAWGN(received(y), symbols_(x_dash), N0);
-        }	// for x_dash
+        } // for x_dash
       
         sum2 += log2(sum1/denominator);
     
