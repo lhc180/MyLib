@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/09 18:53:52 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/16 21:43:25 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -752,7 +752,7 @@ namespace mylib{
   {
     int memory = rsc1_.Constraint() - 1;
     static itpp::vec llrZeros(0);
-    if (llrZeros.size() == memory){
+    if (llrZeros.size() != memory){
       llrZeros.set_size(memory);
       llrZeros.zeros();
     } // if
@@ -1007,10 +1007,9 @@ namespace mylib{
     
     itpp::vec llrToRsc1(interleaver_.size());
     llrToRsc1.zeros();               // ## ここで提案法入れられるかも
-
-    ModifyLLRForZP(&llrToRsc1, padStart, numPads_);
     
     for (int ite = 0; ite < iteration_; ++ite){
+      ModifyLLRForZP(&llrToRsc1, padStart, numPads_);
       
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
@@ -1023,8 +1022,6 @@ namespace mylib{
       rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
       
       llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
-
-      ModifyLLRForZP(&llrToRsc1, padStart, numPads_); 
     } // for ite
 
     itpp::bvec interleaved_output = rsc2_.HardDecision();
@@ -1032,13 +1029,51 @@ namespace mylib{
       
   }
 
+  void TurboCodeWithZP::doDecode_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output,
+                                        int MAPIndex, double n0) const
+  {
+    assert(receivedSignal.size() % codeRate_.denominator() == 0);
+    
+    int padStart = interleaver_.size() - numPads_;
+    
+    itpp::cvec in1, in2;
+    SeparateReceivedSignal(receivedSignal, &in1, &in2);
+    
+    itpp::vec llrToRsc1(interleaver_.size());
+    llrToRsc1.zeros();               // ## ここで提案法入れられるかも
+    
+    for (int ite = 0; ite < iteration_; ++ite){
+      if (MAPIndex != 2){
+        ModifyLLRForZP(&llrToRsc1, padStart, numPads_);         
+      } // if 
+      
+      itpp::vec llrFromRsc1;
+      rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
+
+      if (MAPIndex != 1){       // 1の補正器が指定されたときはここは実行されない
+        ModifyLLRForZP(&llrFromRsc1, padStart, numPads_); 
+      } // if 
+      
+      itpp::vec llrToRsc2 = Interleave(llrFromRsc1, interleaver_);
+
+      itpp::vec llrFromRsc2;
+      rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
+      
+      llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
+
+
+    } // for ite
+
+    itpp::bvec interleaved_output = rsc2_.HardDecision();
+    (*output) = Deinterleave(interleaved_output, interleaver_);
+  }
   
   void TurboCodeWithZP::DecoderForZP_term(itpp::vec &llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
                                           double n0, int paddingBits, int iterations) const
   {
     int memory = rsc1_.Constraint() - 1;
     static itpp::vec llrZeros(0);
-    if (llrZeros.size() == memory){
+    if (llrZeros.size() != memory){
       llrZeros.set_size(memory);
       llrZeros.zeros();
     } // if 
@@ -1081,12 +1116,63 @@ namespace mylib{
 
     itpp::vec llrToRsc1(interleaver_.size() + memory);
     llrToRsc1.zeros();
-
+    
     DecoderForZP_term(llrToRsc1, in1, in2, n0, numPads_, iteration_);
     
     itpp::bvec interleaved_output = rsc2_.HardDecision();
     (*output) = Deinterleave(interleaved_output.left(interleaver_.size()), interleaver_);
 
+  }
+
+  void TurboCodeWithZP::doDecodeWithTerm_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output,
+                                                int MAPIndex, double n0) const
+  {
+    int memory = rsc1_.Constraint() - 1;
+    
+    itpp::cvec in1, in2;
+    SeparateReceivedSignal(receivedSignal, &in1, &in2);
+
+    itpp::cvec tail1 = receivedSignal.mid(3*interleaver_.size(), 2*memory);
+    itpp::cvec tail2 = receivedSignal.right(2*memory);
+
+    in1 = itpp::concat(in1, tail1);
+    in2 = itpp::concat(in2, tail2);
+
+    itpp::vec llrToRsc1(interleaver_.size() + memory);
+    llrToRsc1.zeros();
+
+    static itpp::vec llrZeros(0);
+    if (llrZeros.size() != memory){
+      llrZeros.set_size(memory);
+      llrZeros.zeros();
+    } // if 
+
+    int padStart = interleaver_.size() - numPads_;
+    
+    for (int ite = 0; ite < iteration_; ++ite){
+      if (MAPIndex != 2){       // 2の補正器が指定されたときはここは実行されない
+        ModifyLLRForZP(&llrToRsc1, padStart, numPads_);
+      } // if
+      
+      itpp::vec llrFromRsc1;
+      rsc1_.Decode(in1, llrToRsc1, &llrFromRsc1, n0);
+      
+      if (MAPIndex != 1){       // 1の補正器が指定されたときはここは実行されない
+        ModifyLLRForZP(&llrFromRsc1, padStart, numPads_);
+      } // if
+            
+      itpp::vec llrToRsc2 = Interleave(llrFromRsc1.left(interleaver_.size()), interleaver_);
+      llrToRsc2 = itpp::concat(llrToRsc2, llrZeros);
+
+      itpp::vec llrFromRsc2;
+      rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
+      
+      llrToRsc1 = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
+      llrToRsc1 = itpp::concat(llrToRsc1, llrZeros);
+    } // for ite
+    
+    itpp::bvec interleaved_output = rsc2_.HardDecision();
+    (*output) = Deinterleave(interleaved_output.left(interleaver_.size()), interleaver_);
   }
 
   /************************************************************************************

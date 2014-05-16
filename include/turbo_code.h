@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/09 17:30:01 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/16 20:10:10 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -185,7 +185,7 @@ namespace mylib{
   public:
     explicit TurboCode(const itpp::ivec &interleaver, int constraint = 3, int feedforward = 05, int feedback = 07,
                        int iteration = 10,
-                       bool termination = false):
+                       bool termination = true):
       interleaver_(interleaver), rsc1_(constraint, feedforward, feedback),
       rsc2_(constraint, feedforward, feedback), iteration_(iteration),
       termination_(termination)
@@ -338,6 +338,12 @@ namespace mylib{
     void doDecodeWithTerm(const itpp::cvec &receivedSignal, itpp::bvec *output,
                           double n0) const;
     
+    void doDecode_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output,
+                         int MAPIndex, double n0) const;
+    void doDecodeWithTerm_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output, 
+                                 int MAPIndex, double n0) const;
+    
+    
   public:
     TurboCodeWithZP(const itpp::ivec &interleaver, int constraint, int feedforward, int feedback,
                     int iteration, int numPads, bool termination):
@@ -346,6 +352,22 @@ namespace mylib{
     
     virtual ~TurboCodeWithZP()
     { }
+
+    void Decode_ModOne(const itpp::cvec& receivedSignal, itpp::bvec* output, int MAPIndex, double n0) const
+    {
+      if (termination_){
+        doDecodeWithTerm_ModOne(receivedSignal, output, MAPIndex, n0);
+      } // if termination_
+      else {
+        doDecode_ModOne(receivedSignal, output, MAPIndex, n0); 
+      } 
+    }
+    itpp::bvec Decode_ModOne(const itpp::cvec& receivedSignal, int MAPIndex, double n0) const
+    {
+      itpp::bvec output;
+      Decode_ModOne(receivedSignal, &output, MAPIndex, n0);
+      return output;
+    }
   };
 
   // With Decision of Zero Padding Insertion
