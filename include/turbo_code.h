@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/16 20:10:10 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/21 17:59:34 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -325,29 +325,29 @@ namespace mylib{
   {
   private:
     int numPads_;
-
+    
   protected:
-    
     virtual void DecoderForZP_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
-                                   double n0, int numPads, int iteration) const;
+                                   double n0, int iteration) const;
     
-    static void ModifyLLRForZP(itpp::vec* llr, int start, int numPads);
+    virtual void ModifyLLR(itpp::vec* llr) const;
 
     // Encoderは普通のTurboCodeと同じやつで大丈夫なのでNVIで実際に呼ばれる関数だけ変える
-    void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
-    void doDecodeWithTerm(const itpp::cvec &receivedSignal, itpp::bvec *output,
+    virtual void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
+    virtual void doDecodeWithTerm(const itpp::cvec &receivedSignal, itpp::bvec *output,
                           double n0) const;
     
-    void doDecode_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output,
+    virtual void doDecode_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output,
                          int MAPIndex, double n0) const;
-    void doDecodeWithTerm_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output, 
+    virtual void doDecodeWithTerm_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output, 
                                  int MAPIndex, double n0) const;
     
     
   public:
     TurboCodeWithZP(const itpp::ivec &interleaver, int constraint, int feedforward, int feedback,
                     int iteration, int numPads, bool termination):
-      TurboCode(interleaver, constraint, feedforward, feedback, iteration, termination), numPads_(numPads)
+      TurboCode(interleaver, constraint, feedforward, feedback, iteration, termination),
+      numPads_(numPads)
     { }
     
     virtual ~TurboCodeWithZP()
@@ -370,7 +370,7 @@ namespace mylib{
     }
   };
 
-  // With Decision of Zero Padding Insertion
+    // With Decision of Zero Padding Insertion
   class TurboCodeWithZP_Judge: public TurboCodeWithZP
   {
   private:
@@ -388,7 +388,7 @@ namespace mylib{
     // 1段階しか無い場合
     TurboCodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
                           int firstIteration, int secondIteration, int numPads, int judgeBits, bool termination):
-      TurboCodeWithZP(interleaver, constraint, feedforward, feedback, firstIteration, termination, 0),
+      TurboCodeWithZP(interleaver, constraint, feedforward, feedback, firstIteration, 0, termination),
       numPads_(1),judgeBits_(1),levels_(1), secondIteration_(secondIteration)
     {
       numPads_[0] = numPads;
@@ -400,7 +400,7 @@ namespace mylib{
     TurboCodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
                           int firstIteration, int secondIteration, 
                           const itpp::ivec &numPads, const itpp::ivec &judgeBits, bool termination):
-      TurboCodeWithZP(interleaver, constraint, feedforward, feedback, firstIteration, termination, 0),
+      TurboCodeWithZP(interleaver, constraint, feedforward, feedback, firstIteration, 0, termination),
       numPads_(numPads), judgeBits_(judgeBits), levels_(numPads.size()), secondIteration_(secondIteration)
     {
       assert(numPads.size() == judgeBits.size());
@@ -408,6 +408,79 @@ namespace mylib{
     virtual ~TurboCodeWithZP_Judge()
     { }
   };
+
+  
+  // Turbo code with sparse zero padding bits
+  class TurboCodeWithSZP: public TurboCodeWithZP
+  {
+  protected:
+    mutable itpp::ivec padsPositions_;
+    virtual void ModifyLLR(itpp::vec *llr) const;
+    
+  public:
+    // 一定間隔でnull bitを入れたとき
+    TurboCodeWithSZP(const itpp::ivec &interleaver, int constraint, int feedforward, int feedback,
+                     int iteration, int numPads, bool termination):
+      TurboCodeWithZP(interleaver, constraint, feedforward, feedback, iteration, numPads, termination),
+      padsPositions_(numPads)
+    {
+      int interval = std::floor(static_cast< double >(interleaver_.size())/static_cast< double >(numPads));
+      for (int i = 0; i < numPads; ++i){
+        padsPositions_[i] = i*interval;
+      } // for i
+    }
+    // 特殊なビット位置での場合はまだ対応していない
+    virtual ~TurboCodeWithSZP() { }
+  };
+  
+
+  class TurboCodeWithSZP_Judge: public TurboCodeWithSZP
+  {
+  private:
+    itpp::ivec judgeBits_;
+    int levels_;
+    int secondIteration_;
+    std::vector< itpp::ivec > multiPadsPositions_;
+    
+  protected:
+    virtual void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
+    virtual void doDecodeWithTerm(const itpp::cvec &receivedSignal, itpp::bvec *output,
+                                  double n0) const;
+    
+    
+  public:
+    // 1段階しか無い場合
+    // しかも一定間隔のSZPにのみ対応
+    TurboCodeWithSZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
+                           int firstIteration, int secondIteration, int numPads, int judgeBits, bool termination):
+      TurboCodeWithSZP(interleaver, constraint, feedforward, feedback, firstIteration, 0, termination),
+      judgeBits_(1), levels_(1), secondIteration_(secondIteration), multiPadsPositions_(1, itpp::ivec(numPads))
+    {
+      judgeBits_[0] = judgeBits;
+
+      int interval = std::floor(static_cast< double >(interleaver_.size())/static_cast< double >(numPads));
+      for (int i = 0; i < numPads; ++i){
+        multiPadsPositions_[0][i] = i*interval;
+      } // for i
+      
+      assert(numPads >= judgeBits);
+    }
+    virtual ~TurboCodeWithSZP_Judge()
+    { }
+
+    TurboCodeWithSZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
+                          int firstIteration, int secondIteration, 
+                           const std::vector< itpp::ivec >& multiPadsPositions, const itpp::ivec &judgeBits,
+                           bool termination):
+      TurboCodeWithSZP(interleaver, constraint, feedforward, feedback, firstIteration, 0, termination),
+      judgeBits_(judgeBits), levels_(judgeBits.size()),
+      secondIteration_(secondIteration), multiPadsPositions_(multiPadsPositions)
+    {
+      assert(static_cast< int >(multiPadsPositions.size()) == judgeBits.size());
+    }
+    
+  };
+
   
   /************************************************************************************
    * RandomInterleaver -- ランダムインタリーバを生成する
