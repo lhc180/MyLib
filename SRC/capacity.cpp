@@ -12,16 +12,7 @@ namespace mylib{
   {
     return 1.0/sqrt(M_PI*N0)*exp(-pow(std::abs(y-x),2)/N0);
   }
-
   
-  // // 条件付き確率
-  // inline double pdf_awgn(std::complex<double> y, std::complex<double> x, double N0)
-  // {
-  //   // std::cout << "abs(y-x) = " << abs(y-x) << std::endl;
-
-  //   return exp(-pow(std::abs(y-x),2)/N0);
-  // }
-
   // キャパシティを返す
   double Capacity::operator()(double N0)
   {
