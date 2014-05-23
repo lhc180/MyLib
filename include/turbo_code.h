@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/23 13:10:46 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/23 16:44:54 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -323,10 +323,9 @@ namespace mylib{
   // Zero Padding
   class TurboCodeWithZP: public TurboCode
   {
-  private:
-    int numPads_;
-    
   protected:
+    mutable int numPads_;
+    
     virtual void DecoderForZP_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
                                    double n0, int iteration) const;
     
@@ -374,7 +373,7 @@ namespace mylib{
   class TurboCodeWithZP_Judge: public TurboCodeWithZP
   {
   private:
-    itpp::ivec numPads_;
+    itpp::ivec numPadsCandidates_;
     itpp::ivec judgeBits_;
     int levels_;
     int secondIteration_;
@@ -389,9 +388,9 @@ namespace mylib{
     TurboCodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
                           int firstIteration, int secondIteration, int numPads, int judgeBits, bool termination):
       TurboCodeWithZP(interleaver, constraint, feedforward, feedback, firstIteration, 0, termination),
-      numPads_(1),judgeBits_(1),levels_(1), secondIteration_(secondIteration)
+      numPadsCandidates_(1),judgeBits_(1),levels_(1), secondIteration_(secondIteration)
     {
-      numPads_[0] = numPads;
+      numPadsCandidates_[0] = numPads;
       judgeBits_[0] = judgeBits;
 
       assert(numPads >= judgeBits);
@@ -401,7 +400,7 @@ namespace mylib{
                           int firstIteration, int secondIteration, 
                           const itpp::ivec &numPads, const itpp::ivec &judgeBits, bool termination):
       TurboCodeWithZP(interleaver, constraint, feedforward, feedback, firstIteration, 0, termination),
-      numPads_(numPads), judgeBits_(judgeBits), levels_(numPads.size()), secondIteration_(secondIteration)
+      numPadsCandidates_(numPads), judgeBits_(judgeBits), levels_(numPads.size()), secondIteration_(secondIteration)
     {
       assert(numPads.size() == judgeBits.size());
     }
@@ -468,8 +467,6 @@ namespace mylib{
       } // if       
       assert(numPads >= judgeBits);
     }
-    virtual ~TurboCodeWithSZP_Judge()
-    { }
 
     TurboCodeWithSZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
                           int firstIteration, int secondIteration, 
@@ -481,6 +478,10 @@ namespace mylib{
     {
       assert(static_cast< int >(multiPadsPositions.size()) == judgeBits.size());
     }
+
+    virtual ~TurboCodeWithSZP_Judge()
+    { }
+
     
   };
 
