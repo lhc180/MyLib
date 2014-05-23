@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/21 17:59:34 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/23 13:10:46 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -424,10 +424,12 @@ namespace mylib{
       TurboCodeWithZP(interleaver, constraint, feedforward, feedback, iteration, numPads, termination),
       padsPositions_(numPads)
     {
-      int interval = std::floor(static_cast< double >(interleaver_.size())/static_cast< double >(numPads));
-      for (int i = 0; i < numPads; ++i){
-        padsPositions_[i] = i*interval;
-      } // for i
+      if (numPads != 0){
+        int interval = std::floor(static_cast< double >(interleaver_.size())/static_cast< double >(numPads));
+        for (int i = 0; i < numPads; ++i){
+          padsPositions_[i] = i*interval;
+        } // for i
+      } // if 
     }
     // 特殊なビット位置での場合はまだ対応していない
     virtual ~TurboCodeWithSZP() { }
@@ -458,11 +460,12 @@ namespace mylib{
     {
       judgeBits_[0] = judgeBits;
 
-      int interval = std::floor(static_cast< double >(interleaver_.size())/static_cast< double >(numPads));
-      for (int i = 0; i < numPads; ++i){
-        multiPadsPositions_[0][i] = i*interval;
-      } // for i
-      
+      if (numPads != 0){
+        int interval = std::floor(static_cast< double >(interleaver_.size())/static_cast< double >(numPads));
+        for (int i = 0; i < numPads; ++i){
+          multiPadsPositions_[0][i] = i*interval;
+        } // for i
+      } // if       
       assert(numPads >= judgeBits);
     }
     virtual ~TurboCodeWithSZP_Judge()
