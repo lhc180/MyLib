@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/21 18:29:55 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/26 18:41:41 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -1229,21 +1229,23 @@ namespace mylib{
 
     int paddingBits = 0;
     int sumPaddingBits = 0;
-    for (int pads_i = 0; pads_i < numPads_.size(); ++pads_i){
-      sumPaddingBits += numPads_[pads_i];
+    for (int pads_i = 0; pads_i < numPadsCandidates_.size(); ++pads_i){
+      sumPaddingBits += numPadsCandidates_[pads_i];
       itpp::bvec decodedPadsPart = t_output.mid(t_output.size() - sumPaddingBits,
-                                                numPads_[pads_i]);
+                                                numPadsCandidates_[pads_i]);
             
       bool paddingInserted = JudgeZP(decodedPadsPart, judgeBits_[pads_i]);
       
       if (paddingInserted){
-        paddingBits += numPads_[pads_i];
+        paddingBits += numPadsCandidates_[pads_i];
       } // if
       else{
         break;
       } // else 
     } // for pads_i
 
+    numPads_ = paddingBits;
+    
     for (int ite = 0; ite < secondIteration_; ++ite){
       ModifyLLR(&llrToRsc1); 
       itpp::vec llrFromRsc1;
@@ -1288,19 +1290,21 @@ namespace mylib{
 
     int sumPaddingBits = 0;
     int paddingBits = 0;
-    for (int pads_i = 0; pads_i < numPads_.size(); ++pads_i){
-      sumPaddingBits += numPads_[pads_i];
+    for (int pads_i = 0; pads_i < numPadsCandidates_.size(); ++pads_i){
+      sumPaddingBits += numPadsCandidates_[pads_i];
       itpp::bvec decodedPadsPart = t_output.mid(t_output.size() - sumPaddingBits,
-                                                numPads_[pads_i]);
+                                                numPadsCandidates_[pads_i]);
       bool paddingInserted = JudgeZP(decodedPadsPart, judgeBits_[pads_i]);
       if (paddingInserted){
-        paddingBits += numPads_[pads_i];
+        paddingBits += numPadsCandidates_[pads_i];
       } // if
       else{
         break;
       } // else 
     } // for pads_i
 
+    numPads_ = paddingBits;
+    
     DecoderForZP_term(llrToRsc1, in1, in2, n0, secondIteration_);
     
     interleaved_output = rsc2_.HardDecision();
@@ -1354,6 +1358,11 @@ namespace mylib{
       } // else 
     } // for pads_i
 
+    // ## ここでLLRをリセット
+    if (padsPos.size() != 0){
+      llrToRsc1.zeros();
+    } // if 
+    
     padsPositions_ = padsPos;   // TurboCodeWithSZPの中のベクトルに代入
     for (int ite = 0; ite < secondIteration_; ++ite){
       ModifyLLR(&llrToRsc1);         
@@ -1414,6 +1423,11 @@ namespace mylib{
       } // else 
     } // for pads_i
 
+    // ## ここでLLRをリセット
+    if (padsPos.size() != 0){
+      llrToRsc1.zeros();
+    } // if 
+    
     padsPositions_ = padsPos;   // TurboCodeWithSZPの中のベクトルに代入
     DecoderForZP_term(llrToRsc1, in1, in2, n0, secondIteration_);
     
