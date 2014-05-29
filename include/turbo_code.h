@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/26 21:43:40 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/29 14:40:57 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -77,17 +77,17 @@ namespace mylib{
     void Terminate(itpp::bvec *tailbits, itpp::bvec *parity) const;
 
     // Supporting Termination
-    void GenParityWithTerm(const itpp::bvec& input, itpp::bvec* tailbits, itpp::bvec* output) const;
+    void GenParity_term(const itpp::bvec& input, itpp::bvec* tailbits, itpp::bvec* output) const;
     
     void Encode(const itpp::bvec& input, itpp::bvec* output) const;
     itpp::bvec Encode(const itpp::bvec& input) const{
       itpp::bvec output; Encode(input, &output); return output;
     }
 
-    void EncodeWithTerm(const itpp::bvec& input, itpp::bvec* output) const;
-    itpp::bvec EncodeWithTerm(const itpp::bvec& input) const{
+    void Encode_term(const itpp::bvec& input, itpp::bvec* output) const;
+    itpp::bvec Encode_term(const itpp::bvec& input) const{
       itpp::bvec output;
-      EncodeWithTerm(input, &output);
+      Encode_term(input, &output);
       return output;
     }
 
@@ -124,12 +124,12 @@ namespace mylib{
     const bool termination_;
 
     virtual void doEncode(const itpp::bvec& input, itpp::bvec* output) const; // NVI
-    virtual void doEncodeWithTerm(const itpp::bvec& input, itpp::bvec* output) const;
+    virtual void doEncode_term(const itpp::bvec& input, itpp::bvec* output) const;
     
     virtual void doDecode(const itpp::cvec& receivedSignal, itpp::bvec* output,
                           double n0) const;
 
-    virtual void doDecodeWithTerm(const itpp::cvec& receivedSignal, itpp::bvec* output,
+    virtual void doDecode_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                   double n0) const;
     
     // ++++ Cyclic Suffix ++++
@@ -165,9 +165,13 @@ namespace mylib{
     
     // virtual void ModifyLLRForZP(itpp::vec* llr, int numPads) const;
 
+    virtual void Decoder(itpp::vec& llrToRsc1, const itpp::cvec& in1,
+                         const itpp::cvec& in2,
+                         double n0, int iteration) const;
+    
     virtual void Decoder_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
                               double n0, int iteration) const;
-    
+
     // virtual void DecoderForZP_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
     //                                double n0, int numPads, int iteration) const;
     
@@ -198,7 +202,7 @@ namespace mylib{
     void Encode(const itpp::bvec& input, itpp::bvec* output) const
     {
       if (termination_){
-        doEncodeWithTerm(input, output);
+        doEncode_term(input, output);
       } // if termination_
       else {
         doEncode(input, output);
@@ -216,7 +220,7 @@ namespace mylib{
     void Decode(const itpp::cvec& receivedSignal, itpp::bvec* output, double n0) const
     {
       if (termination_){
-        doDecodeWithTerm(receivedSignal, output, n0);
+        doDecode_term(receivedSignal, output, n0);
       } // if termination_
       else {
         doDecode(receivedSignal, output, n0); 
@@ -306,16 +310,16 @@ namespace mylib{
     static boost::rational< int > CodeRate()
     { return codeRate_; }
 
-    static boost::rational< int > CodeRateWithTerm(int infoLength, int constraint)
+    static boost::rational< int > CodeRate_term(int infoLength, int constraint)
     {
       int memory = constraint - 1;
       return boost::rational< int >(infoLength,
                                     codeRate_.denominator()*(infoLength + memory) + memory);
     }
 
-    boost::rational< int > CodeRateWithTerm() const
+    boost::rational< int > CodeRate_term() const
     {
-      return CodeRateWithTerm(interleaver_.size(), rsc1_.Constraint());
+      return CodeRate_term(interleaver_.size(), rsc1_.Constraint());
     }
     
   };
@@ -325,7 +329,9 @@ namespace mylib{
   {
   protected:
     mutable int numPads_;
-    
+
+    virtual void DecoderForZP(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
+                              double n0, int iteration) const;
     virtual void DecoderForZP_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
                                    double n0, int iteration) const;
     
@@ -333,12 +339,12 @@ namespace mylib{
 
     // Encoderは普通のTurboCodeと同じやつで大丈夫なのでNVIで実際に呼ばれる関数だけ変える
     virtual void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
-    virtual void doDecodeWithTerm(const itpp::cvec &receivedSignal, itpp::bvec *output,
+    virtual void doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
                           double n0) const;
     
     virtual void doDecode_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output,
                          int MAPIndex, double n0) const;
-    virtual void doDecodeWithTerm_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output, 
+    virtual void doDecode_term_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output, 
                                  int MAPIndex, double n0) const;
     
     
@@ -355,7 +361,7 @@ namespace mylib{
     void Decode_ModOne(const itpp::cvec& receivedSignal, itpp::bvec* output, int MAPIndex, double n0) const
     {
       if (termination_){
-        doDecodeWithTerm_ModOne(receivedSignal, output, MAPIndex, n0);
+        doDecode_term_ModOne(receivedSignal, output, MAPIndex, n0);
       } // if termination_
       else {
         doDecode_ModOne(receivedSignal, output, MAPIndex, n0); 
@@ -380,9 +386,12 @@ namespace mylib{
 
   protected:
     virtual void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
-    virtual void doDecodeWithTerm(const itpp::cvec &receivedSignal, itpp::bvec *output,
+    virtual void doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
                                   double n0) const;
-        
+
+    virtual bool checkEstimationError(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
+    virtual bool checkEstimationError_term(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
+    
   public:
     // 1段階しか無い場合
     TurboCodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
@@ -406,6 +415,18 @@ namespace mylib{
     }
     virtual ~TurboCodeWithZP_Judge()
     { }
+
+    bool isEstimationError(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const
+    {
+      
+      if (termination_){
+        return checkEstimationError_term(receivedSignal, output, n0);
+      } // if
+      else{
+        return checkEstimationError(receivedSignal, output, n0);
+      } // else
+    }
+    
   };
 
   
@@ -445,9 +466,10 @@ namespace mylib{
     
   protected:
     virtual void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
-    virtual void doDecodeWithTerm(const itpp::cvec &receivedSignal, itpp::bvec *output,
-                                  double n0) const;
-    
+    virtual void doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
+                               double n0) const;
+
+    virtual bool checkEstimationError(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
     
   public:
     // 1段階しか無い場合
