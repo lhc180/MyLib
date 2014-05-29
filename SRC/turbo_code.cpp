@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/29 16:01:52 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/29 16:51:52 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -1301,7 +1301,7 @@ namespace mylib{
     (*output) = Deinterleave(interleaved_output.left(interleaver_.size()), interleaver_);
   }
 
-  bool TurboCodeWithZP_Judge::checkEstimationError(const itpp::cvec &receivedSignal, 
+  bool TurboCodeWithZP_Judge::checkPaddingInsertion(const itpp::cvec &receivedSignal, 
                                                    double n0) const
   {
     assert(receivedSignal.size() % codeRate_.denominator() == 0);
@@ -1339,7 +1339,7 @@ namespace mylib{
     
   }
 
-  bool TurboCodeWithZP_Judge::checkEstimationError_term(const itpp::cvec &receivedSignal,
+  bool TurboCodeWithZP_Judge::checkPaddingInsertion_term(const itpp::cvec &receivedSignal,
                                                         double n0) const
   {
     int memory = rsc1_.Constraint() - 1;
@@ -1473,7 +1473,7 @@ namespace mylib{
     (*output) = Deinterleave(interleaved_output.left(interleaver_.size()), interleaver_);
   }
 
-  bool TurboCodeWithSZP_Judge::checkEstimationError(const itpp::cvec &receivedSignal,
+  bool TurboCodeWithSZP_Judge::checkPaddingInsertion(const itpp::cvec &receivedSignal,
                                                     double n0) const
   {
     assert(receivedSignal.size() % codeRate_.denominator() == 0);
@@ -1510,7 +1510,7 @@ namespace mylib{
     return paddingInserted;
   }
 
-  bool TurboCodeWithSZP_Judge::checkEstimationError_term(const itpp::cvec &receivedSignal,
+  bool TurboCodeWithSZP_Judge::checkPaddingInsertion_term(const itpp::cvec &receivedSignal,
                                                          double n0) const
   {
     int memory = rsc1_.Constraint() - 1;

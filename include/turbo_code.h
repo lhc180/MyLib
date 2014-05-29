@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/29 15:58:13 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/29 16:51:10 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -389,8 +389,8 @@ namespace mylib{
     virtual void doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
                                   double n0) const;
 
-    virtual bool checkEstimationError(const itpp::cvec &receivedSignal, double n0) const;
-    virtual bool checkEstimationError_term(const itpp::cvec &receivedSignal, double n0) const;
+    virtual bool checkPaddingInsertion(const itpp::cvec &receivedSignal, double n0) const;
+    virtual bool checkPaddingInsertion_term(const itpp::cvec &receivedSignal, double n0) const;
     
   public:
     // 1段階しか無い場合
@@ -416,14 +416,14 @@ namespace mylib{
     virtual ~TurboCodeWithZP_Judge()
     { }
 
-    bool isEstimationError(const itpp::cvec &receivedSignal, double n0) const
+    bool isDecidedInsertion(const itpp::cvec &receivedSignal, double n0) const
     {
       
       if (termination_){
-        return checkEstimationError_term(receivedSignal, n0);
+        return checkPaddingInsertion_term(receivedSignal, n0);
       } // if
       else{
-        return checkEstimationError(receivedSignal, n0);
+        return checkPaddingInsertion(receivedSignal, n0);
       } // else
     }
     
@@ -469,8 +469,8 @@ namespace mylib{
     virtual void doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
                                double n0) const;
 
-    virtual bool checkEstimationError(const itpp::cvec &receivedSignal, double n0) const;
-    virtual bool checkEstimationError_term(const itpp::cvec &receivedSignal, double n0) const;
+    virtual bool checkPaddingInsertion(const itpp::cvec &receivedSignal, double n0) const;
+    virtual bool checkPaddingInsertion_term(const itpp::cvec &receivedSignal, double n0) const;
     
   public:
     // 1段階しか無い場合
@@ -505,13 +505,13 @@ namespace mylib{
     virtual ~TurboCodeWithSZP_Judge()
     { }
 
-    bool isEstimationError(const itpp::cvec &receivedSignal, double n0) const
+    bool isDecidedInsertion(const itpp::cvec &receivedSignal, double n0) const
     {      
       if (termination_){
-        return checkEstimationError_term(receivedSignal, n0);
+        return checkPaddingInsertion_term(receivedSignal, n0);
       } // if
       else{
-        return checkEstimationError(receivedSignal, n0);
+        return checkPaddingInsertion(receivedSignal, n0);
       } // else
     }
 
