@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/29 16:51:52 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/05/29 17:15:42 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -1186,12 +1186,9 @@ namespace mylib{
    ************************************************************************************/
   inline void TurboCodeWithSZP::ModifyLLR(itpp::vec *llr) const
   {
-
-    std::cout << "\n#### padsPositions_.size() = " << padsPositions_.size() << std::endl;
     for (int i = 0; i < padsPositions_.size(); ++i){
       (*llr)[padsPositions_[i]] = -LLR_THRESHOLD;
-    } // for i
-    
+    } // for i 
   }
   
   /************************************************************************************
@@ -1464,7 +1461,6 @@ namespace mylib{
         break;
       } // else 
     } // for pads_i
-
     
     TurboCodeWithSZP::padsPositions_ = padsPos;   // TurboCodeWithSZPの中のベクトルに代入
     DecoderForZP_term(llrToRsc1, in1, in2, n0, secondIteration_);
