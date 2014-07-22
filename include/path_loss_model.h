@@ -7,15 +7,14 @@
  * Contents:
  *   ReceivedPower
  *
- * Last Updated: <2014/03/31 13:26:58 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/07/22 20:36:41 from WatanabeYoshito-no-iMac.local by yoshito>
  ************************************************************************************/
 
 #ifndef PATH_LOSS_MODEL_H
 #define PATH_LOSS_MODEL_H
 
 namespace mylib {
-
-  // 送信電力を1として計算
+  
   class SimplifiedPathLossModel
   {
   private:
@@ -40,6 +39,25 @@ namespace mylib {
     double DistanceFromReceivedPower(double pr) const;
   };
 
+  class FreeSpacePathLossModel
+  {
+  private:
+    double transPower_;
+    double pathLoss_;
+    
+  public:
+    FreeSpacePathLossModel();
+    FreeSpacePathLossModel(double transPower, double frequency, double gain = 1.0);
+    virtual ~FreeSpacePathLossModel()
+    { }
+
+    void Set(double transPower, double frequency, double gain = 1.0);
+    double ReceivedPowerFromDistance(double distance) const;
+    double DistanceFromReceivedPower(double pr) const;
+    
+  };
+
+  
 }
 
 #endif

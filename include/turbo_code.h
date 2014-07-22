@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/29 16:51:10 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/06/10 18:34:07 from dr-yst-no-pc.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -26,7 +26,7 @@ namespace mylib{
   
   class Rsc
   {
-  private:
+  protected:                                       // ## privateにする!!
     const static boost::rational< int > codeRate_; // 符号化率は1/2で固定
     const int constraint_;
     const int memory_;
