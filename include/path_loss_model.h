@@ -7,18 +7,21 @@
  * Contents:
  *   ReceivedPower
  *
- * Last Updated: <2014/07/22 20:36:41 from WatanabeYoshito-no-iMac.local by yoshito>
+ * Last Updated: <2014/08/29 16:12:48 from WatanabeYoshito-no-iMac.local by yoshito>
  ************************************************************************************/
 
 #ifndef PATH_LOSS_MODEL_H
 #define PATH_LOSS_MODEL_H
+
+#include <itpp/itcomm.h>
+#include <itpp/itbase.h>
 
 namespace mylib {
   
   class SimplifiedPathLossModel
   {
   private:
-    double transPoewr_;
+    double transPower_;
     double d0_;
     double gamma_;
     double gain_;               // 式(2.41)より求める
@@ -26,7 +29,7 @@ namespace mylib {
   protected:
         
   public:
-    SimplifiedPathLossModel():transPoewr_(0), d0_(0), gamma_(0), gain_(0){ }
+    SimplifiedPathLossModel():transPower_(0), d0_(0), gamma_(0), gain_(0){ }
     SimplifiedPathLossModel(double transPoewr, double d0, double gamma, double frequency)
     {
       Set(transPoewr, d0, gamma, frequency);
@@ -37,6 +40,11 @@ namespace mylib {
 
     double ReceivedPowerFromDistance(double distance) const;
     double DistanceFromReceivedPower(double pr) const;
+
+    double TransPower() const
+    {
+      return transPower_;
+    }
   };
 
   class FreeSpacePathLossModel
@@ -57,6 +65,24 @@ namespace mylib {
     
   };
 
+  class ShadowFadingModel
+  {
+  private:
+    double sigma_dB_;
+    SimplifiedPathLossModel splm_;
+    
+  public:
+    ShadowFadingModel(const SimplifiedPathLossModel &splm, double sigma_dB):
+      splm_(splm), sigma_dB_(sigma_dB)
+    {
+      itpp::RNG_randomize();
+    }
+    virtual ~ShadowFadingModel();
+
+    double ReceivedPowerAtDistance(double distance) const;
+  };
+
+  
   
 }
 

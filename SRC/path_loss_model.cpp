@@ -6,7 +6,7 @@
  * Contents:
  *   
  *
- * Last Updated: <2014/07/22 21:22:56 from WatanabeYoshito-no-iMac.local by yoshito>
+ * Last Updated: <2014/08/29 18:00:04 from WatanabeYoshito-no-iMac.local by yoshito>
  ************************************************************************************/
 #include <iostream>
 #include <cmath>
@@ -17,9 +17,9 @@ namespace mylib {
   static const double LIGHT_SPEED = 3e8;
   
   // Simplified Path-Loss Model
-  void SimplifiedPathLossModel::Set(double transPoewr, double d0, double gamma, double frequency)
+  void SimplifiedPathLossModel::Set(double transPower, double d0, double gamma, double frequency)
   {
-    transPoewr_ = transPoewr;
+    transPower_ = transPower;
     d0_ = d0;
     gamma_ = gamma;
     double lambda = LIGHT_SPEED / frequency;
@@ -29,12 +29,12 @@ namespace mylib {
 
   double SimplifiedPathLossModel::ReceivedPowerFromDistance(double distance) const
   {
-    return transPoewr_*gain_*pow(d0_/distance,gamma_);
+    return transPower_*gain_*pow(d0_/distance,gamma_);
   }
 
   double SimplifiedPathLossModel::DistanceFromReceivedPower(double pr) const
   {
-    return d0_*pow(transPoewr_ * gain_/pr, 1/gamma_);
+    return d0_*pow(transPower_ * gain_/pr, 1/gamma_);
   }
 
 
@@ -56,5 +56,23 @@ namespace mylib {
   double FreeSpacePathLossModel::DistanceFromReceivedPower(double pr) const
   {
     return sqrt(pathLoss_*transPower_/pr);
+  }
+
+  /************************************************************************************
+   * ShadowFadingModel 
+   * 
+   * シャドウイングのクラス
+   ************************************************************************************/
+  double ShadowFadingModel::ReceivedPowerAtDistance(double distance) const
+  {
+    itpp::Normal_RNG rng(0.0, sigma_dB_*sigma_dB_);
+    
+    double snr = splm_.ReceivedPowerFromDistance(distance)/splm_.TransPower();
+    double snr_dB = itpp::dB(snr);
+    
+    double receivedSNR_dB = snr_dB + rng();
+    double receivedSNR = itpp::inv_dB(receivedSNR_dB);
+
+    return receivedSNR * splm_.TransPower();
   }
 }
