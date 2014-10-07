@@ -32,6 +32,33 @@ namespace mylib{
   std::vector<int> std_bvec2ivec(int length, const itpp::bvec &input);
   itpp::ivec itpp_bvec2ivec(int length, const itpp::bvec &input);
 
+  /************************************************************************************
+   * GaussianPDF 
+   * 
+   * ガウス分布のpdf
+   ************************************************************************************/
+  class GaussianPDF
+  {
+  private:
+    double average_;
+    double sigma_;
+  
+  public:
+    GaussianPDF(double average, double sigma):
+      average_(average), sigma_(sigma)
+    { }
+    GaussianPDF(): average_(0), sigma_(0) { }
+    virtual ~GaussianPDF() { }
+
+    double operator()(double x)
+    {
+      return 1.0/std::sqrt(2*M_PI*sigma_*sigma_)*std::exp(-pow(x-average_, 2)/(2*sigma_*sigma_));
+    }
+
+    void SetAverage(double average) { average_ = average; }
+    void SetSigma(double sigma) { sigma_ = sigma; }
+  };
+
 
   // +++++++++++++++++++ 与えられたBERからある変調方式のEbN0を返す +++++++++++++++++++
   class BERtoEbN0

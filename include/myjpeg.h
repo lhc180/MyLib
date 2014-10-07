@@ -1,7 +1,7 @@
 /***************************************
  * This file defines my original JPEG decoder class using libjpeg.
  * 
- * Last Updated: <2013/10/18 17:10:05 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2014/09/12 15:39:30 from WatanabeYoshito-no-iMac.local by yoshito>
  ***************************************/
 // To do list
 // -- 行数を指定してデータを読み込んでいく関数を作る.

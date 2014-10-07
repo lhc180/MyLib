@@ -7,7 +7,7 @@
  * Contents:
  *   ReceivedPower
  *
- * Last Updated: <2014/08/29 16:12:48 from WatanabeYoshito-no-iMac.local by yoshito>
+ * Last Updated: <2014/08/29 18:48:48 from WatanabeYoshito-no-iMac.local by yoshito>
  ************************************************************************************/
 
 #ifndef PATH_LOSS_MODEL_H
@@ -68,8 +68,8 @@ namespace mylib {
   class ShadowFadingModel
   {
   private:
-    double sigma_dB_;
     SimplifiedPathLossModel splm_;
+    double sigma_dB_;
     
   public:
     ShadowFadingModel(const SimplifiedPathLossModel &splm, double sigma_dB):
@@ -77,7 +77,8 @@ namespace mylib {
     {
       itpp::RNG_randomize();
     }
-    virtual ~ShadowFadingModel();
+    virtual ~ShadowFadingModel()
+    { }
 
     double ReceivedPowerAtDistance(double distance) const;
   };
