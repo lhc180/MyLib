@@ -1,6 +1,7 @@
 // LDPCの本体ファイル
 
-#include "../include/mycomm.h"
+#include "../include/myldpc.h"
+#include "../include/myinterleavers.h"
 // #include <mymatrix_utl.h>
 #include <ctime>
 #include <cmath>

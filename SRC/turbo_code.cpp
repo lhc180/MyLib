@@ -7,11 +7,13 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/05/29 17:15:42 from dr-yst-no-pc.local by yoshito>
+ * Last Updated: <2014/10/10 15:28:19 from WatanabeYoshito-no-iMac.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
 #include "../include/turbo_code.h"
+#include "../include/myinterleavers.h"
+
 
 namespace mylib{
 

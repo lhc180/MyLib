@@ -7,7 +7,7 @@
  * Contents:
  *   ReceivedPower
  *
- * Last Updated: <2014/08/29 18:48:48 from WatanabeYoshito-no-iMac.local by yoshito>
+ * Last Updated: <2014/10/08 20:35:29 from WatanabeYoshito-no-iMac.local by yoshito>
  ************************************************************************************/
 
 #ifndef PATH_LOSS_MODEL_H
@@ -38,13 +38,20 @@ namespace mylib {
 
     void Set(double transPoewr, double d0, double gamma, double frequency);
 
-    double ReceivedPowerFromDistance(double distance) const;
+    double ReceivedPower(double distance) const;
     double DistanceFromReceivedPower(double pr) const;
 
     double TransPower() const
-    {
-      return transPower_;
-    }
+    { return transPower_; }
+
+    double ReferencePathLoss() const
+    { return gain_; }
+
+    double ReferenceDistance() const
+    { return d0_; }
+
+    double Gamma() const
+    { return gamma_; }
   };
 
   class FreeSpacePathLossModel
@@ -81,9 +88,12 @@ namespace mylib {
     { }
 
     double ReceivedPowerAtDistance(double distance) const;
-  };
 
-  
+    // Pminは最低限許容できる受信電力
+    // GoldsmithのWireless Communications p.48 (2.59), (2.60)辺り
+    double CoverageRate(double Pmin, double coverageDistance) const;
+    
+  };
   
 }
 

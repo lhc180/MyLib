@@ -6,7 +6,7 @@
  * Contents:
  *   
  *
- * Last Updated: <2014/08/29 18:00:04 from WatanabeYoshito-no-iMac.local by yoshito>
+ * Last Updated: <2014/10/08 20:35:00 from WatanabeYoshito-no-iMac.local by yoshito>
  ************************************************************************************/
 #include <iostream>
 #include <cmath>
@@ -27,7 +27,7 @@ namespace mylib {
     gain_ = pow(lambda/(4*M_PI*d0_),2);
   }
 
-  double SimplifiedPathLossModel::ReceivedPowerFromDistance(double distance) const
+  double SimplifiedPathLossModel::ReceivedPower(double distance) const
   {
     return transPower_*gain_*pow(d0_/distance,gamma_);
   }
@@ -67,7 +67,7 @@ namespace mylib {
   {
     itpp::Normal_RNG rng(0.0, sigma_dB_*sigma_dB_);
     
-    double snr = splm_.ReceivedPowerFromDistance(distance)/splm_.TransPower();
+    double snr = splm_.ReceivedPower(distance)/splm_.TransPower();
     double snr_dB = itpp::dB(snr);
     
     double receivedSNR_dB = snr_dB + rng();
@@ -75,4 +75,16 @@ namespace mylib {
 
     return receivedSNR * splm_.TransPower();
   }
+  
+  double ShadowFadingModel::CoverageRate(double Pmin, double coverageDistance) const
+  {
+    double a = (Pmin - splm_.ReceivedPower(coverageDistance))/sigma_dB_;
+    double b = 10*splm_.Gamma()*std::log10(std::exp(1))/sigma_dB_;
+
+    double first = itpp::Qfunc(a);
+    double second = std::exp((2-2*a*b)/(b*b))*itpp::Qfunc((2-a*b)/b);
+
+    return first + second;
+  }
+  
 }
