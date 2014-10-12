@@ -7,7 +7,7 @@
  * Contents:
  *   ReceivedPower
  *
- * Last Updated: <2014/10/08 20:35:29 from WatanabeYoshito-no-iMac.local by yoshito>
+ * Last Updated: <2014/10/12 15:16:47 from WatanabeYoshito-no-iMac.local by yoshito>
  ************************************************************************************/
 
 #ifndef PATH_LOSS_MODEL_H
@@ -91,6 +91,7 @@ namespace mylib {
 
     // Pminは最低限許容できる受信電力
     // GoldsmithのWireless Communications p.48 (2.59), (2.60)辺り
+    // Pminは真値
     double CoverageRate(double Pmin, double coverageDistance) const;
     
   };

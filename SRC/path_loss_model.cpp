@@ -6,7 +6,7 @@
  * Contents:
  *   
  *
- * Last Updated: <2014/10/08 20:35:00 from WatanabeYoshito-no-iMac.local by yoshito>
+ * Last Updated: <2014/10/12 15:26:24 from WatanabeYoshito-no-iMac.local by yoshito>
  ************************************************************************************/
 #include <iostream>
 #include <cmath>
@@ -78,7 +78,10 @@ namespace mylib {
   
   double ShadowFadingModel::CoverageRate(double Pmin, double coverageDistance) const
   {
-    double a = (Pmin - splm_.ReceivedPower(coverageDistance))/sigma_dB_;
+    double Pmin_dBm = itpp::dB(Pmin*1e3);
+    double Pr_dBm = itpp::dB(splm_.ReceivedPower(coverageDistance)*1e3);
+
+    double a = (Pmin_dBm - Pr_dBm)/sigma_dB_;
     double b = 10*splm_.Gamma()*std::log10(std::exp(1))/sigma_dB_;
 
     double first = itpp::Qfunc(a);
