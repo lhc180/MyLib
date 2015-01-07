@@ -6,7 +6,7 @@
  * Contents:
  *   class InvFunc
  *
- * Last Updated: <2014/03/29 17:58:23 from Yoshitos-iMac.local by yoshito>
+ * Last Updated: <2015/01/07 21:56:37 from WatanabeYoshito-no-iMac.local by yoshito>
  ************************************************************************************/
 
 #ifndef INV_FUNC_H
@@ -67,6 +67,11 @@ namespace mylib {
       return size_ - 1;
     }
 
+    int Size() const
+    {
+      return size_;
+    }
+    
   };
 
   
