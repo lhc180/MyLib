@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/20 19:02:52 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/20 20:14:28 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -578,14 +578,14 @@ namespace mylib{
     
     virtual bool JudgeZP(const itpp::bvec& input) = 0;
     
-    virtual itpp::vec ModifyLLR(const itpp::vec& llr, double replacedLLR = -50)
-    {
-      itpp::vec outputLLR(llr);
-      for (int i = 0; i < padsPositions_.size(); ++i){
-        outputLLR[padsPositions_[i]] = replacedLLR;
-      } // for i
-      return outputLLR;
-    }
+    // virtual itpp::vec ModifyLLR(const itpp::vec& llr, double replacedLLR = -50)
+    // {
+    //   itpp::vec outputLLR(llr);
+    //   for (int i = 0; i < padsPositions_.size(); ++i){
+    //     outputLLR[padsPositions_[i]] = replacedLLR;
+    //   } // for i
+    //   return outputLLR;
+    // }
   };
 }
 
