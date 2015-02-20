@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/20 16:42:11 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/20 19:02:52 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -518,28 +518,64 @@ namespace mylib{
   };  
   
 
-
+  // Encoder Side
   class ZeroPadding
   {
   private:
     const int frameLength_;
+  
+
+  protected:
     itpp::ivec padsPositions_;
+    virtual void SetupPadsPositions_() = 0;
     
   public:
-    ZeroPadding(int frameLength, int numPads): frameLength_(frameLength), padsPositions_(numPads)
-    { }
+    ZeroPadding(int frameLength): frameLength_(frameLength)
+    {
+    }
     
     virtual ~ZeroPadding();
 
-    // ++++ Encoder side ++++
+    int FrameLength() const { return frameLength_; } 
+
+    itpp::ivec PadsPositions() { return padsPositions_; } // ゲッタ
+
+    virtual void SetNumPads(int numPads) = 0;
+    
     // input.size() + numPads_のサイズのデータを返す
-    virtual itpp::bvec Pad(const itpp::bvec& input) = 0;
+    virtual itpp::bvec Pad(const itpp::bvec& input) const = 0;
 
     // input.size()のデータを返す
     // つまりinputの中のデータを0で置き換える
-    virtual itpp::bvec Nullify(const itpp::bvec& input) = 0;
+    virtual itpp::bvec Nullify(const itpp::bvec& input) const = 0;
+  };
   
-    // ++++ Decoder side ++++
+  class CZP: public ZeroPadding
+  {
+  protected:
+    virtual void SetupPadsPositions_();
+    
+  public:
+    CZP(int frameLength, int numPads_ = 0): ZeroPadding(frameLength)
+    {
+      SetupPadsPositions_();
+    }
+    virtual ~CZP();
+
+    virtual void SetNumPads(int numPads) {
+      padsPositions_ = itpp::ivec(numPads);
+      SetupPadsPositions_();
+    }
+  };
+  
+
+  // ++++ Decoder side ++++
+  class LLR_Modifier
+  {
+  public:
+    LLR_Modifier();
+    virtual ~LLR_Modifier();
+    
     virtual bool JudgeZP(const itpp::bvec& input) = 0;
     
     virtual itpp::vec ModifyLLR(const itpp::vec& llr, double replacedLLR = -50)
@@ -551,17 +587,6 @@ namespace mylib{
       return outputLLR;
     }
   };
-
-  class CZP: public ZeroPadding
-  {
-  public:
-    // ## 試しにコンストラクタを定義しないでおく
-    // CZP();
-    // virtual ~CZP();
-
-    
-  };
-
 }
 
 

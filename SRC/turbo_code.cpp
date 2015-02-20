@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/20 17:01:49 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/20 18:35:33 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -1551,5 +1551,13 @@ namespace mylib{
     return paddingInserted;
   }
 
+  void CZP::SetupPadsPositions_()
+  {
+    int padSize = padsPositions_.size();
+    
+    for (int i = 0; i < padsPositions_.size(); ++i){
+      padsPositions_[i] = FrameLength() - padSize + i;
+    } // for i
+  }
   
 }
