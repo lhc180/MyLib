@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/10/10 15:26:30 from WatanabeYoshito-no-iMac.local by yoshito>
+ * Last Updated: <2015/02/20 16:42:11 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -130,36 +130,36 @@ namespace mylib{
                           double n0) const;
 
     virtual void doDecode_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                  double n0) const;
+                               double n0) const;
     
     // ++++ Cyclic Suffix ++++
     virtual void doDecodeWithCS(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                 double n0, int numPads, int iteration) const;
 
     virtual void doDecodeWithCS_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                               double n0, int numPads, int iteration) const;
+                                     double n0, int numPads, int iteration) const;
 
     
     // ++++ Cyclic Prefix ++++
     virtual void doDecodeWithCP(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                          double n0, int numPads, int iteration) const;
+                                double n0, int numPads, int iteration) const;
 
     virtual void doDecodeWithCP_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                               double n0, int numPads, int iteration) const;
+                                     double n0, int numPads, int iteration) const;
     
     // ++++ Inversed Prefix ++++
     virtual void doDecodeWithIP(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                            double n0, int numPads, int iteration) const;
+                                double n0, int numPads, int iteration) const;
 
     virtual void doDecodeWithIP_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                                 double n0, int numPads, int iteration) const;
+                                     double n0, int numPads, int iteration) const;
 
     // ++++ Cyclic Infix ++++
     virtual void doDecodeWithCI(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                         double n0, int start, int numPads, int iteration) const;
+                                double n0, int start, int numPads, int iteration) const;
     
     virtual void doDecodeWithCI_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                              double n0, int start, int numPads, int iteration) const;
+                                     double n0, int start, int numPads, int iteration) const;
     
     virtual void ModifyAPLLR(itpp::vec* llr, double APZeroProb, int start, int num) const;
     
@@ -235,7 +235,7 @@ namespace mylib{
     
     // ++++++++ Cyclic Suffix ++++++++
     void DecodeWithCS(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                double n0, int numPads = 0, int iteration = 10) const
+                      double n0, int numPads = 0, int iteration = 10) const
     {
       if (termination_){
         doDecodeWithCS_term(receivedSignal, output, n0, numPads, iteration);
@@ -245,7 +245,7 @@ namespace mylib{
       } // else
     }
     itpp::bvec DecodeWithCS(const itpp::cvec& receivedSignal,
-                                      double n0, int numPads = 0, int iteration = 10) const
+                            double n0, int numPads = 0, int iteration = 10) const
     {
       itpp::bvec output;
       DecodeWithCS(receivedSignal, &output, n0, numPads, iteration);
@@ -254,7 +254,7 @@ namespace mylib{
     
     // ++++++++ Cyclic Prefix ++++++++
     void DecodeWithCP(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                double n0, int numPads = 0, int iteration = 10) const
+                      double n0, int numPads = 0, int iteration = 10) const
     {
       if (termination_){
         doDecodeWithCP_term(receivedSignal, output, n0, numPads, iteration);
@@ -264,7 +264,7 @@ namespace mylib{
       } // else
     }
     itpp::bvec DecodeWithCP(const itpp::cvec& receivedSignal,
-                                      double n0, int numPads = 0, int iteration = 10) const
+                            double n0, int numPads = 0, int iteration = 10) const
     {
       itpp::bvec output;
       DecodeWithCP(receivedSignal, &output, n0, numPads, iteration);
@@ -272,7 +272,7 @@ namespace mylib{
     }
     
     void DecodeWithIP(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                  double n0, int numPads = 0, int iteration = 10) const
+                      double n0, int numPads = 0, int iteration = 10) const
     {
       if (termination_){
         doDecodeWithIP_term(receivedSignal, output, n0, numPads, iteration);
@@ -283,7 +283,7 @@ namespace mylib{
     }
 
     itpp::bvec DecodeWithIP(const itpp::cvec& receivedSignal,
-                                        double n0, int numPads = 0, int iteration = 10) const
+                            double n0, int numPads = 0, int iteration = 10) const
     {
       itpp::bvec output;
       DecodeWithIP(receivedSignal, &output, n0, numPads, iteration);
@@ -291,7 +291,7 @@ namespace mylib{
     }
     
     void DecodeWithCI(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                               double n0, int start = 0, int numPads = 0, int iteration = 10) const
+                      double n0, int start = 0, int numPads = 0, int iteration = 10) const
     {
       if (termination_){
         doDecodeWithCI_term(receivedSignal, output, n0, start, numPads, iteration);
@@ -340,12 +340,12 @@ namespace mylib{
     // Encoderは普通のTurboCodeと同じやつで大丈夫なのでNVIで実際に呼ばれる関数だけ変える
     virtual void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
     virtual void doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
-                          double n0) const;
+                               double n0) const;
     
     virtual void doDecode_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output,
-                         int MAPIndex, double n0) const;
-    virtual void doDecode_term_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output, 
                                  int MAPIndex, double n0) const;
+    virtual void doDecode_term_ModOne(const itpp::cvec &receivedSignal, itpp::bvec *output, 
+                                      int MAPIndex, double n0) const;
     
     
   public:
@@ -375,7 +375,7 @@ namespace mylib{
     }
   };
 
-    // With Decision of Zero Padding Insertion
+  // With Decision of Zero Padding Insertion
   class TurboCodeWithZP_Judge: public TurboCodeWithZP
   {
   private:
@@ -387,7 +387,7 @@ namespace mylib{
   protected:
     virtual void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
     virtual void doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
-                                  double n0) const;
+                               double n0) const;
 
     virtual bool checkPaddingInsertion(const itpp::cvec &receivedSignal, double n0) const;
     virtual bool checkPaddingInsertion_term(const itpp::cvec &receivedSignal, double n0) const;
@@ -492,7 +492,7 @@ namespace mylib{
     }
 
     TurboCodeWithSZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
-                          int firstIteration, int secondIteration, 
+                           int firstIteration, int secondIteration, 
                            const std::vector< itpp::ivec >& multiPadsPositions, const itpp::ivec &judgeBits,
                            bool termination):
       TurboCodeWithSZP(interleaver, constraint, feedforward, feedback, firstIteration, 0, termination),
@@ -517,6 +517,53 @@ namespace mylib{
 
   };  
   
+
+
+  class ZeroPadding
+  {
+  private:
+    const int frameLength_;
+    itpp::ivec padsPositions_;
+    
+  public:
+    ZeroPadding(int frameLength, int numPads): frameLength_(frameLength), padsPositions_(numPads)
+    { }
+    
+    virtual ~ZeroPadding();
+
+    // ++++ Encoder side ++++
+    // input.size() + numPads_のサイズのデータを返す
+    virtual itpp::bvec Pad(const itpp::bvec& input) = 0;
+
+    // input.size()のデータを返す
+    // つまりinputの中のデータを0で置き換える
+    virtual itpp::bvec Nullify(const itpp::bvec& input) = 0;
+  
+    // ++++ Decoder side ++++
+    virtual bool JudgeZP(const itpp::bvec& input) = 0;
+    
+    virtual itpp::vec ModifyLLR(const itpp::vec& llr, double replacedLLR = -50)
+    {
+      itpp::vec outputLLR(llr);
+      for (int i = 0; i < padsPositions_.size(); ++i){
+        outputLLR[padsPositions_[i]] = replacedLLR;
+      } // for i
+      return outputLLR;
+    }
+  };
+
+  class CZP: public ZeroPadding
+  {
+  public:
+    // ## 試しにコンストラクタを定義しないでおく
+    // CZP();
+    // virtual ~CZP();
+
+    
+  };
+
 }
+
+
 
 #endif

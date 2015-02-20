@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2014/10/10 15:28:19 from WatanabeYoshito-no-iMac.local by yoshito>
+ * Last Updated: <2015/02/20 17:01:49 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -1550,4 +1550,6 @@ namespace mylib{
 
     return paddingInserted;
   }
+
+  
 }
