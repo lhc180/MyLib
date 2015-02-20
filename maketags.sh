@@ -1,1 +1,1 @@
-find ~/Dropbox/Programming/lib/myLibrary/ \( -name '*.[ch]' -or -name '*.cpp' \) -print | etags - -o ~/Dropbox/Programming/lib/myLibrary/TAGS
+find ~/Mylib \( -name '*.[ch]' -or -name '*.cpp' \) -print | etags - -o ~/MyLib/TAGS
