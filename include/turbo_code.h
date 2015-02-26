@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/26 21:53:08 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/26 23:41:09 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -120,9 +120,10 @@ namespace mylib{
     const itpp::ivec interleaver_;
     const Rsc rsc1_, rsc2_;
     static const boost::rational< int > codeRate_; // 符号化率は1/3で固定
-    const int iteration_;
+    int iteration_;
     const bool termination_;
 
+  protected:
     virtual void doEncode(const itpp::bvec& input, itpp::bvec* output) const; // NVI
     virtual void doEncode_term(const itpp::bvec& input, itpp::bvec* output) const;
     
@@ -154,10 +155,12 @@ namespace mylib{
       rsc2_(constraint, feedforward, feedback), iteration_(iteration),
       termination_(termination)
     { }
-        
+
     virtual ~TurboCode()
     { }
 
+    void SetIterations(int iteration) { iteration_ = iteration; }
+    
     // ここから全てNVIパターンを使った実装
     void Encode(const itpp::bvec& input, itpp::bvec* output) const
     {
@@ -213,7 +216,7 @@ namespace mylib{
   class ZeroPadding
   {
   private:
-    const int frameLength_;
+    int frameLength_;
     itpp::ivec padPositions_;
     
   public:
@@ -225,7 +228,8 @@ namespace mylib{
     virtual ~ZeroPadding() { }
 
     int FrameLength() const { return frameLength_; } 
-
+    void SetFrameLength(int frameLength) { frameLength_ = frameLength; }
+    
     itpp::ivec PadPositions() const { return padPositions_; } // ゲッタ
 
     // 内部でソートされる
@@ -234,7 +238,6 @@ namespace mylib{
       padPositions_ = padPositions;
       itpp::sort(padPositions_);
     }
-    
     
     // ++++ Encoder side ++++
     // input.size() + numPads_のサイズのデータを返す
@@ -279,10 +282,11 @@ namespace mylib{
   };
   
   // Zero Padding
+  // 実質Turbo Decoder
   class TurboCodeWithZP: public TurboCode
   {
   private:
-    const ZeroPadding zeroPadding_;
+    ZeroPadding zeroPadding_;
     
   protected:
     virtual void DecoderForZP(itpp::vec* llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
@@ -304,61 +308,69 @@ namespace mylib{
     
     virtual ~TurboCodeWithZP()
     { }
+
+    void SetZeroPadding(const ZeroPadding &zp)
+    {
+      zeroPadding_ = zp;      
+    }
   };
 
   // With Decision of Zero Padding Insertion
-  class TurboCodeWithZP_Judge: public TurboCodeWithZP
+  // Note: This is only a DECODER.
+  class TurboDecodeWithZP_Judge
   {
   private:
-    std::vector< ZeroPadding > zeroPaddings_;
-    itpp::ivec judgeBits_;
-    
-    int levels_;
-    int secondIteration_;
-
-  protected:
-    virtual void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
-    virtual void doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
-                               double n0) const;
-
-    virtual bool checkPaddingInsertion(const itpp::cvec &receivedSignal, double n0) const;
-    virtual bool checkPaddingInsertion_term(const itpp::cvec &receivedSignal, double n0) const;
+    TurboCodeWithZP turboCodeZP_;
+    itpp::ivec iterations_;
+    std::vector< ZeroPadding > zeroPaddings_; // 最初は0個のパディングビット
+    itpp::ivec thresholds_;
     
   public:
-    // 1段階しか無い場合
-    TurboCodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
-                          int firstIteration, int secondIteration, int numPads, int judgeBits, bool termination):
-      TurboCodeWithZP(interleaver, constraint, feedforward, feedback, firstIteration, 0, termination),
-      numPadsCandidates_(1),judgeBits_(1),levels_(1), secondIteration_(secondIteration)
+    TurboDecodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
+                          const itpp::ivec& iterations, const std::vector< ZeroPadding >& zp, 
+                          const itpp::ivec& judgeBits,
+                          bool termination):
+      turboCodeZP_(interleaver, constraint, feedforward, feedback, iterations_[0], zp[0], termination),
+      iterations_(iterations), zeroPaddings_(zp), thresholds_(judgeBits)
     {
-      numPadsCandidates_[0] = numPads;
-      judgeBits_[0] = judgeBits;
-
-      assert(numPads >= judgeBits);
-    }
-    // 複数段階チェックする場合
-    TurboCodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
-                          int firstIteration, int secondIteration, 
-                          const itpp::ivec &numPads, const itpp::ivec &judgeBits, bool termination):
-      TurboCodeWithZP(interleaver, constraint, feedforward, feedback, firstIteration, 0, termination),
-      numPadsCandidates_(numPads), judgeBits_(judgeBits), levels_(numPads.size()), secondIteration_(secondIteration)
-    {
-      assert(numPads.size() == judgeBits.size());
-    }
-    virtual ~TurboCodeWithZP_Judge()
-    { }
-
-    bool isDecidedInsertion(const itpp::cvec &receivedSignal, double n0) const
-    {
-      
-      if (termination_){
-        return checkPaddingInsertion_term(receivedSignal, n0);
-      } // if
-      else{
-        return checkPaddingInsertion(receivedSignal, n0);
-      } // else
+      assert(iterations.size() == static_cast< int >(zp.size()) && iterations.size() == judgeBits.size());
     }
     
+    TurboDecodeWithZP_Judge(const TurboCodeWithZP& turboCode,
+                          const itpp::ivec& iterations, const std::vector< ZeroPadding >& zp, 
+                          const itpp::ivec& judgeBits):
+      turboCodeZP_(turboCode),
+      iterations_(iterations), zeroPaddings_(zp), thresholds_(judgeBits)
+    {
+      assert(iterations.size() == static_cast< int >(zp.size()) && iterations.size() == judgeBits.size());
+    }
+    virtual ~TurboDecodeWithZP_Judge()
+    { }
+
+    void Decode(const itpp::cvec& receivedSignal, itpp::bvec* output, double n0)
+    {
+      
+      turboCodeZP_.SetIterations(iterations_[0]);
+      turboCodeZP_.SetZeroPadding(0);
+
+      turboCodeZP_.Decode(receivedSignal, output, n0);
+        
+      for (int i = 1; i < iterations_.size(); ++i){
+        if (zeroPaddings_[i].JudgeZP(*output, thresholds_[i])) { break; }
+        else {
+          turboCodeZP_.SetIterations(iterations_[i]);
+          turboCodeZP_.SetZeroPadding(zeroPaddings_[i]);
+          turboCodeZP_.Decode(receivedSignal, output, n0);
+        }
+      } // for i
+    }
+    
+    itpp::bvec Decode(const itpp::cvec& receivedSignal, double n0)
+    {
+      itpp::bvec output;
+      Decode(receivedSignal, &output, n0);
+      return output;
+    }    
   };
 
   
