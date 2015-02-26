@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/20 20:14:28 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/26 18:27:33 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -523,60 +523,83 @@ namespace mylib{
   {
   private:
     const int frameLength_;
-  
-
-  protected:
-    itpp::ivec padsPositions_;
-    virtual void SetupPadsPositions_() = 0;
+    itpp::ivec padPositions_;
     
   public:
-    ZeroPadding(int frameLength): frameLength_(frameLength)
+    ZeroPadding(int frameLength, const itpp::ivec& padPositions = itpp::ivec(0)): frameLength_(frameLength)
     {
+      SetPadPositions(padPositions);
     }
     
-    virtual ~ZeroPadding();
+    virtual ~ZeroPadding() { }
 
     int FrameLength() const { return frameLength_; } 
 
-    itpp::ivec PadsPositions() { return padsPositions_; } // ゲッタ
+    itpp::ivec PadPositions() const { return padPositions_; } // ゲッタ
 
-    virtual void SetNumPads(int numPads) = 0;
+    // 内部でソートされる
+    virtual void SetPadPositions(const itpp::ivec& padPositions)
+    {
+      padPositions_ = padPositions;
+      itpp::sort(padPositions_);
+    }
     
+    
+    // ++++ Encoder side ++++
     // input.size() + numPads_のサイズのデータを返す
-    virtual itpp::bvec Pad(const itpp::bvec& input) const = 0;
+    virtual itpp::bvec Pad(const itpp::bvec& input) const;
 
     // input.size()のデータを返す
     // つまりinputの中のデータを0で置き換える
-    virtual itpp::bvec Nullify(const itpp::bvec& input) const = 0;
+    virtual itpp::bvec Nullify(const itpp::bvec& input) const;
+
+    // ++++ Decoder side ++++
+    virtual bool JudgeZP(const itpp::bvec& input, int threshold);
+
+    virtual itpp::vec ModifyLLR(const itpp::vec& llr, double replacedLLR = -50);
   };
   
   class CZP: public ZeroPadding
   {
   protected:
-    virtual void SetupPadsPositions_();
+    virtual void SetupPadPositions_(int numPads);
     
   public:
-    CZP(int frameLength, int numPads_ = 0): ZeroPadding(frameLength)
+    CZP(int frameLength, int numPads = 0): ZeroPadding(frameLength)
     {
-      SetupPadsPositions_();
+      SetupPadPositions_(numPads);
     }
     virtual ~CZP();
 
-    virtual void SetNumPads(int numPads) {
-      padsPositions_ = itpp::ivec(numPads);
-      SetupPadsPositions_();
-    }
+    virtual void SetNumPads(int numPads) { SetupPadPositions_(numPads); }
+    
   };
   
+  class SZI: public ZeroPadding
+  {
+  protected:
+    virtual void SetupPadPositions_(int numPads);
+    
+  public:
+    SZI();
+    virtual ~SZI() { }
 
+    virtual void SetNumPads(int numPads) {  SetupPadPositions_(numPads); }
+  };
+
+  
   // ++++ Decoder side ++++
   class LLR_Modifier
   {
-  public:
-    LLR_Modifier();
-    virtual ~LLR_Modifier();
+  private:
+    itpp::ivec padPositions_;
     
-    virtual bool JudgeZP(const itpp::bvec& input) = 0;
+  public:
+    LLR_Modifier(const itpp::ivec& padPositions);
+    virtual ~LLR_Modifier() { }
+    
+    virtual bool JudgeZP(const itpp::bvec& input, int threshold);
+    
     
     // virtual itpp::vec ModifyLLR(const itpp::vec& llr, double replacedLLR = -50)
     // {
