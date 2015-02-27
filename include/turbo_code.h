@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/27 22:05:34 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/27 22:24:02 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -260,7 +260,7 @@ namespace mylib{
     {
       SetupPadPositions_(numPads);
     }
-    virtual ~CZP();
+    virtual ~CZP() { }
 
     virtual void SetNumPads(int numPads) { SetupPadPositions_(numPads); }
     
