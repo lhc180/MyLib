@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/26 23:41:09 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/27 14:29:44 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -133,16 +133,13 @@ namespace mylib{
     virtual void doDecode_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                double n0) const;
 
-    virtual void Decoder(itpp::vec& llrToRsc1, const itpp::cvec& in1,
+    virtual void Decoder(itpp::vec* llrToRsc1, const itpp::cvec& in1,
                          const itpp::cvec& in2,
                          double n0, int iteration) const;
     
-    virtual void Decoder_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
+    virtual void Decoder_term(itpp::vec* llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
                               double n0, int iteration) const;
-
-    // virtual void DecoderForZP_term(itpp::vec& llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
-    //                                double n0, int numPads, int iteration) const;
-
+    
     // 受信信号をデコーダー1と2用に分ける
     virtual void SeparateReceivedSignal(const itpp::cvec& receivedSignal,
                                         itpp::cvec* in1, itpp::cvec* in2) const;
@@ -289,9 +286,9 @@ namespace mylib{
     ZeroPadding zeroPadding_;
     
   protected:
-    virtual void DecoderForZP(itpp::vec* llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
+    virtual void Decoder(itpp::vec* llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
                               double n0, int iteration) const;
-    virtual void DecoderForZP_term(itpp::vec* llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
+    virtual void Decoder_term(itpp::vec* llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
                                    double n0, int iteration) const;
 
     // Encoderは普通のTurboCodeと同じやつで大丈夫なのでNVIで実際に呼ばれる関数だけ変える
@@ -371,99 +368,7 @@ namespace mylib{
       Decode(receivedSignal, &output, n0);
       return output;
     }    
-  };
-
-  
-  // Turbo code with sparse zero padding bits
-  // class TurboCodeWithSZP: public TurboCodeWithZP
-  // {
-  // protected:
-  //   mutable itpp::ivec padsPositions_;
-  //   virtual void ModifyLLR(itpp::vec *llr) const;
-    
-  // public:
-  //   // 一定間隔でnull bitを入れたとき
-  //   TurboCodeWithSZP(const itpp::ivec &interleaver, int constraint, int feedforward, int feedback,
-  //                    int iteration, int numPads, bool termination):
-  //     TurboCodeWithZP(interleaver, constraint, feedforward, feedback, iteration, numPads, termination),
-  //     padsPositions_(numPads)
-  //   {
-  //     if (numPads != 0){
-  //       int interval = std::floor(static_cast< double >(interleaver_.size())/static_cast< double >(numPads));
-  //       for (int i = 0; i < numPads; ++i){
-  //         padsPositions_[i] = i*interval;
-  //       } // for i
-  //     } // if 
-  //   }
-  //   // 特殊なビット位置での場合はまだ対応していない
-  //   virtual ~TurboCodeWithSZP() { }
-  // };
-  
-
-  // class TurboCodeWithSZP_Judge: public TurboCodeWithSZP
-  // {
-  // private:
-  //   itpp::ivec judgeBits_;
-  //   int levels_;
-  //   int secondIteration_;
-  //   std::vector< itpp::ivec > multiPadsPositions_;
-    
-  // protected:
-  //   virtual void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
-  //   virtual void doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
-  //                              double n0) const;
-
-  //   virtual bool checkPaddingInsertion(const itpp::cvec &receivedSignal, double n0) const;
-  //   virtual bool checkPaddingInsertion_term(const itpp::cvec &receivedSignal, double n0) const;
-    
-  // public:
-  //   // 1段階しか無い場合
-  //   // しかも一定間隔のSZPにのみ対応
-  //   TurboCodeWithSZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
-  //                          int firstIteration, int secondIteration, int numPads, int judgeBits, bool termination):
-  //     TurboCodeWithSZP(interleaver, constraint, feedforward, feedback, firstIteration, 0, termination),
-  //     judgeBits_(1), levels_(1), secondIteration_(secondIteration), multiPadsPositions_(1, itpp::ivec(numPads))
-  //   {
-  //     judgeBits_[0] = judgeBits;
-
-  //     if (numPads != 0){
-  //       int interval = std::floor(static_cast< double >(interleaver_.size())/static_cast< double >(numPads));
-  //       for (int i = 0; i < numPads; ++i){
-  //         multiPadsPositions_[0][i] = i*interval;
-  //       } // for i
-  //     } // if       
-  //     assert(numPads >= judgeBits);
-  //   }
-
-  //   TurboCodeWithSZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
-  //                          int firstIteration, int secondIteration, 
-  //                          const std::vector< itpp::ivec >& multiPadsPositions, const itpp::ivec &judgeBits,
-  //                          bool termination):
-  //     TurboCodeWithSZP(interleaver, constraint, feedforward, feedback, firstIteration, 0, termination),
-  //     judgeBits_(judgeBits), levels_(judgeBits.size()),
-  //     secondIteration_(secondIteration), multiPadsPositions_(multiPadsPositions)
-  //   {
-  //     assert(static_cast< int >(multiPadsPositions.size()) == judgeBits.size());
-  //   }
-
-  //   virtual ~TurboCodeWithSZP_Judge()
-  //   { }
-
-  //   bool isDecidedInsertion(const itpp::cvec &receivedSignal, double n0) const
-  //   {      
-  //     if (termination_){
-  //       return checkPaddingInsertion_term(receivedSignal, n0);
-  //     } // if
-  //     else{
-  //       return checkPaddingInsertion(receivedSignal, n0);
-  //     } // else
-  //   }
-
-  // };  
-  
-
-  
-  
+  };  
 }
 
 
