@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/27 21:12:09 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/27 21:59:46 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -426,16 +426,34 @@ namespace mylib{
     }
     virtual ~PaddingBitInserter() { }
 
+    // 使用されたzeroPaddings_のインデクスを返す
+    int Pad(const itpp::bvec &input, itpp::bvec *output) const
+    {
+      int index = IndexOfPadding_();
+      *output = zeroPaddings_[index].Pad(input);
+      return index;
+    }
+    
     itpp::bvec Pad(const itpp::bvec &input) const
     {
-      int index = IndexOfPadding_();
-      return zeroPaddings_[index].Pad(input);
+      itpp::bvec output;
+      Pad(input, &output);
+      return output;
     }
 
-    itpp::bvec Nullify(const itpp::bvec &input) const
+    // 使用されたzeroPaddings_のインデクスを返す
+    int Nullify(const itpp::bvec &input, itpp::bvec *output) const
     {
       int index = IndexOfPadding_();
-      return zeroPaddings_[index].Nullify(input);
+      *output = zeroPaddings_[index].Nullify(input);
+      return index;
+    }
+    
+    itpp::bvec Nullify(const itpp::bvec &input) const
+    {
+      itpp::bvec output;
+      Nullify(input, &output);
+      return output;
     }
   };
 
