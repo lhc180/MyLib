@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/27 16:57:53 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/27 17:25:24 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -217,7 +217,7 @@ namespace mylib{
     itpp::ivec padPositions_;
     
   public:
-    ZeroPadding(int frameLength, const itpp::ivec& padPositions = itpp::ivec(0)): frameLength_(frameLength)
+    ZeroPadding(int frameLength = 0, const itpp::ivec& padPositions = itpp::ivec(0)): frameLength_(frameLength)
     {
       SetPadPositions(padPositions);
     }
@@ -256,7 +256,7 @@ namespace mylib{
     virtual void SetupPadPositions_(int numPads);
     
   public:
-    CZP(int frameLength, int numPads = 0): ZeroPadding(frameLength)
+    CZP(int frameLength = 0, int numPads = 0): ZeroPadding(frameLength)
     {
       SetupPadPositions_(numPads);
     }
@@ -272,7 +272,10 @@ namespace mylib{
     virtual void SetupPadPositions_(int numPads);
     
   public:
-    SZI();
+    SZI(int frameLength = 0, int numPads = 0): ZeroPadding(frameLength)
+    {
+      SetupPadPositions_(numPads);
+    }
     virtual ~SZI() { }
 
     virtual void SetNumPads(int numPads) {  SetupPadPositions_(numPads); }

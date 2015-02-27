@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/27 14:33:31 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/27 17:24:32 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -703,13 +703,14 @@ namespace mylib{
   void SZI::SetupPadPositions_(int numPads)
   {
     itpp::ivec padPositions(numPads);
-    int frameLength = ZeroPadding::FrameLength();
-    int padInterval = std::floor(static_cast< double >(frameLength)/static_cast< double >(numPads));
+    if (numPads != 0){
+      int frameLength = ZeroPadding::FrameLength();
+      int padInterval = std::floor(static_cast< double >(frameLength)/static_cast< double >(numPads));
     
-    for (int i = 0; i < numPads; ++i){
-      padPositions[i] = i * padInterval;
-    } // for i
-
+      for (int i = 0; i < numPads; ++i){
+        padPositions[i] = i * padInterval;
+      } // for i
+    } // if numPads
     ZeroPadding::SetPadPositions(padPositions);
   }  
 }
