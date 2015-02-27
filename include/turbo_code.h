@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/27 14:29:44 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/27 16:57:53 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -297,8 +297,8 @@ namespace mylib{
                                double n0) const;    
     
   public:
-    TurboCodeWithZP(const itpp::ivec &interleaver, int constraint, int feedforward, int feedback,
-                    int iteration, const ZeroPadding &zp, bool termination):
+    TurboCodeWithZP(const itpp::ivec &interleaver, int constraint = 3, int feedforward = 05, int feedback = 07,
+                    int iteration = 10, const ZeroPadding &zp = ZeroPadding(0), bool termination = true):
       TurboCode(interleaver, constraint, feedforward, feedback, iteration, termination),
       zeroPadding_(zp)
     { }
