@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/27 21:59:46 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/27 22:05:34 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
