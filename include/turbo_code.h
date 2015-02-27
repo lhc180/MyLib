@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/27 17:25:24 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/27 17:48:12 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -324,6 +324,12 @@ namespace mylib{
     itpp::ivec iterations_;
     std::vector< ZeroPadding > zeroPaddings_; // 最初は0個のパディングビット
     itpp::ivec thresholds_;
+
+  protected:
+    void AssertionCheck_()
+    {
+      assert(iterations_.size() == static_cast< int >(zeroPaddings_.size()) && iterations_.size() == 2);
+    }
     
   public:
     TurboDecodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
@@ -333,7 +339,7 @@ namespace mylib{
       turboCodeZP_(interleaver, constraint, feedforward, feedback, iterations_[0], zp[0], termination),
       iterations_(iterations), zeroPaddings_(zp), thresholds_(judgeBits)
     {
-      assert(iterations.size() == static_cast< int >(zp.size()) && iterations.size() == judgeBits.size());
+      AssertionCheck_();
     }
     
     TurboDecodeWithZP_Judge(const TurboCodeWithZP& turboCode,
@@ -342,7 +348,7 @@ namespace mylib{
       turboCodeZP_(turboCode),
       iterations_(iterations), zeroPaddings_(zp), thresholds_(judgeBits)
     {
-      assert(iterations.size() == static_cast< int >(zp.size()) && iterations.size() == judgeBits.size());
+      AssertionCheck_();
     }
     virtual ~TurboDecodeWithZP_Judge()
     { }
@@ -351,18 +357,23 @@ namespace mylib{
     {
       
       turboCodeZP_.SetIterations(iterations_[0]);
-      turboCodeZP_.SetZeroPadding(0);
+      turboCodeZP_.SetZeroPadding(zeroPaddings_[0]); // 0のはず
 
       turboCodeZP_.Decode(receivedSignal, output, n0);
-        
-      for (int i = 1; i < iterations_.size(); ++i){
-        if (zeroPaddings_[i].JudgeZP(*output, thresholds_[i])) { break; }
+
+      int padCand_i = 0;
+      for (int i = 1; i < static_cast< int >(zeroPaddings_.size()); ++i){
+        if (zeroPaddings_[i].JudgeZP(*output, thresholds_[i])) { 
+          padCand_i = i;
+        }
         else {
-          turboCodeZP_.SetIterations(iterations_[i]);
-          turboCodeZP_.SetZeroPadding(zeroPaddings_[i]);
-          turboCodeZP_.Decode(receivedSignal, output, n0);
+          break;
         }
       } // for i
+      
+      turboCodeZP_.SetZeroPadding(zeroPaddings_[padCand_i]);
+      turboCodeZP_.SetIterations(iterations_[1]);
+      turboCodeZP_.Decode(receivedSignal, output, n0);
     }
     
     itpp::bvec Decode(const itpp::cvec& receivedSignal, double n0)
