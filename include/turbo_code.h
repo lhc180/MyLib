@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/27 17:48:12 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/27 21:12:09 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -326,7 +326,7 @@ namespace mylib{
     itpp::ivec thresholds_;
 
   protected:
-    void AssertionCheck_()
+    void AssertionCheck_() const
     {
       assert(iterations_.size() == static_cast< int >(zeroPaddings_.size()) && iterations_.size() == 2);
     }
@@ -382,9 +382,64 @@ namespace mylib{
       Decode(receivedSignal, &output, n0);
       return output;
     }    
-  };  
-}
+  };
 
+  class PaddingBitInserter
+  {
+  private:
+    std::vector< ZeroPadding > zeroPaddings_; // ºÇ½é¤Ï0¸Ä
+    itpp::vec zpProbs_;
+
+  protected:
+    void AssertionCheck_() const
+    {
+      assert(static_cast< int >(zeroPaddings_.size()) == zpProbs_.size());
+      double totalProb = 0.0;
+      for (int i = 0; i < zpProbs_.size(); ++i){
+        totalProb += zpProbs_[i];
+      } // for i
+      it_assert(totalProb == 1.0, "Sum of probabilities is not equal to 1.");
+    }
+
+    int IndexOfPadding_() const
+    {
+      double randNum = itpp::randu();
+      double cummProbs = 0.0;
+
+      int index = 0;
+      for (int i = 0; i < zpProbs_.size(); ++i){
+        cummProbs += zpProbs_[i];
+        if (randNum <= cummProbs){
+          index = i;
+          break;
+        } // if
+      } // for i
+      std::cerr << "## index = " << index << std::endl;
+      return index;
+    }
+    
+  public:
+    PaddingBitInserter(const std::vector< ZeroPadding >& zp, const itpp::vec& probs):
+      zeroPaddings_(zp), zpProbs_(probs)
+    {
+      AssertionCheck_();
+    }
+    virtual ~PaddingBitInserter() { }
+
+    itpp::bvec Pad(const itpp::bvec &input) const
+    {
+      int index = IndexOfPadding_();
+      return zeroPaddings_[index].Pad(input);
+    }
+
+    itpp::bvec Nullify(const itpp::bvec &input) const
+    {
+      int index = IndexOfPadding_();
+      return zeroPaddings_[index].Nullify(input);
+    }
+  };
+
+}
 
 
 #endif
