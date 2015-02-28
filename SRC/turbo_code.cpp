@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/28 16:54:00 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/28 17:01:32 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -601,7 +601,7 @@ namespace mylib{
       itpp::vec llrToRsc1_mod = zeroPadding_.ModifyLLR(*llrToRsc1);
       
       itpp::vec llrFromRsc1;
-      rsc1_.Decode(in1, llrToRsc1_mod, &llrFromRsc1, n0);
+      rsc1_.Decode(in1, *llrToRsc1, &llrFromRsc1, n0); // ##
       
       itpp::vec llrFromRsc1_mod = zeroPadding_.ModifyLLR(llrFromRsc1);
             
