@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/27 17:24:32 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/28 14:31:39 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -329,7 +329,10 @@ namespace mylib{
   void Rsc::Decode(const itpp::cvec &received, const itpp::vec &logLikelihood_in,
                    itpp::vec *logLikelihood_out, double n0, bool knowLastState) const
   {
-    assert(lastState_ != -1);
+    // assert(lastState_ != -1);
+    if (knowLastState && lastState_ == -1){
+      lastState_ = 0;
+    } // if
     CalcLambda(received, logLikelihood_in, n0, knowLastState);
     CalcLLR_out(received, logLikelihood_in, logLikelihood_out, n0);    
   }
