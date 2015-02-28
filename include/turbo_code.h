@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/27 22:24:02 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/28 14:02:33 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -414,7 +414,6 @@ namespace mylib{
           break;
         } // if
       } // for i
-      std::cerr << "## index = " << index << std::endl;
       return index;
     }
     
