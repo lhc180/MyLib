@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/28 14:31:39 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/28 16:24:25 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -566,23 +566,23 @@ namespace mylib{
     
   }
   
-  void TurboCodeWithZP::doDecode(const itpp::cvec& receivedSignal, itpp::bvec* output,
-                                          double n0) const
-  {
-    assert(receivedSignal.size() % codeRate_.denominator() == 0);
+  // void TurboCodeWithZP::doDecode(const itpp::cvec& receivedSignal, itpp::bvec* output,
+  //                                         double n0) const
+  // {
+  //   assert(receivedSignal.size() % codeRate_.denominator() == 0);
     
-    itpp::cvec in1, in2;
-    SeparateReceivedSignal(receivedSignal, &in1, &in2);
+  //   itpp::cvec in1, in2;
+  //   SeparateReceivedSignal(receivedSignal, &in1, &in2);
     
-    itpp::vec llrToRsc1(interleaver_.size());
-    llrToRsc1.zeros();
+  //   itpp::vec llrToRsc1(interleaver_.size());
+  //   llrToRsc1.zeros();
 
-    this->Decoder(&llrToRsc1, in1, in2, n0, iteration_);
+  //   this->Decoder(&llrToRsc1, in1, in2, n0, iteration_);
     
-    itpp::bvec interleaved_output = rsc2_.HardDecision();
-    (*output) = Deinterleave(interleaved_output, interleaver_);
+  //   itpp::bvec interleaved_output = rsc2_.HardDecision();
+  //   (*output) = Deinterleave(interleaved_output, interleaver_);
       
-  }
+  // }
 
     
   void TurboCodeWithZP::Decoder_term(itpp::vec *llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
@@ -615,29 +615,29 @@ namespace mylib{
     
   }
   
-  void TurboCodeWithZP::doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
-                                         double n0) const
-  {    
-    int memory = rsc1_.Constraint() - 1;
+  // void TurboCodeWithZP::doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
+  //                                        double n0) const
+  // {    
+  //   int memory = rsc1_.Constraint() - 1;
     
-    itpp::cvec in1, in2;
-    SeparateReceivedSignal(receivedSignal, &in1, &in2);
+  //   itpp::cvec in1, in2;
+  //   SeparateReceivedSignal(receivedSignal, &in1, &in2);
 
-    itpp::cvec tail1 = receivedSignal.mid(3*interleaver_.size(), 2*memory);
-    itpp::cvec tail2 = receivedSignal.right(2*memory);
+  //   itpp::cvec tail1 = receivedSignal.mid(3*interleaver_.size(), 2*memory);
+  //   itpp::cvec tail2 = receivedSignal.right(2*memory);
 
-    in1 = itpp::concat(in1, tail1);
-    in2 = itpp::concat(in2, tail2);
+  //   in1 = itpp::concat(in1, tail1);
+  //   in2 = itpp::concat(in2, tail2);
 
-    itpp::vec llrToRsc1(interleaver_.size() + memory);
-    llrToRsc1.zeros();
+  //   itpp::vec llrToRsc1(interleaver_.size() + memory);
+  //   llrToRsc1.zeros();
     
-    this->Decoder_term(&llrToRsc1, in1, in2, n0, iteration_);
+  //   this->Decoder_term(&llrToRsc1, in1, in2, n0, iteration_);
     
-    itpp::bvec interleaved_output = rsc2_.HardDecision();
-    (*output) = Deinterleave(interleaved_output.left(interleaver_.size()), interleaver_);
+  //   itpp::bvec interleaved_output = rsc2_.HardDecision();
+  //   (*output) = Deinterleave(interleaved_output.left(interleaver_.size()), interleaver_);
 
-  }
+  // }
 
   /************************************************************************************
    * ZeroPadding 

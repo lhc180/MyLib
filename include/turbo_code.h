@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/28 16:23:13 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/28 16:25:27 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -289,15 +289,17 @@ namespace mylib{
     ZeroPadding zeroPadding_;
     
   protected:
+    // 以下は基底クラスでvirtualで宣言してある。
     virtual void Decoder(itpp::vec* llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
                               double n0, int iteration) const;
     virtual void Decoder_term(itpp::vec* llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
                                    double n0, int iteration) const;
 
     // Encoderは普通のTurboCodeと同じやつで大丈夫なのでNVIで実際に呼ばれる関数だけ変える
-    virtual void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
-    virtual void doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
-                               double n0) const;    
+    // 以下は基底クラスと中身が同じ
+    // virtual void doDecode(const itpp::cvec &receivedSignal, itpp::bvec *output, double n0) const;
+    // virtual void doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
+    //                            double n0) const;    
     
   public:
     TurboCodeWithZP(const itpp::ivec &interleaver, int constraint = 3, int feedforward = 05, int feedback = 07,
