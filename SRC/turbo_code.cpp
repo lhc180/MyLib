@@ -7,11 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
-<<<<<<< HEAD
- * Last Updated: <2015/02/28 16:32:32 from alcohorhythm.local by yoshito>
-=======
- * Last Updated: <2015/02/28 16:34:25 from alcohorhythm.local by yoshito>
->>>>>>> 07eb333833d2f1011f1f837021b188af81e0efdb
+ * Last Updated: <2015/02/28 16:54:00 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -592,7 +588,7 @@ namespace mylib{
   void TurboCodeWithZP::Decoder_term(itpp::vec *llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
                                           double n0, int iterations) const
   {
-    std::cout << "## zeroPadding_ = " << zeroPadding_.PadPositions() << std::endl;
+    // std::cout << "## zeroPadding_ = " << zeroPadding_.PadPositions() << std::endl;
 
     int memory = rsc1_.Constraint() - 1;
     static itpp::vec llrZeros(0);
