@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/28 17:03:15 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/28 17:14:56 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -648,7 +648,7 @@ namespace mylib{
   {
     itpp::bvec output(input);
     for (int i = 0; i < padPositions_.size(); ++i){
-      output.ins(padPositions_[i], itpp::bvec(0));
+      output.ins(padPositions_[i], itpp::bin(0));
     } // for 
 
     assert(output.size() == frameLength_);
@@ -661,7 +661,7 @@ namespace mylib{
     
     itpp::bvec output(input);
     for (int i = 0; i < padPositions_.size(); ++i){
-      output[padPositions_[i]] = 0;
+      output[padPositions_[i]] = itpp::bin(0);
     } // for i
     return output;
   }
