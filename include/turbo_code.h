@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/28 14:02:33 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/02/28 16:23:13 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -354,8 +354,7 @@ namespace mylib{
     { }
 
     void Decode(const itpp::cvec& receivedSignal, itpp::bvec* output, double n0)
-    {
-      
+    {      
       turboCodeZP_.SetIterations(iterations_[0]);
       turboCodeZP_.SetZeroPadding(zeroPaddings_[0]); // 0¤Î¤Ï¤º
 
