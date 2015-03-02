@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/28 17:20:19 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/03/02 16:37:47 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -377,7 +377,19 @@ namespace mylib{
    ************************************************************************************/
 
   const boost::rational< int > TurboCode::codeRate_(1, 3);
-  
+
+  void TurboCode::ResetLLR_() const
+  {
+    if (termination_){
+      int memory = rsc1_.Constraint() - 1;
+      llrToRsc1_ = itpp::vec(interleaver_.size() + memory);
+      llrToRsc1_.zeros();
+    } // if
+    else{
+      llrToRsc1_ = itpp::vec(interleaver_.size());
+      llrToRsc1_.zeros();               // ## ここで提案法入れられるかも
+    } // else 
+  }
     
   void TurboCode::doEncode(const itpp::bvec &input, itpp::bvec *output) const
   {
@@ -430,10 +442,7 @@ namespace mylib{
     itpp::cvec in1, in2;
     SeparateReceivedSignal(receivedSignal, &in1, &in2);
     
-    itpp::vec llrToRsc1(interleaver_.size());
-    llrToRsc1.zeros();               // ## ここで提案法入れられるかも
-
-    Decoder(&llrToRsc1, in1, in2, n0, iteration_);
+    Decoder(in1, in2, n0, iteration_);
 
     itpp::bvec interleaved_output = rsc2_.HardDecision();
     (*output) = Deinterleave(interleaved_output, interleaver_);
@@ -473,25 +482,26 @@ namespace mylib{
     *output = itpp::concat(*output, codeTail2);
   }
 
-  void TurboCode::Decoder(itpp::vec *llrToRsc1, const itpp::cvec &in1,
+  void TurboCode::Decoder(const itpp::cvec &in1,
                           const itpp::cvec &in2, double n0, int iteration) const
   {
     for (int ite = 0; ite < iteration; ++ite){
       itpp::vec llrFromRsc1;
-      rsc1_.Decode(in1, *llrToRsc1, &llrFromRsc1, n0);
+      rsc1_.Decode(in1, llrToRsc1_, &llrFromRsc1, n0);
       
       itpp::vec llrToRsc2 = Interleave(llrFromRsc1, interleaver_);
 
       itpp::vec llrFromRsc2;
       rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
       
-      *llrToRsc1 = Deinterleave(llrFromRsc2, interleaver_);
+      llrToRsc1_ = Deinterleave(llrFromRsc2, interleaver_);
     } // for ite
     
   }
 
-  void TurboCode::Decoder_term(itpp::vec *llrToRsc1, const itpp::cvec &in1, const itpp::cvec &in2,
-                                      double n0, int iteration) const
+  void TurboCode::Decoder_term(const itpp::cvec &in1,
+                               const itpp::cvec &in2,
+                               double n0, int iteration) const
   {
     int memory = rsc1_.Constraint() - 1;
     static itpp::vec llrZeros(0);
@@ -502,7 +512,7 @@ namespace mylib{
 
     for (int ite = 0; ite < iteration; ++ite){
       itpp::vec llrFromRsc1;
-      rsc1_.Decode(in1, *llrToRsc1, &llrFromRsc1, n0);
+      rsc1_.Decode(in1, llrToRsc1_, &llrFromRsc1, n0);
 
       itpp::vec llrToRsc2 = Interleave(llrFromRsc1.left(interleaver_.size()), interleaver_);
       llrToRsc2 = itpp::concat(llrToRsc2, llrZeros);
@@ -510,9 +520,8 @@ namespace mylib{
       itpp::vec llrFromRsc2;
       rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
 
-      *llrToRsc1 = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
-      *llrToRsc1 = itpp::concat(*llrToRsc1, llrZeros);
-      
+      llrToRsc1_ = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
+      llrToRsc1_ = itpp::concat(llrToRsc1_, llrZeros);
     } // for ite
 
   }
@@ -530,11 +539,8 @@ namespace mylib{
 
     in1 = itpp::concat(in1, tail1);
     in2 = itpp::concat(in2, tail2);
-
-    itpp::vec llrToRsc1(interleaver_.size() + memory);
-    llrToRsc1.zeros();
-
-    Decoder_term(&llrToRsc1, in1, in2, n0, iteration_);
+    
+    Decoder_term(in1, in2, n0, iteration_);
     
     itpp::bvec interleaved_output = rsc2_.HardDecision();
     (*output) = Deinterleave(interleaved_output.left(interleaver_.size()), interleaver_);
@@ -545,11 +551,11 @@ namespace mylib{
    * 
    * Implementation of Turbo Code with Zero Padding
    ************************************************************************************/
-  void TurboCodeWithZP::Decoder(itpp::vec *llrToRsc1, const itpp::cvec &in1,
-                                     const itpp::cvec &in2, double n0, int iterations) const
+  void TurboCodeWithZP::Decoder(const itpp::cvec &in1,
+                                const itpp::cvec &in2, double n0, int iterations) const
   {
     for (int ite = 0; ite < iterations; ++ite){
-      itpp::vec llrToRsc1_mod = zeroPadding_.ModifyLLR(*llrToRsc1);
+      itpp::vec llrToRsc1_mod = zeroPadding_.ModifyLLR(llrToRsc1_);
       
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1_mod, &llrFromRsc1, n0);
@@ -561,7 +567,7 @@ namespace mylib{
       itpp::vec llrFromRsc2;
       rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
 
-      *llrToRsc1 = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
+      llrToRsc1_ = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
     } // for ite
     
   }
@@ -585,8 +591,9 @@ namespace mylib{
   // }
 
     
-  void TurboCodeWithZP::Decoder_term(itpp::vec *llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
-                                          double n0, int iterations) const
+  void TurboCodeWithZP::Decoder_term(const itpp::cvec& in1,
+                                     const itpp::cvec& in2,
+                                     double n0, int iterations) const
   {
     // std::cout << "## zeroPadding_ = " << zeroPadding_.PadPositions() << std::endl;
 
@@ -598,7 +605,7 @@ namespace mylib{
     } // if
     
     for (int ite = 0; ite < iterations; ++ite){
-      itpp::vec llrToRsc1_mod = zeroPadding_.ModifyLLR(*llrToRsc1);
+      itpp::vec llrToRsc1_mod = zeroPadding_.ModifyLLR(llrToRsc1_);
       
       itpp::vec llrFromRsc1;
       rsc1_.Decode(in1, llrToRsc1_mod, &llrFromRsc1, n0);
@@ -611,8 +618,8 @@ namespace mylib{
       itpp::vec llrFromRsc2;
       rsc2_.Decode(in2, llrToRsc2, &llrFromRsc2, n0);
 
-      *llrToRsc1 = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
-      *llrToRsc1 = itpp::concat(*llrToRsc1, llrZeros);
+      llrToRsc1_ = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
+      llrToRsc1_ = itpp::concat(llrToRsc1_, llrZeros);
     } // for ite
     
   }

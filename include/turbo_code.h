@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/02/28 16:25:27 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/03/02 16:38:40 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -122,8 +122,11 @@ namespace mylib{
     static const boost::rational< int > codeRate_; // 符号化率は1/3で固定
     int iteration_;
     const bool termination_;
+    mutable itpp::vec llrToRsc1_;
 
   protected:
+    virtual void ResetLLR_() const;
+    
     virtual void doEncode(const itpp::bvec& input, itpp::bvec* output) const; // NVI
     virtual void doEncode_term(const itpp::bvec& input, itpp::bvec* output) const;
     
@@ -133,11 +136,11 @@ namespace mylib{
     virtual void doDecode_term(const itpp::cvec& receivedSignal, itpp::bvec* output,
                                double n0) const;
 
-    virtual void Decoder(itpp::vec* llrToRsc1, const itpp::cvec& in1,
+    virtual void Decoder(const itpp::cvec& in1,
                          const itpp::cvec& in2,
                          double n0, int iteration) const;
     
-    virtual void Decoder_term(itpp::vec* llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
+    virtual void Decoder_term(const itpp::cvec& in1, const itpp::cvec& in2,
                               double n0, int iteration) const;
     
     // 受信信号をデコーダー1と2用に分ける
@@ -151,7 +154,9 @@ namespace mylib{
       interleaver_(interleaver), rsc1_(constraint, feedforward, feedback),
       rsc2_(constraint, feedforward, feedback), iteration_(iteration),
       termination_(termination)
-    { }
+    {
+      ResetLLR_();
+    }
 
     virtual ~TurboCode()
     { }
@@ -177,8 +182,12 @@ namespace mylib{
     }
 
     // Log-Map Decode
-    void Decode(const itpp::cvec& receivedSignal, itpp::bvec* output, double n0) const
+    void Decode(const itpp::cvec& receivedSignal, itpp::bvec* output, double n0, bool reset = true) const
     {
+      if (reset){
+        ResetLLR_();
+      } // if 
+      
       if (termination_){
         doDecode_term(receivedSignal, output, n0);
       } // if termination_
@@ -186,10 +195,10 @@ namespace mylib{
         doDecode(receivedSignal, output, n0); 
       } 
     }
-    itpp::bvec Decode(const itpp::cvec& receivedSignal, double n0) const
+    itpp::bvec Decode(const itpp::cvec& receivedSignal, double n0, bool reset = true) const
     {
       itpp::bvec output;
-      Decode(receivedSignal, &output, n0);
+      Decode(receivedSignal, &output, n0, reset);
       return output;
     }
     
@@ -290,9 +299,9 @@ namespace mylib{
     
   protected:
     // 以下は基底クラスでvirtualで宣言してある。
-    virtual void Decoder(itpp::vec* llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
+    virtual void Decoder(const itpp::cvec& in1, const itpp::cvec& in2,
                               double n0, int iteration) const;
-    virtual void Decoder_term(itpp::vec* llrToRsc1, const itpp::cvec& in1, const itpp::cvec& in2,
+    virtual void Decoder_term(const itpp::cvec& in1, const itpp::cvec& in2,
                                    double n0, int iteration) const;
 
     // Encoderは普通のTurboCodeと同じやつで大丈夫なのでNVIで実際に呼ばれる関数だけ変える
@@ -374,7 +383,7 @@ namespace mylib{
       
       turboCodeZP_.SetZeroPadding(zeroPaddings_[padCand_i]);
       turboCodeZP_.SetIterations(iterations_[1]);
-      turboCodeZP_.Decode(receivedSignal, output, n0);
+      turboCodeZP_.Decode(receivedSignal, output, n0, false);
     }
     
     itpp::bvec Decode(const itpp::cvec& receivedSignal, double n0)
