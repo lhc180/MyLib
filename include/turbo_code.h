@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/03/02 16:38:40 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/03/03 14:31:56 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -339,7 +339,7 @@ namespace mylib{
   protected:
     void AssertionCheck_() const
     {
-      assert(iterations_.size() == static_cast< int >(zeroPaddings_.size()) && iterations_.size() == 2);
+      assert(thresholds_.size() == static_cast< int >(zeroPaddings_.size()) && iterations_.size() == 2);
     }
     
   public:

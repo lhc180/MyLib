@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/03/02 16:37:47 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/03/02 17:02:29 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -620,8 +620,7 @@ namespace mylib{
 
       llrToRsc1_ = Deinterleave(llrFromRsc2.left(interleaver_.size()), interleaver_);
       llrToRsc1_ = itpp::concat(llrToRsc1_, llrZeros);
-    } // for ite
-    
+    } // for ite    
   }
   
   // void TurboCodeWithZP::doDecode_term(const itpp::cvec &receivedSignal, itpp::bvec *output,
