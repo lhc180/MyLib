@@ -7,7 +7,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/03/02 17:02:29 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/03/04 16:29:34 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 // #include <boost/thread.hpp>
 #include "../include/myutl.h"
@@ -653,8 +653,8 @@ namespace mylib{
   itpp::bvec ZeroPadding::Pad(const itpp::bvec& input) const
   {
     itpp::bvec output(input);
-    for (int i = 0; i < padPositions_.size(); ++i){
-      output.ins(padPositions_[i], itpp::bin(0));
+    for (auto curPosition = padPositions_.begin(); curPosition != padPositions_.end(); ++curPosition){
+      output.ins(*curPosition, itpp::bin(0));
     } // for 
 
     assert(output.size() == frameLength_);
@@ -666,18 +666,24 @@ namespace mylib{
     assert(input.size() == frameLength_);
     
     itpp::bvec output(input);
-    for (int i = 0; i < padPositions_.size(); ++i){
-      output[padPositions_[i]] = itpp::bin(0);
+    for (auto curPosition = padPositions_.begin(); curPosition != padPositions_.end(); ++curPosition){
+      output[*curPosition] = itpp::bin(0);
     } // for i
     return output;
   }
 
-  bool ZeroPadding::JudgeZP(const itpp::bvec& input, int threshold) const
+  inline bool ZeroPadding::JudgeZP(const itpp::bvec& input) const
+  {
+    return JudgeZP(input, padPositions_);
+  }
+
+  bool ZeroPadding::JudgeZP(const itpp::bvec& input, const std::set< int > &padPositions)
   {
     int numZeros = 0;
-    
-    for (int i = 0; i < padPositions_.size(); ++i){
-      numZeros += static_cast< int >(!input[padPositions_[i]]);
+    int threshold = PresetPaddingThreshold.at(padPositions.size());
+
+    for (auto curPosition = padPositions.begin(); curPosition != padPositions.end(); ++curPosition){
+      numZeros += static_cast< int >(!input[*curPosition]);
     } // for i
 
     if (numZeros >= threshold){
@@ -687,13 +693,13 @@ namespace mylib{
       return false;
     } // else 
   }
-
+  
   itpp::vec ZeroPadding::ModifyLLR(const itpp::vec &llr, double replacedLLR) const
   {
     itpp::vec output(llr);
-    
-    for (int i = 0; i < padPositions_.size(); ++i){
-      output[padPositions_[i]] = replacedLLR;
+
+    for (auto curPosition = padPositions_.begin(); curPosition != padPositions_.end(); ++curPosition){
+      output[*curPosition] = replacedLLR;
     } // for i
 
     return output;
@@ -701,11 +707,11 @@ namespace mylib{
   
   void CZP::SetupPadPositions_(int numPads)
   {
-    itpp::ivec padPositions(numPads);
+    std::set< int > padPositions;
     int frameLength = ZeroPadding::FrameLength();
     
     for (int i = 0; i < numPads; ++i){
-      padPositions[i] = frameLength - numPads + i;
+      padPositions.insert(frameLength - numPads + i);
     } // for i
 
     ZeroPadding::SetPadPositions(padPositions);
@@ -713,13 +719,13 @@ namespace mylib{
 
   void SZI::SetupPadPositions_(int numPads)
   {
-    itpp::ivec padPositions(numPads);
+    std::set< int > padPositions;
     if (numPads != 0){
       int frameLength = ZeroPadding::FrameLength();
       int padInterval = std::floor(static_cast< double >(frameLength)/static_cast< double >(numPads));
     
       for (int i = 0; i < numPads; ++i){
-        padPositions[i] = i * padInterval;
+        padPositions.insert(i * padInterval);
       } // for i
     } // if numPads
     ZeroPadding::SetPadPositions(padPositions);

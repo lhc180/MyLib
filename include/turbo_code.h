@@ -10,10 +10,12 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/03/04 11:57:06 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/03/04 17:10:36 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
+#include <map>
+#include <set>
 #include <boost/rational.hpp>
 #include <itpp/itcomm.h>
 
@@ -22,7 +24,6 @@ namespace mylib{
     itpp::bin output_;
     int nextState_;
   };
-
   
   class Rsc
   {
@@ -219,14 +220,26 @@ namespace mylib{
     
   };
 
+  // Keyがパディングビットの数
+  // Valueが閾値
+  // 必ずこの中の組み合わせから使わなければいけない
+  // 新たに必要になったら適宜増やす
+  const std::map< int, int > PresetPaddingThreshold {
+    {0, 0},
+      {64, 57},
+        {128, 100},
+          {256, 179},
+            {512, 329},
+  };
+  
   class ZeroPadding
   {
   private:
     int frameLength_;
-    itpp::ivec padPositions_;
+    std::set< int > padPositions_;
     
   public:
-    ZeroPadding(int frameLength = 0, const itpp::ivec& padPositions = itpp::ivec(0)): frameLength_(frameLength)
+    ZeroPadding(int frameLength = 0, const std::set< int > padPositions = std::set<int>()): frameLength_(frameLength)
     {
       SetPadPositions(padPositions);
     }
@@ -236,13 +249,12 @@ namespace mylib{
     int FrameLength() const { return frameLength_; } 
     void SetFrameLength(int frameLength) { frameLength_ = frameLength; }
     
-    itpp::ivec PadPositions() const { return padPositions_; } // ゲッタ
+    std::set< int > PadPositions() const { return padPositions_; } // ゲッタ
 
     // 内部でソートされる
-    virtual void SetPadPositions(const itpp::ivec& padPositions)
+    virtual void SetPadPositions(const std::set< int >& padPositions)
     {
       padPositions_ = padPositions;
-      itpp::sort(padPositions_);
     }
     
     // ++++ Encoder side ++++
@@ -254,7 +266,9 @@ namespace mylib{
     virtual itpp::bvec Nullify(const itpp::bvec& input) const;
 
     // ++++ Decoder side ++++
-    virtual bool JudgeZP(const itpp::bvec& input, int threshold) const;
+    virtual bool JudgeZP(const itpp::bvec& input) const;
+
+    static bool JudgeZP(const itpp::bvec& input, const std::set< int > &padPositions);
 
     virtual itpp::vec ModifyLLR(const itpp::vec& llr, double replacedLLR = -50) const;
   };
@@ -334,32 +348,62 @@ namespace mylib{
     TurboCodeWithZP turboCodeZP_;
     itpp::ivec iterations_;
     std::vector< ZeroPadding > zeroPaddings_; // 最初は0個のパディングビット
-    itpp::ivec thresholds_;
-
-  protected:
-    void AssertionCheck_() const
+    mutable std::vector< std::set< int > > complementPadPositions_;
+    
+    std::set< int > Complement(const std::set< int > &superSet, const std::set< int > &subset)
     {
-      assert(thresholds_.size() == static_cast< int >(zeroPaddings_.size()) && iterations_.size() == 2);
+      std::set< int > setComplement(superSet);
+      for (auto cur_elem = subset.begin(); cur_elem != subset.end(); ++cur_elem){
+        setComplement.erase(*cur_elem);
+      } // for cur_elem
+      return setComplement;
+    }
+    
+  protected:
+    virtual void AssertionCheck_() const
+    {
+      assert(iterations_.size() == 2);
+    }
+
+    virtual void buildComplementPadPositions_() 
+    {
+      complementPadPositions_ = std::vector< std::set< int > >(zeroPaddings_.size());
+      for (int i = 0; i < static_cast< int >(zeroPaddings_.size()); ++i){
+        complementPadPositions_[i] = zeroPaddings_[i].PadPositions();
+        for (int j = 0; j < i; ++j){
+          complementPadPositions_[i] = Complement(complementPadPositions_[i], complementPadPositions_[j]); 
+        }   // j
+
+        // ####++++
+        std::cout << "complementPadPositions_[" << i << "] = " << std::endl;
+        for (auto cur_pos = complementPadPositions_[i].begin(); cur_pos != complementPadPositions_[i].end();
+             ++cur_pos){
+          std::cout << *cur_pos << ' ';
+        } // for cur_pos
+        std::cout << std::endl;
+        // ####----
+        
+      }     // i
     }
     
   public:
     TurboDecodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
-                          const itpp::ivec& iterations, const std::vector< ZeroPadding >& zp, 
-                          const itpp::ivec& judgeBits,
+                          const itpp::ivec& iterations, const std::vector< ZeroPadding >& zp,
                           bool termination):
       turboCodeZP_(interleaver, constraint, feedforward, feedback, iterations_[0], zp[0], termination),
-      iterations_(iterations), zeroPaddings_(zp), thresholds_(judgeBits)
+      iterations_(iterations), zeroPaddings_(zp)
     {
       AssertionCheck_();
+      buildComplementPadPositions_();
     }
     
     TurboDecodeWithZP_Judge(const TurboCodeWithZP& turboCode,
-                          const itpp::ivec& iterations, const std::vector< ZeroPadding >& zp, 
-                          const itpp::ivec& judgeBits):
+                            const itpp::ivec& iterations, const std::vector< ZeroPadding >& zp):
       turboCodeZP_(turboCode),
-      iterations_(iterations), zeroPaddings_(zp), thresholds_(judgeBits)
+      iterations_(iterations), zeroPaddings_(zp)
     {
       AssertionCheck_();
+      buildComplementPadPositions_();
     }
     virtual ~TurboDecodeWithZP_Judge()
     { }
@@ -373,7 +417,7 @@ namespace mylib{
 
       int padCand_i = 0;
       for (int i = 1; i < static_cast< int >(zeroPaddings_.size()); ++i){
-        if (zeroPaddings_[i].JudgeZP(*output, thresholds_[i])) { 
+        if (ZeroPadding::JudgeZP(*output, complementPadPositions_[i])) { 
           padCand_i = i;
         }
         else {
@@ -396,6 +440,7 @@ namespace mylib{
     }    
   };
 
+  // Multiple padding の場合は小さい数の位置は必ず大きい数の位置に含まれる。
   class PaddingBitInserter
   {
   private:
