@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/03/04 17:10:36 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/03/04 17:34:32 from alcohorhythm.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -424,8 +424,6 @@ namespace mylib{
           break;
         }
       } // for i
-
-      std::cout << "## decoder padCand_i = " << padCand_i << std::endl;
       
       turboCodeZP_.SetZeroPadding(zeroPaddings_[padCand_i]);
       turboCodeZP_.SetIterations(iterations_[1]);
