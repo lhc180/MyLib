@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-g -Wall -fPIC -O3
+CFLAGS=-g -Wall -fPIC -O3 -std=c++11
 LIB=-litpp -lgsl -ljpeg -ltiff
 DSPOBJS=distortion.o quantizer.o
 AUOBJS=pqmf.o wav.o mpeg_binary.o mpeg_decoder.o mpeg_file.o mpeg_frame.o bit_stream.o
