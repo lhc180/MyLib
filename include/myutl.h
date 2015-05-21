@@ -194,6 +194,58 @@ namespace mylib
     } // for i
     return output;
   }
+
+  
+  inline itpp::bvec byte2bvec(const u_char *data, int size)
+  {
+    // MSBから先に格納する
+    itpp::bvec output(size * 8);
+
+    int bit = 0;
+    for (int i = 0; i < size; ++i){
+      for (int shift = 7; shift >= 0; --shift){
+        output[bit] =(data[i] >> shift) & 0x1;
+        ++bit;
+      } // for shift
+    } // for i
+
+    return output;
+  }
+
+  inline int BytesOfBinary(const itpp::bvec& input)
+  {
+    return std::ceil(static_cast< double >(input.size()) / 8.0);
+  }
+
+  // dataのdeleteは各自に委ねられる
+  inline int bvec2byte(const itpp::bvec& input, u_char **data)
+  {
+    int size = BytesOfBinary(input);
+    *data = new u_char[size];
+    
+    for (int bit = 0; bit < input.size(); ++bit){
+      int i = bit / 8;
+      int shift = 7 - (bit % 8);
+      
+      (*data)[i] |= int(input[bit]) << shift;
+    } // for bit
+    
+    return size;
+  }
+
+  inline itpp::bvec Vec2Bvec(const std::vector< u_char > &vec)
+  {
+    return byte2bvec(vec.data(), vec.size());
+  }
+
+  inline std::vector< u_char > Bvec2Vec(const itpp::bvec &input)
+  {
+    u_char *data;
+
+    int size = bvec2byte(input, &data);
+    
+    return std::vector< u_char >(&data[0], &data[size]);
+  }
   
 } // end of namespace mylib
 
