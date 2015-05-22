@@ -10,7 +10,7 @@
  *   class Rsc
  *   class TurboCode
  *
- * Last Updated: <2015/03/04 17:34:32 from alcohorhythm.local by yoshito>
+ * Last Updated: <2015/05/22 11:21:53 from WatanabeYoshito-no-iMac.local by yoshito>
  ************************************************************************************/
 
 #include <cassert>
@@ -390,7 +390,7 @@ namespace mylib{
     TurboDecodeWithZP_Judge(const itpp::ivec& interleaver, int constraint, int feedforward, int feedback,
                           const itpp::ivec& iterations, const std::vector< ZeroPadding >& zp,
                           bool termination):
-      turboCodeZP_(interleaver, constraint, feedforward, feedback, iterations_[0], zp[0], termination),
+      turboCodeZP_(interleaver, constraint, feedforward, feedback, iterations[0], zp[0], termination),
       iterations_(iterations), zeroPaddings_(zp)
     {
       AssertionCheck_();

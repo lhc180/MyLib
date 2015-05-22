@@ -195,6 +195,11 @@ namespace mylib
     return output;
   }
 
+  inline int bytesOfBinary(const itpp::bvec& input)
+  {
+    return std::ceil(static_cast< double >(input.size()) / 8.0);
+  }
+
   
   inline itpp::bvec byte2bvec(const u_char *data, int size)
   {
@@ -211,16 +216,11 @@ namespace mylib
 
     return output;
   }
-
-  inline int BytesOfBinary(const itpp::bvec& input)
-  {
-    return std::ceil(static_cast< double >(input.size()) / 8.0);
-  }
-
+  
   // dataのdeleteは各自に委ねられる
   inline int bvec2byte(const itpp::bvec& input, u_char **data)
   {
-    int size = BytesOfBinary(input);
+    int size = bytesOfBinary(input);
     *data = new u_char[size];
     
     for (int bit = 0; bit < input.size(); ++bit){
@@ -233,12 +233,12 @@ namespace mylib
     return size;
   }
 
-  inline itpp::bvec Vec2Bvec(const std::vector< u_char > &vec)
+  inline itpp::bvec stdVec2bvec(const std::vector< u_char > &vec)
   {
     return byte2bvec(vec.data(), vec.size());
   }
 
-  inline std::vector< u_char > Bvec2Vec(const itpp::bvec &input)
+  inline std::vector< u_char > bvec2stdVec(const itpp::bvec &input)
   {
     u_char *data;
 
